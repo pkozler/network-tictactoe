@@ -1,0 +1,13 @@
+CC = gcc
+CFLAGS = -std=c11 -lm -O2 -lpthread
+BIN = server
+OBJ = connection.o game.o thread.o main.o
+
+$(BIN): $(OBJ)
+	$(CC) $^ -o $@ $(CFLAGS)
+
+%.o: %.c
+	$(CC) -c $< -o $@
+
+clean:
+	rm -f $(OBJ)

@@ -1,0 +1,32 @@
+Server spuštěn pro poslouchání všech IP adres na portu: 10001
+Příchozí spojení 127.0.0.1:55062
+Vytvořeno vlákno s ID: 1
+Odesláno klientské ID vlákna: 1
+Klient 1: zahájeno odesílání seznamu her.
+Příchozí spojení 127.0.0.1:55063
+Vytvořeno vlákno s ID: 2
+Odesláno klientské ID vlákna: 2
+Klient 2: zahájeno odesílání seznamu her.
+Klient 2: zahájen příjem požadavku na výběr hry.
+Klient 2: hráč požaduje vytvoření nové hry.
+Klient 2: na požadavek hráče byla vytvořena hra s ID 1.
+Klient 2: hráč se připojil ke hře s ID 1 na pozici 1.
+Klient 2: ukončeno odesílání seznamu her.
+Klient 2: zahájeno odesílání stavu hry.
+Klient 2: spojení přerušeno.
+Příchozí spojení 127.0.0.1:55064
+Vytvořeno vlákno s ID: 3
+Odesláno klientské ID vlákna: 3
+Klient 3: zahájeno odesílání seznamu her.
+Klient 1: zahájen příjem požadavku na výběr hry.
+Klient 1: hráč požaduje vytvoření nové hry.
+Klient 1: na požadavek hráče byla vytvořena hra s ID 2.
+Klient 1: hráč se připojil ke hře s ID 2 na pozici 1.
+Klient 1: ukončeno odesílání seznamu her.
+Klient 1: zahájeno odesílání stavu hry.
+Klient 1: spojení přerušeno.
+Příchozí spojení 127.0.0.1:55065
+Vytvořeno vlákno s ID: 4
+Odesláno klientské ID vlákna: 4
+Klient 4: zahájeno odesílání seznamu her.
+Klient 4: spojení přerušeno.
