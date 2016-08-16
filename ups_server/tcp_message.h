@@ -5,14 +5,14 @@
  */
 
 /* 
- * File:   game.h
+ * File:   tcp_message.h
  * Author: petr
  *
- * Created on 10. srpna 2016, 20:36
+ * Created on 10. srpna 2016, 20:33
  */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef TCP_MESSAGE_H
+#define TCP_MESSAGE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +25,5 @@ extern "C" {
 }
 #endif
 
-#endif /* GAME_H */
+#endif /* TCP_MESSAGE_H */
 

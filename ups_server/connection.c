@@ -1,29 +1,21 @@
 #include "connection.h"
+#include "config.h"
+#include "console.h"
+#include "logger.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <pthread.h>
-
+#include <errno.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "logging.h"
-#include "thread.h"
-
-/*
-    modul s funkcemi pro navazování spojení s klienty
-    a vytváření obslužných vláken pro komunikaci s klienty
-*/
-
-/**
-    Vytvoří server-socket.
-*/
-int create_srv_sock(int32_t sock_host, int32_t sock_port) {
+void create_serversocket(int32_t host, int32_t port) {
     int srv_sock;
     struct sockaddr_in srv_addr;
 
@@ -31,7 +23,7 @@ int create_srv_sock(int32_t sock_host, int32_t sock_port) {
     srv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (srv_sock < 0) {
-        err("socket()");
+        log("Chyba při vytváření TCP socketu serveru: %s", strerror(errno));
     }
 
     struct timeval timeout;
@@ -40,12 +32,12 @@ int create_srv_sock(int32_t sock_host, int32_t sock_port) {
 
     if (setsockopt (srv_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                 sizeof(timeout)) < 0) {
-        err("setsockopt()");
+        log("Chyba při nastavování timeoutu pro příjem zpráv: %s", strerror(errno));
     }
 
     if (setsockopt (srv_sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
                 sizeof(timeout)) < 0) {
-        err("setsockopt()");
+        log("Chyba při nastavování timeoutu pro odesílání zpráv: %s", strerror(errno));
     }
 
     // nastavení znovupoužití adresy
@@ -55,26 +47,23 @@ int create_srv_sock(int32_t sock_host, int32_t sock_port) {
     // naplnění struktury adresy
     memset(&srv_addr, 0, sizeof(srv_addr));
     srv_addr.sin_family = AF_INET;
-    srv_addr.sin_port = htons(sock_port);
-    srv_addr.sin_addr.s_addr = htonl(sock_host);
+    srv_addr.sin_port = htons(port);
+    srv_addr.sin_addr.s_addr = htonl(host);
 
     // provázání socketu s adresou
     if (bind(srv_sock, (struct sockaddr*) &srv_addr, sizeof(srv_addr)) < 0) {
-        err("bind()");
+        log("Chyba při propojování socketu serveru s IP adresou: %s", strerror(errno));
     }
 
     // nastavení režimu čekání na příchozí spojení
     if (listen(srv_sock, QUEUE_LEN) < 0) {
-        err("listen()");
+        log("Chyba při spouštění poslechu příchozích spojení: %s", strerror(errno));
     }
 
     return srv_sock;
 }
 
-/**
-    Čeká na příchozí spojení s klientem.
-*/
-int accept_cli_sock(int srv_sock) {
+void accept_socket(int srv_sock) {
     int sock;
     struct sockaddr_in addr;
     unsigned int addr_len;
@@ -84,71 +73,51 @@ int accept_cli_sock(int srv_sock) {
 
     do {
         sock = accept(srv_sock, (struct sockaddr *) &addr, &addr_len);
-
-        /*if (sock < 0) {
-            printf("Čekám na spojení s klientem...\n");
-        }*/
     }
     while (sock < 0);
 
-    print("Příchozí spojení %s:%i", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+    log("Příchozí spojení %s:%i\n", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
 
     return sock;
 }
 
-/**
-    Vytvoří strukturu pro uchování stavu hráče,
-    která slouží jako argument pro obslužná vlákna klienta
-    a spustí obslužná vlákna.
-*/
-void create_thread(int sock, int id) {
-    thread_t *thread = (thread_t *) calloc(1, sizeof(thread_t));
+int setup_connection(int32_t host, int32_t port, char *log_file_name) {
+    running = true;
+    start_logging(log_file_name);
+    start_prompt();
+    int srv_sock = create_serversocket(host, port);
+    // TODO vytvorit seznam her a hracu a vynulovat statistiky
+    printf("Server spuštěn.\n");
+    
+    return srv_sock;
+}
 
-    if (thread == NULL) {
-        err("malloc()");
-    }
-
-    thread->client_id = id;
-    thread->sock = sock;
-    pthread_mutex_init(&thread->thread_lock, NULL);
-
-    print("Vytvořeno vlákno s ID: %d", thread->client_id);
-    pthread_mutex_lock(&thread_list_lock);
-
-    if (!add_to_list(&thread_list, thread)) {
-        print("Nepodařilo se vytvořit vlákno pro klienta %d.", thread->client_id);
-        free(thread);
-        return;
-    }
-
-    thread_counter++;
-    pthread_mutex_unlock(&thread_list_lock);
-    thread->connected = true;
-
-    if (pthread_create(&thread->recv_thread, NULL, run_recv_thread, (void *) thread) < 0) {
-        err("pthread_create()");
-    }
-
-    if (pthread_create(&thread->send_thread, NULL, run_send_thread, (void *) thread) < 0) {
-        err("pthread_create()");
+void run_connection(int srv_sock) {
+    while (running) {
+        int cli_sock = accept_socket(srv_sock);
+        // TODO vytvorit hrace
     }
 }
 
-/**
-    Spustí navazování spojení s klienty a vytváření
-    vláken pro komunikaci s nimi.
-*/
-void run_server(int32_t sock_host, int32_t sock_port) {
-    signal(SIGPIPE, SIG_IGN);
-    // vytvoření serversocketu
-    int srv_sock = create_srv_sock(sock_host, sock_port);
+void shutdown_connection(int srv_sock) {
+    // TODO uklidit
+    printf("Server ukončen.\n");
+}
 
-    // inicializace datových struktur obslužných vláken pro klienty
-    for (;;) {
-        // spojení s klientem a vytvoření obslužného vlákna
-        int sock = accept_cli_sock(srv_sock);
-        create_thread(sock, thread_counter + 1);
+void start_server(char *host_arg, char *port_arg, char *log_arg) {
+    int32_t host;
+    int32_t port;
+    char *log_file_name;
+    
+    atexit(shutdown_connection);
+    
+    while (true) {
+        host = parse_host(host_arg);
+        port = parse_port(port_arg);
+        log_file_name = parse_log(log_arg);
+        
+        int srv_sock = setup_connection(host, port, log_file_name);
+        run_connection(srv_sock);
+        shutdown_connection(srv_sock);
     }
-
-    close(srv_sock);
 }

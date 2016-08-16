@@ -5,14 +5,14 @@
  */
 
 /* 
- * File:   game.h
+ * File:   player_symbol.h
  * Author: petr
  *
- * Created on 10. srpna 2016, 20:36
+ * Created on 10. srpna 2016, 21:40
  */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef PLAYER_SYMBOL_H
+#define PLAYER_SYMBOL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +25,5 @@ extern "C" {
 }
 #endif
 
-#endif /* GAME_H */
+#endif /* PLAYER_SYMBOL_H */
 

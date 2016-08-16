@@ -5,14 +5,14 @@
  */
 
 /* 
- * File:   game.h
+ * File:   player_list.h
  * Author: petr
  *
- * Created on 10. srpna 2016, 20:36
+ * Created on 10. srpna 2016, 20:34
  */
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef PLAYER_LIST_H
+#define PLAYER_LIST_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +25,5 @@ extern "C" {
 }
 #endif
 
-#endif /* GAME_H */
+#endif /* PLAYER_LIST_H */
 

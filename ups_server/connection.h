@@ -1,16 +1,10 @@
-#ifndef CONNECTION_H_INCLUDED
-#define CONNECTION_H_INCLUDED
+/* 
+ * Author: Petr Kozler
+ */
 
-#include <pthread.h>
+#ifndef CONNECTION_H
+#define CONNECTION_H
 
-#include "thread.h"
-#include "game.h"
+void start_server(char *host_arg, char *port_arg, char *log_arg);
 
-/*
-    header s deklarací funkce pro spuštění komunikace s klienty
-*/
-
-/* spuštění komunikace */
-void run_server(int, int);
-
-#endif // CONNECTION_H_INCLUDED
+#endif /* CONNECTION_H */
