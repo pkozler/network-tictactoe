@@ -1,3 +1,7 @@
+/* 
+ * Author: Petr Kozler
+ */
+
 #include "config.h"
 #include "connection.h"
 #include <stdlib.h>

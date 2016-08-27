@@ -1,29 +1,34 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
- * File:   player.h
- * Author: petr
- *
- * Created on 10. srpna 2016, 20:36
+ * Author: Petr Kozler
  */
 
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "observed_list.h"
+#include "message.h"
+#include "game.h"
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdint.h>
 
+observed_list_t *g_player_list;
 
+struct GAME;
 
+typedef struct PLAYER {
+    pthread_t thread;
+    pthread_mutex_t lock;
+    bool active;
+    int sock;
+    int32_t id;
+    char *nick;
+    struct GAME *current_game;
+    int32_t index;
+} player_t;
 
-#ifdef __cplusplus
-}
-#endif
+void create_player(int sock);
+void delete_player(player_t *player);
 
 #endif /* PLAYER_H */
 

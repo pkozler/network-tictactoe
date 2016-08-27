@@ -35,16 +35,16 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/broadcast.o \
 	${OBJECTDIR}/connection.o \
 	${OBJECTDIR}/console.o \
+	${OBJECTDIR}/err.o \
 	${OBJECTDIR}/game.o \
-	${OBJECTDIR}/game_list.o \
-	${OBJECTDIR}/list.o \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/player.o \
-	${OBJECTDIR}/player_list.o \
-	${OBJECTDIR}/tcp_message.o
+	${OBJECTDIR}/message.o \
+	${OBJECTDIR}/observed_list.o \
+	${OBJECTDIR}/player.o
 
 
 # C Compiler Flags
@@ -71,6 +71,11 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ups_server: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ups_server ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/broadcast.o: broadcast.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcast.o broadcast.c
+
 ${OBJECTDIR}/connection.o: connection.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -81,20 +86,15 @@ ${OBJECTDIR}/console.o: console.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/console.o console.c
 
+${OBJECTDIR}/err.o: err.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/err.o err.c
+
 ${OBJECTDIR}/game.o: game.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game.o game.c
-
-${OBJECTDIR}/game_list.o: game_list.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_list.o game_list.c
-
-${OBJECTDIR}/list.o: list.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/list.o list.c
 
 ${OBJECTDIR}/logger.o: logger.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -106,20 +106,20 @@ ${OBJECTDIR}/main.o: main.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
 
+${OBJECTDIR}/message.o: message.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/message.o message.c
+
+${OBJECTDIR}/observed_list.o: observed_list.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/observed_list.o observed_list.c
+
 ${OBJECTDIR}/player.o: player.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player.o player.c
-
-${OBJECTDIR}/player_list.o: player_list.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list.o player_list.c
-
-${OBJECTDIR}/tcp_message.o: tcp_message.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_message.o tcp_message.c
 
 # Subprojects
 .build-subprojects:

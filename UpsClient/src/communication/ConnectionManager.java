@@ -14,11 +14,12 @@ import java.net.Socket;
 public class ConnectionManager {
 
     private Socket socket;
-    DataInputStream dis;
-    DataOutputStream dos;
+    private DataInputStream dis;
+    private DataOutputStream dos;
     private InetAddress host;
     private int port;
     private String nick;
+    private boolean connected;
     
     public ConnectionManager(InetAddress host, int port, String nick) {
         this.host = host;
@@ -26,7 +27,7 @@ public class ConnectionManager {
         this.nick = nick;
     }
     
-    public boolean connect() {
+    public void connect() {
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
@@ -38,11 +39,15 @@ public class ConnectionManager {
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-            return true;
+            connected = true;
         }
         catch (IOException ex) {
-            return false;
+            connected = false;
         }
+    }
+    
+    public boolean isConnected() {
+        return connected;
     }
     
     protected void finalize() {
