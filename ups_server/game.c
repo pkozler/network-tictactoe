@@ -4,11 +4,13 @@
 
 #include "game.h"
 #include "err.h"
+#include "config.h"
 #include <stdlib.h>
+#include <string.h>
 
-#define CHECK_FUNC_CNT 4
+/*#define CHECK_FUNC_CNT 4
 
-typedef int8_t (*check_direction)(game_t *game, int8_t player_pos, int8_t x, int8_t y);
+typedef int8_t (*check_direction)(game_t *game, int8_t player_pos, int8_t x, int8_t y);*/
 
 /*
  * Pomocné funkce pro operace s hrami:
@@ -23,8 +25,29 @@ void unlock_game(game_t *game, bool changed) {
     pthread_mutex_unlock(&(game->lock));
 }
 
-bool is_game_name_valid(char *name) {
-    // TODO zkontrolovat format jmena
+bool is_game_board_size_valid(int8_t board_size) {
+    return MIN_BOARD_SIZE <= board_size && board_size <= MAX_BOARD_SIZE;
+}
+
+bool is_game_player_count_valid(int8_t player_count) {
+    return MIN_PLAYERS_SIZE <= player_count && player_count <= MAX_PLAYERS_SIZE;
+}
+
+bool is_game_cell_count_valid(int8_t cell_count) {
+    return MIN_CELL_COUNT <= cell_count && cell_count <= MIN_CELL_COUNT;
+}
+
+bool is_current_player(game_t *game, player_t *player) {
+    return player->current_game_index == game->current_player;
+}
+
+bool is_cell_in_board(game_t *game, int8_t x, int8_t y) {
+    return 0 <= x && x < game->board_size
+            && 0 <= y && y < game->board_size;
+}
+
+bool is_current_player(game_t *game, player_t *player) {
+    return player->current_game_index == game->current_player;
 }
 
 /*
@@ -36,11 +59,22 @@ int32_t count_status_messages(game_t *game) {
 }
 
 message_t *game_to_message(game_t *game) {
-    // TODO implementovat
+    message_t *new_message = create_message(MSG_GAME_STATUS, MSG_GAME_STATUS_ARGC);
+    new_message[0] = game->winner; // TODO prevest na retezec
+    new_message[1] = game->current_player; // TODO prevest na retezec
+    
+    // TODO vypsat herni pole
+    
+    return new_message;
 }
 
 message_t *player_to_message(player_t *player) {
-    // TODO implementovat
+    message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
+    new_message[0] = player->id; // TODO prevest na retezec
+    new_message[1] = player->current_game_index; // TODO prevest na retezec
+    new_message[2] = player->current_game_score; // TODO prevest na retezec
+    
+    return new_message;
 }
 
 message_t **status_to_messages(game_t *game, int32_t count) {
@@ -49,7 +83,7 @@ message_t **status_to_messages(game_t *game, int32_t count) {
    
     int32_t i = 1;
     int32_t j;
-    for (j = 1; j < game->players_size; j++) {
+    for (j = 1; j < game->player_count; j++) {
         if (game->players[j] != NULL) {
             messages[i] = player_to_message(game->players[j]);
             i++;
@@ -61,7 +95,7 @@ message_t **status_to_messages(game_t *game, int32_t count) {
 
 void send_to_current_players(game_t *game, int32_t msgc, message_t **msgv) {
     int32_t i, j;
-    for (j = 0; j < game->players_size; j++) {
+    for (j = 0; j < game->player_count; j++) {
         if (game->players[j] != NULL) {
             for (i = 0; i < msgc; i++) {
                 send_message(msgv[i], game->players[j]->sock);
@@ -77,7 +111,7 @@ void send_game_status(game_t *game) {
     
     int32_t i;
     for (i = 0; i < count; i++) {
-        free(messages[i]);
+        delete_message(messages[i]);
     }
     
     free(messages);
@@ -100,15 +134,15 @@ void run_game(void *arg) {
 }
 
 void create_game(player_t *player, char *name,
-        int8_t board_size, int8_t players_size, int8_t win_row_len) {
+        int8_t board_size, int8_t player_count, int8_t cell_count) {
     game_t *game = calloc(sizeof(game_t), 1);
     pthread_mutex_init(&(game->lock), NULL);
 
-    game->players_size = players_size;
+    game->player_count = player_count;
     game->board_size = board_size;
-    game->win_row_len = win_row_len;
+    game->cell_count = cell_count;
 
-    game->players = calloc(sizeof(player_t *), players_size);
+    game->players = calloc(sizeof(player_t *), player_count);
     game->board = calloc(sizeof(game_cell_t *), board_size);
 
     int8_t i = 0;
@@ -118,7 +152,7 @@ void create_game(player_t *player, char *name,
 
     game->current_player = 1;
     game->player_counter = 0;
-    game->cell_counter = 0;
+    game->occupied_cell_counter = 0;
     game->winner = 0;
     game->active = false;
     game->changed = true;
@@ -140,6 +174,7 @@ void delete_game(game_t *game) {
     free(game->board);
     pthread_cancel(game->thread);
     pthread_mutex_destroy(&(game->lock));
+    
     free(game);
 }
 
@@ -148,8 +183,6 @@ void delete_game(game_t *game) {
  */
 
 void restart_game(game_t *game) {
-    lock_game(game);
-    
     int8_t i;
     for (i = 0; i < game->board_size; i++) {
         free(game->board[i]);
@@ -157,18 +190,26 @@ void restart_game(game_t *game) {
     }
 
     game->current_player = 1;
-    game->cell_counter = 0;
+    game->occupied_cell_counter = 0;
     game->winner = 0;
     game->active = (game->player_counter > 1);
-    
-    unlock_game(game, true);
+}
+
+bool is_game_full(game_t *game) {
+    return game->player_counter == game->player_count;
+}
+
+bool has_game_enough_players(game_t *game) {
+    return game->player_counter > 1;
+}
+
+bool is_game_active(game_t *game) {
+    return game->active;
 }
 
 void add_player(game_t *game, player_t *player) {
-    lock_game(game);
-    
     int8_t i;
-    for (i = 0; i < game->players_size; i++) {
+    for (i = 0; i < game->player_count; i++) {
         if (game->players[i] == NULL) {
             player->current_game = game;
             game->players[i] = player;
@@ -177,8 +218,6 @@ void add_player(game_t *game, player_t *player) {
             break;
         }
     }
-    
-    unlock_game(game, true);
 }
 
 void set_next_player(game_t *game) {
@@ -186,7 +225,7 @@ void set_next_player(game_t *game) {
 
     do {
         i++;
-        i %= game->players_size;
+        i %= game->player_count;
     }
     while(game->players[i] == 0);
 
@@ -194,25 +233,21 @@ void set_next_player(game_t *game) {
 }
 
 void remove_player(game_t *game, player_t *player) {
-    lock_game(game);
-    
     int8_t i;
-    for (i = 0; i < game->players_size; i++) {
+    for (i = 0; i < game->player_count; i++) {
         if (game->players[i] != player) {
             continue;
         }
         
-        if (game->current_player == player->index) {
+        if (game->current_player == player->current_game_index) {
             set_next_player(game);
         }
 
-        player->index = 0;
+        player->current_game_index = 0;
         player->current_game = NULL;
         game->players[i] = NULL;
         game->player_counter--;
     }
-
-    unlock_game(game, true);
 }
 
 /*
@@ -223,8 +258,8 @@ int8_t check_horizontal(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     int8_t counter = 0;
 
     int j;
-    for (j = x - game->win_row_len + 1;
-            j < x + game->win_row_len; j++) {
+    for (j = x - game->cell_count + 1;
+            j < x + game->cell_count; j++) {
         if (j < 0 || j >= game->board_size) {
             continue;
         }
@@ -237,7 +272,7 @@ int8_t check_horizontal(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             counter = 0;
         }
 
-        if (counter >= game->win_row_len) {
+        if (counter >= game->cell_count) {
             return player_pos;
         }
     }
@@ -249,8 +284,8 @@ int8_t check_vertical(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     int8_t counter = 0;
 
     int i;
-    for (i = y - game->win_row_len + 1;
-            i < y + game->win_row_len; i++) {
+    for (i = y - game->cell_count + 1;
+            i < y + game->cell_count; i++) {
         if (i < 0 || i >= game->board_size) {
             continue;
         }
@@ -263,7 +298,7 @@ int8_t check_vertical(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             counter = 0;
         }
 
-        if (counter >= game->win_row_len) {
+        if (counter >= game->cell_count) {
             return player_pos;
         }
     }
@@ -274,18 +309,18 @@ int8_t check_vertical(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
 int8_t check_diag_right(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     int8_t counter = 0;
 
-    int i = y + game->win_row_len - 1;
+    int i = y + game->cell_count - 1;
 
     int j;
-    for (j = x - game->win_row_len + 1;
-            j < x + game->win_row_len
-            && i >= y - game->win_row_len; j++) {
+    for (j = x - game->cell_count + 1;
+            j < x + game->cell_count
+            && i >= y - game->cell_count; j++) {
         if (i < 0 || j < 0 || i >= game->board_size || j >= game->board_size) {
             i--;
             continue;
         }
 
-        if (game->board[i][j] == game->players_size) {
+        if (game->board[i][j] == game->player_count) {
             game->board[i][j].win = true;
             counter++;
         }
@@ -293,7 +328,7 @@ int8_t check_diag_right(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             counter = 0;
         }
 
-        if (counter >= game->win_row_len) {
+        if (counter >= game->cell_count) {
             return player_pos;
         }
 
@@ -306,12 +341,12 @@ int8_t check_diag_right(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
 int8_t check_diag_left(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     int8_t counter = 0;
 
-    int i = y - game->win_row_len + 1;
+    int i = y - game->cell_count + 1;
 
     int j;
-    for (j = x - game->win_row_len + 1;
-            j < x + game->win_row_len
-            && i < y + game->win_row_len; j++) {
+    for (j = x - game->cell_count + 1;
+            j < x + game->cell_count
+            && i < y + game->cell_count; j++) {
         if (i < 0 || j < 0 || i >= game->board_size || j >= game->board_size) {
             i++;
             continue;
@@ -325,7 +360,7 @@ int8_t check_diag_left(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             counter = 0;
         }
 
-        if (counter >= game->win_row_len) {
+        if (counter >= game->cell_count) {
             return player_pos;
         }
 
@@ -340,7 +375,7 @@ bool can_play(game_t *game, int8_t x, int8_t y) {
 }
 
 int8_t get_winner(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
-    check_direction[CHECK_FUNC_CNT];
+    /*check_direction[CHECK_FUNC_CNT];
     check_direction[0] = check_horizontal;
     check_direction[1] = check_vertical;
     check_direction[2] = check_diag_right;
@@ -348,31 +383,51 @@ int8_t get_winner(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     
     int32_t i;
     for (i = 0; i < CHECK_FUNC_CNT; i++) {
-        int8_t winner = check_direction[i];
+        int8_t winner = check_direction[i](game, player_pos, x, y);
         
         if (winner > 0) {
             return winner;
         }
+    }*/
+    
+    int8_t winner = check_horizontal(game, player_pos, x, y);
+    
+    if (winner > 0) {
+        return winner;
+    }
+    
+    winner = check_vertical(game, player_pos, x, y);
+    
+    if (winner > 0) {
+        return winner;
+    }
+    
+    winner = check_diag_right(game, player_pos, x, y);
+    
+    if (winner > 0) {
+        return winner;
+    }
+    
+    winner = check_diag_left(game, player_pos, x, y);
+    
+    if (winner > 0) {
+        return winner;
     }
     
     return 0;
 }
 
 bool is_draw(game_t *game) {
-    return game->cell_counter == game->board_size * game->board_size;
+    return game->occupied_cell_counter == game->board_size * game->board_size;
 }
 
 void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
-    lock_game(game);
-    
     game->board[y][x] = player_pos;
-    game->cell_counter++;
+    game->occupied_cell_counter++;
     set_next_player(game);
 
     game->winner = get_winner(game, player_pos, x, y);
     game->active = game->winner == 0 && !is_draw(game);
-    
-    unlock_game(game, true);
 }
 
 /*
@@ -397,11 +452,25 @@ char *get_game_name(void *item) {
 }
 
 message_t *game_to_msg(void *item) {
-    // TODO implementovat
+    game_t *game = (game_t *) item;
+    message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
+    message->argv[0] = game->id;
+    message->argv[1] = game->name;
+    message->argv[2] = game->player_count;
+    message->argv[3] = game->board_size;
+    message->argv[4] = game->cell_count;
+    message->argv[5] = game->player_counter;
+    message->argv[6] = game->round_counter;
+    message->argv[7] = game->active;
+    
+    return message;
 }
 
 message_t *game_list_to_msg() {
-    // TODO implementovat
+    message_t *message = create_message(MSG_GAME_LIST, MSG_GAME_LIST_ARGC);
+    message->argv[0] = g_player_list->count;
+    
+    return message;
 }
 
 /*

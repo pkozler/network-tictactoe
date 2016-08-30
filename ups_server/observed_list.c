@@ -4,6 +4,7 @@
 
 #include "observed_list.h"
 #include "broadcast.h"
+#include <string.h>
 
 void lock_list(observed_list_t *list) {
     pthread_mutex_lock(&(list->lock));
@@ -12,6 +13,28 @@ void lock_list(observed_list_t *list) {
 void unlock_list(observed_list_t *list, bool changed) {
     list->changed = changed;
     pthread_mutex_unlock(&(list->lock));
+}
+
+bool is_item_id_valid(int32_t id) {
+    return id > 0;
+}
+
+bool is_item_name_valid(char *name) {
+    if (name == NULL || strlen(name) == 0) {
+        return false;
+    }
+    
+    int32_t i;
+    for (i = 0; name[i] != '\0'; i++) {
+        if (   !(name[i] >= 'a' || name[i] <= 'z')
+            && !(name[i] >= 'A' || name[i] <= 'Z')
+            && !(name[i] >= '0' || name[i] <= '9')
+            && !(name[i] == '-' || name[i] == '_')) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 void add_after_node(observed_list_t *list, list_node_t *node, list_node_t *new_node) {
@@ -80,7 +103,6 @@ void remove_node(observed_list_t *list, list_node_t *node) {
 }
 
 void add_to_list(observed_list_t *list, void *item) {
-    lock_list(list);
     list_node_t *new_node = malloc(sizeof(list_node_t));
     new_node->value = item;
     
@@ -111,7 +133,6 @@ void add_to_list(observed_list_t *list, void *item) {
     }
     
     list->count++;
-    unlock_list(list, true);
 }
 
 void *get_from_list_by_id(observed_list_t *list, int32_t id) {
@@ -139,7 +160,6 @@ void *get_from_list_by_name(observed_list_t *list, char *name) {
 }
 
 void *remove_from_list_by_id(observed_list_t *list, int32_t id) {
-    lock_list(list);
     list_node_t *node;
 
     for (node = list->first; node != NULL; node = node->next) {
@@ -151,7 +171,6 @@ void *remove_from_list_by_id(observed_list_t *list, int32_t id) {
     
     list->count--;
     list->changed = true;
-    unlock_list(list, true);
 }
 
 int32_t count_list_messages(observed_list_t *list) {
@@ -179,7 +198,7 @@ void send_list_update(observed_list_t *list) {
     
     int32_t i;
     for (i = 0; i < count; i++) {
-        free(messages[i]);
+        delete_message(messages[i]);
     }
     
     free(messages);

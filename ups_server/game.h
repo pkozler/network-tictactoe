@@ -27,24 +27,26 @@ typedef struct GAME {
     int32_t id;
     char *name;
     int8_t board_size;
-    int8_t win_row_len;
-    int8_t players_size;
+    int8_t cell_count;
+    int8_t player_count;
     int8_t player_counter;
+    int32_t round_counter;
     bool active;
     bool changed;
     struct PLAYER **players;
     int8_t current_player;
     int8_t winner;
-    int16_t cell_counter;
+    int16_t occupied_cell_counter;
     game_cell_t **board;
 } game_t;
 
-void create_game(char *, int8_t, int8_t, int8_t);
+void create_game(player_t *player, char *name,
+        int8_t board_size, int8_t player_count, int8_t cell_count);
 void delete_game(game_t *);
 void restart_game(game_t *);
-int8_t add_player(game_t *, struct PLAYER*);
-int8_t remove_player(game_t *, struct PLAYER*);
-bool play(game_t *, int8_t, int8_t, int8_t);
+void add_player(game_t *, struct PLAYER*);
+void remove_player(game_t *, struct PLAYER*);
+void play(game_t *, int8_t, int8_t, int8_t);
 
 #endif /* GAME_H */
 

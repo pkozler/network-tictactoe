@@ -2,9 +2,67 @@
  * Author: Petr Kozler
  */
 
-#include <stdbool.h>
-
 #include "message.h"
+#include "config.h"
+#include <stdbool.h>
+#include <sys/socket.h>
+#include <string.h>
+
+/**
+ * Provádí postupné čtení ze socketu, dokud nejsou načteny všechny bajty
+ * přijímané zprávy. V případě chyby (např. přerušení spojení) vrací
+ * chybovou hodnotu.
+ * 
+ * @param sock deskriptor socketu příjemce
+ * @param buf blok paměti s bajty určenými k zápisu
+ * @param len počet bajtů určených k zápisu
+ * @return 0 v případě úspěchu, záporná hodnota v případě chyby
+ */
+int read_bytes(int sock, void *buf, unsigned int len) {
+    int bytes_read = 0;
+    int read_result = 0;
+
+    while (bytes_read < len) {
+        read_result = recv(sock, buf + bytes_read, len - bytes_read, 0);
+
+        if (read_result < 0) {
+            // chyba - spojení přerušeno
+            return read_result;
+        }
+
+        bytes_read += read_result;
+    }
+    
+    return 0;
+}
+
+/**
+ * Provádí postupný zápis do socketu, dokud nejsou zapsány všechny bajty
+ * odesílané zprávy. V případě chyby (např. přerušení spojení) vrací
+ * chybovou hodnotu.
+ * 
+ * @param sock deskriptor socketu příjemce
+ * @param buf blok paměti s bajty určenými k zápisu
+ * @param len počet bajtů určených k zápisu
+ * @return 0 v případě úspěchu, záporná hodnota v případě chyby
+ */
+int write_bytes(int sock, void *buf, unsigned int len) {
+    int bytes_wrote = 0;
+    int write_result = 0;
+
+    while (bytes_wrote < len) {
+        write_result = send(sock, buf + bytes_wrote, len - bytes_wrote, 0);
+
+        if (write_result < 0) {
+            // chyba - spojení přerušeno
+            return write_result;
+        }
+
+        bytes_wrote += write_result;
+    }
+    
+    return 0;
+}
 
 /**
  * Načte délku řetězce přijaté zprávy od klienta se zadaným číslem socketu
@@ -17,7 +75,24 @@
  * @return zpráva v textové formě (standardní řetězec, délka smí být nulová) nebo NULL
  */
 char *read_from_socket(int sock) {
-    // TODO implementovat !!!
+    int32_t str_len;
+
+    if (read_bytes(sock, &str_len, sizeof(int32_t)) < 0) {
+        return NULL;
+    }
+    
+    // převod pořadí bajtů čísla délky
+    str_len = ntohl(str_len);
+    
+    char *msg_str = (char *) malloc(sizeof(char) * str_len + 1);
+    
+    if (read_bytes(sock, msg_str, str_len) < 0) {
+        return NULL;
+    }
+    
+    msg_str[str_len] = '\0';
+    
+    return msg_str;
 }
 
 /**
@@ -28,26 +103,23 @@ char *read_from_socket(int sock) {
  * 
  * @param msg_str zpráva v textové formě (standardní řetězec, délka smí být nulová)
  * @param sock deskriptor socketu klienta - příjemce
+ * @return true v případě úspěchu, false v případě chyby
  */
-void write_to_socket(char *msg_str, int sock) {
-    // TODO implementovat !!!
-}
+bool write_to_socket(char *msg_str, int sock) {
+    int32_t str_len = (int32_t) strlen(msg_str); 
 
-/**
- * Provede syntaktickou kontrolu zprávy - ověří, zda může být načtený řetězec
- * platnou zprávou aplikačního protokolu.
- * Na počátku každé platné zprávy je uveden řetězec reprezentující typ předávané
- * zprávy, za ním pak následují argumenty (v závazném pořadí) platné pro daný typ.
- * Jednotlivé tokeny jsou odděleny znakem definovaným v konfiguračním souboru.
- * Výjimkou z uvedených pravidel je řetězec obsahující pouze nulový znak.
- * Takový řetězec značí zprávu s nulovou délkou, která je základem protokolu
- * pro periodické testování odezvy mezi klienty a serverem (heartbeat protokolu).
- * 
- * @param msg_str zpráva v textové formě
- * @return true v případě platné zprávy, jinak false
- */
-bool is_message_valid(char *msg_str) {
-    // TODO implementovat !!!
+    if (write_bytes(sock, &str_len, sizeof(int32_t)) < 0) {
+        return false;
+    }
+    
+    // převod pořadí bajtů čísla délky
+    str_len = htonl(str_len);
+    
+    if (write_bytes(sock, msg_str, str_len) < 0) {
+        return false;
+    }
+    
+    return true;
 }
 
 /**
@@ -61,9 +133,12 @@ bool is_message_valid(char *msg_str) {
 message_t *create_message(char *msg_type, int32_t msg_argc) {
     message_t *message = (message_t *) malloc(sizeof(message_t));
     
-    message->msg_type = msg_type;
-    message->msg_argc = msg_argc;
-    message->msg_argv = (char **) malloc(sizeof(char *) * msg_argc);
+    message->type = msg_type;
+    message->argc = msg_argc;
+    
+    if (message->argc > 0) {
+        message->argv = (char **) malloc(sizeof(char *) * msg_argc);
+    }
     
     return message;
 }
@@ -76,25 +151,72 @@ message_t *create_message(char *msg_type, int32_t msg_argc) {
 void delete_message(message_t *msg) {
     int32_t i;
     
-    for (i = 0; i < msg->msg_argc; i++) {
-        free(msg->msg_argv[i]);
+    for (i = 0; i < msg->argc; i++) {
+        free(msg->argv[i]);
     }
     
-    free(msg->msg_argv);
+    if (msg->argc > 0) {
+        free(msg->argv);
+    }
+    
     free(msg);
 }
 
 /**
- * Přijme zprávu od klienta se zadaným číslem socketu, spustí kontrolu zprávy,
- * a je-li zpráva platná, převede ji z textové formy do formy struktury určené
- * pro další zpracování v programu, kterou předá volající funkci v návratové
- * hodnotě. V případě zjištění neplatné zprávy vrací hodnotu NULL.
+ * Přijme zprávu od klienta se zadaným číslem socketu a převede ji z textové formy
+ * do formy struktury určené pro další zpracování v programu, kterou předá
+ * volající funkci v návratové hodnotě. V případě zjištění neplatné zprávy vrací
+ * hodnotu NULL.
  * 
  * @param sock deskriptor socketu klienta - odesílatele
  * @return přijatá platná zpráva ve formě struktury nebo NULL
  */
 message_t *receive_message(int sock) {
-    // TODO implementovat !!!
+    char *msg_str = read_from_socket(sock);
+    
+    if (msg_str == NULL) {
+        return NULL;
+    }
+    
+    if (strlen(msg_str) == 0) {
+        free(msg_str);
+        
+        return create_message(NULL, 0);
+    }
+    
+    int32_t delim_cnt = 0;
+    
+    char *pch = strpbrk(msg_str, DELIMITER);
+    
+    while (pch != NULL) {
+        delim_cnt++;
+        pch = strpbrk(pch + 1, DELIMITER);
+    }
+    
+    pch = strtok(msg_str, DELIMITER);
+    
+    if (pch == NULL || strlen(pch) == 0) {
+        return NULL;
+    }
+    
+    message_t *message = create_message(pch, delim_cnt);
+    
+    int32_t i = 0;
+    pch = strtok(NULL, DELIMITER);
+    
+    while (pch != NULL) {
+        if (strlen(pch) == 0) {
+            return NULL;
+        }
+        
+        message->argv[i] = pch;
+        i++;
+        pch = strtok(NULL, DELIMITER);
+    }
+    
+    free(msg_str);
+    
+    return message;
 }
 
 /**
@@ -103,7 +225,35 @@ message_t *receive_message(int sock) {
  * 
  * @param msg odesílaná zpráva ve formě struktury
  * @param sock deskriptor socketu klienta - příjemce
+ * @return true v případě úspěchu, false v případě chyby
  */
-void send_message(message_t *msg, int sock) {
-    // TODO implementovat !!!
+bool send_message(message_t *msg, int sock) {
+    char *msg_str;
+    
+    if (msg->type != NULL) {
+        int32_t str_len = strlen(msg->type) + msg->argc;
+        
+        int32_t i;
+        for (i = 0; i < msg->argc; i++) {
+            str_len += strlen(msg->argv[i]);
+        }
+        
+        msg_str = (char *) malloc(sizeof(char) * (str_len + 1));
+        msg_str[0] = '\0';
+        strcat(msg_str, msg->type);
+        
+        for (i = 0; i < msg->argc; i++) {
+            strcat(msg_str, DELIMITER);
+            strcat(msg_str, msg->argv[i]);
+        }
+    }
+    else if (msg->type == NULL && msg->argc = 0) {
+        msg_str = (char *) malloc(sizeof(char));
+        msg_str[0] = '\0';
+    }
+    else {
+        return false;
+    }
+    
+    return write_to_socket(msg_str, sock);
 }

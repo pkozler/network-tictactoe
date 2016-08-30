@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 /**
- * /**
  * Vypíše na obrazovku zadanou chybovou hlášku spolu s popisem chyby podle čísla
  * uloženého v konstantě errno a poté ukončí program.
  * Funkce je určena pro případy výskytu závažné chyby, pro kterou server

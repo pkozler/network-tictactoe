@@ -99,14 +99,13 @@ void clear_stats() {
 
 void send_restart_warning() {
     message_t **messages = (message_t **) malloc(sizeof(message_t *));
-    // messages[0] = create_message() - TODO vytvořit zprávu !!!
+    messages[0] = create_message(MSG_SERVER_SHUTDOWN, MSG_SERVER_SHUTDOWN_ARGC);
     send_to_all_clients(1, messages);
-    free(messages[0]);
+    delete_message(messages[0]);
     free(messages);
 }
 
 int setup_connection(int32_t host, int32_t port, char *log_file_name) {
-    // TODO refaktorovat
     clear_stats();
     g_running = true;
     
@@ -131,7 +130,7 @@ void run_connection(int srv_sock) {
 }
 
 void shutdown_connection(int srv_sock) {
-    // TODO rozeslat zpravu o ukonceni
+    send_restart_warning();
     
     close(srv_sock);
     shutdown_prompt();
