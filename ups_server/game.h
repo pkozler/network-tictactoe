@@ -17,7 +17,7 @@ observed_list_t *g_game_list;
 struct PLAYER;
 
 typedef struct {
-    int32_t index;
+    int8_t index;
     bool win;
 } game_cell_t;
 

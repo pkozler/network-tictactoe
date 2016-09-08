@@ -14,12 +14,15 @@ void send_to_all_clients(int32_t msgc, message_t **msgv) {
     
     int32_t i;
     while (player != NULL) {
+        lock_player(player);
+        
         if (player->active) {
             for (i = 0; i < msgc; i++) {
                 send_message(msgv[i], player->sock);
             }
         }
         
+        unlock_player(player);
         player = (player_t *) get_next_item(iterator);
     }
     

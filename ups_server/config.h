@@ -15,13 +15,12 @@
 #define DEFAULT_PORT 10001 // výchozí port pro naslouchání
 #define QUEUE_LEN 8 // délka fronty pro příchozí spojení
 #define SOCKET_TIMEOUT_SEC 5 // timeout připojení klienta v sekundách
-#define PING_PERIOD_MICROS 1000000 // perioda testování odezvy klienta v mikrosekundách
-#define MIN_BOARD_SIZE "3"
-#define MAX_BOARD_SIZE "12"
-#define MIN_PLAYERS_SIZE "2"
-#define MAX_PLAYERS_SIZE "4"
-#define MIN_CELL_COUNT "2"
-#define MAX_CELL_COUNT "12"
+#define MIN_BOARD_SIZE 3
+#define MAX_BOARD_SIZE 12
+#define MIN_PLAYERS_SIZE 2
+#define MAX_PLAYERS_SIZE 4
+#define MIN_CELL_COUNT 2
+#define MAX_CELL_COUNT 12
 
 /*
  * Dostupné požadavky klienta a počty argumentů:
@@ -94,17 +93,14 @@
 #define MSG_GAME_PLAYER_ARGC 3 // počet argumentů: položka seznamu aktuálních hráčů hry
 
 /*
- * Ošetřované chyby odpovědí serveru:
- */
-
-// TODO dokončit !!!
-
-/*
- * Ostatní konstanty podporované aplikačním protokolem:
+ * Ostatní konstanty aplikačního protokolu:
  */
 
 #define MSG_ACK_ARGC 1 // počet argumentů běžné potvrzovací zprávy
 #define MSG_ERR_ARGC 2 // počet argumentů běžné chybové zprávy
+#define BOARD_CELL_SEED_SIZE 1 // délka řetězce představujícího označení hráče na daném políčku v bajtech
+#define NORMAL_CELL_SYMBOL "_" // označení políčka, které nepatří mezi políčka vítěze, v řetězci zprávy
+#define WINNING_CELL_SYMBOL "W" // označení políčka, které je políčkem vítěze, v řetězci zprávy
 #define MSG_OK "ok" // pozitivní přijetí zprávy (požadavek klienta je v pořádku)
 #define MSG_FAIL "fail" // negativní přijetí zprávy (v požadavku klienta je chyba)
 #define DELIMITER "/" // 1znakový oddělovač tokenů (označení typu a argumentů) zprávy

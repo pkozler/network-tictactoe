@@ -1,14 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package communication;
 
 /**
  *
- * @author petr
+ * @author Petr Kozler
  */
 public class PlayerInfo {
+    public final int ID;
+    public final String NAME;
+    public final int TOTAL_SCORE;
     
+    public PlayerInfo(int id, String name, int totalScore) {
+        ID = id;
+        NAME = name;
+        TOTAL_SCORE = totalScore;
+    }
 }

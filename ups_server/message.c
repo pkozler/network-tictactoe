@@ -8,6 +8,9 @@
 #include <sys/socket.h>
 #include <string.h>
 
+#define BYTE_BUF_LEN 4
+#define INT_BUF_LEN 11
+
 /**
  * Provádí postupné čtení ze socketu, dokud nejsou načteny všechny bajty
  * přijímané zprávy. V případě chyby (např. přerušení spojení) vrací
@@ -120,6 +123,28 @@ bool write_to_socket(char *msg_str, int sock) {
     }
     
     return true;
+}
+
+char *byte_to_string(int8_t i) {
+    char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
+    snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
+    
+    return str;
+}
+
+int8_t string_to_byte(char *str) {
+    return (int8_t) strtol(str);
+}
+
+char *int_to_string(int32_t i) {
+    char *str = (char *) malloc(sizeof(char) * (INT_BUF_LEN + 1));
+    snprintf(str, INT_BUF_LEN + 1, "%d", i);
+    
+    return str;
+}
+
+int32_t string_to_int(char *str) {
+    return (int32_t) strtol(str);
 }
 
 /**

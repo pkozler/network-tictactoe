@@ -47,7 +47,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 connectionManager.connect();
                 
-                if (!connectionManager.isConnected()) {
+                if (!connectionManager.isActive()) {
                     // TODO vypsat zpravu o preruseni spojeni
                     runConnectionTasks();
                 }
@@ -61,7 +61,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 connectionManager.connect();
                 
-                if (connectionManager.isConnected()) {
+                if (connectionManager.isActive()) {
                     // TODO vypsat zpravu o navazani spojeni
                     pingTimer.schedule(pingTimerTask,
                             Config.TIMER_DELAY_MILLIS, Config.TIMER_DELAY_MILLIS);

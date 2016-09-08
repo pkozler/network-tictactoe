@@ -8,10 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*#define CHECK_FUNC_CNT 4
-
-typedef int8_t (*check_direction)(game_t *game, int8_t player_pos, int8_t x, int8_t y);*/
-
 /*
  * Pomocné funkce pro operace s hrami:
  */
@@ -59,20 +55,34 @@ int32_t count_status_messages(game_t *game) {
 }
 
 message_t *game_to_message(game_t *game) {
-    message_t *new_message = create_message(MSG_GAME_STATUS, MSG_GAME_STATUS_ARGC);
-    new_message[0] = game->winner; // TODO prevest na retezec
-    new_message[1] = game->current_player; // TODO prevest na retezec
+    message_t *new_message = create_message(MSG_GAME_STATUS, MSG_GAME_STATUS_ARGC)
     
-    // TODO vypsat herni pole
+    new_message[0] = byte_to_string(game->winner);
+    new_message[1] = byte_to_string(game->current_player);
+    
+    char *board_str = (char *) malloc(sizeof(char) *
+        (game->board_size * game->board_size * (BOARD_CELL_SEED_SIZE + 1) + 1));
+    board_str[0] = '\0';
+    char buf[BOARD_CELL_SEED_SIZE + 1];
+    
+    int32_t i, j;
+    for (j = 0; j < game->board_size; j++) {
+        for (i = 0; i < game->board_size; i++) {
+            game_cell_t cell = game->board[j][i];
+            snprintf(buf, BOARD_CELL_SEED_SIZE + 1, "%d", cell.index);
+            strcat(board_str, buf);
+            strcat(board_str, cell.win ? WINNING_CELL_SYMBOL : NORMAL_CELL_SYMBOL);
+        }
+    }
     
     return new_message;
 }
 
 message_t *player_to_message(player_t *player) {
     message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
-    new_message[0] = player->id; // TODO prevest na retezec
-    new_message[1] = player->current_game_index; // TODO prevest na retezec
-    new_message[2] = player->current_game_score; // TODO prevest na retezec
+    new_message[0] = int_to_string(player->id); // TODO prevest na retezec
+    new_message[1] = int_to_string(player->current_game_index); // TODO prevest na retezec
+    new_message[2] = int_to_string(player->current_game_score); // TODO prevest na retezec
     
     return new_message;
 }
@@ -80,7 +90,7 @@ message_t *player_to_message(player_t *player) {
 message_t **status_to_messages(game_t *game, int32_t count) {
     message_t **messages = (message_t **) malloc(sizeof(message_t *) * count);
     messages[0] = game_to_message(game);
-   
+    
     int32_t i = 1;
     int32_t j;
     for (j = 1; j < game->player_count; j++) {
@@ -96,10 +106,14 @@ message_t **status_to_messages(game_t *game, int32_t count) {
 void send_to_current_players(game_t *game, int32_t msgc, message_t **msgv) {
     int32_t i, j;
     for (j = 0; j < game->player_count; j++) {
-        if (game->players[j] != NULL) {
+        if (game->players[j]->active && game->players[j] != NULL) {
+            lock_player(game->players[j]);
+            
             for (i = 0; i < msgc; i++) {
                 send_message(msgv[i], game->players[j]->sock);
             }
+            
+            unlock_player(game->players[j]);
         }
     }
 }
@@ -375,21 +389,6 @@ bool can_play(game_t *game, int8_t x, int8_t y) {
 }
 
 int8_t get_winner(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
-    /*check_direction[CHECK_FUNC_CNT];
-    check_direction[0] = check_horizontal;
-    check_direction[1] = check_vertical;
-    check_direction[2] = check_diag_right;
-    check_direction[3] = check_diag_left;
-    
-    int32_t i;
-    for (i = 0; i < CHECK_FUNC_CNT; i++) {
-        int8_t winner = check_direction[i](game, player_pos, x, y);
-        
-        if (winner > 0) {
-            return winner;
-        }
-    }*/
-    
     int8_t winner = check_horizontal(game, player_pos, x, y);
     
     if (winner > 0) {
@@ -454,21 +453,21 @@ char *get_game_name(void *item) {
 message_t *game_to_msg(void *item) {
     game_t *game = (game_t *) item;
     message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
-    message->argv[0] = game->id;
+    message->argv[0] = int_to_string(game->id);
     message->argv[1] = game->name;
-    message->argv[2] = game->player_count;
-    message->argv[3] = game->board_size;
-    message->argv[4] = game->cell_count;
-    message->argv[5] = game->player_counter;
-    message->argv[6] = game->round_counter;
-    message->argv[7] = game->active;
+    message->argv[2] = byte_to_string(game->player_count);
+    message->argv[3] = byte_to_string(game->board_size);
+    message->argv[4] = byte_to_string(game->cell_count);
+    message->argv[5] = byte_to_string(game->player_counter);
+    message->argv[6] = int_to_string(game->round_counter);
+    message->argv[7] = int_to_string((game->active ? 1 : 0));
     
     return message;
 }
 
 message_t *game_list_to_msg() {
     message_t *message = create_message(MSG_GAME_LIST, MSG_GAME_LIST_ARGC);
-    message->argv[0] = g_player_list->count;
+    message->argv[0] = int_to_string(g_player_list->count);
     
     return message;
 }

@@ -9,6 +9,6 @@ package interaction;
  *
  * @author petr
  */
-public class StatusReceiveWorker {
+public class LastRequestReplyWorker {
     
 }
