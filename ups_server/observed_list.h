@@ -50,6 +50,8 @@ observed_list_t *create_list(char *label,
         list_to_msg_func_t list_to_message_func);
 void delete_list(observed_list_t *list);
 void add_to_list(observed_list_t *list, void *item);
+void lock_list(observed_list_t *list);
+void unlock_list(observed_list_t *list, bool changed);
 bool is_item_id_valid(int32_t id);
 bool is_item_name_valid(char *name);
 void *get_from_list_by_id(observed_list_t *list, int32_t id);

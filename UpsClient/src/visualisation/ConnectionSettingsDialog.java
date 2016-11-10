@@ -3,11 +3,8 @@ package visualisation;
 import communication.ConnectionManager;
 import configuration.Config;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -19,13 +16,13 @@ import javax.swing.JTextField;
  *
  * @author Petr Kozler
  */
-public class ConnectionDialog extends JDialog {
+public class ConnectionSettingsDialog extends JDialog {
     
     private JTextField hostInputTF;
     private JTextField portInputTF;
     private JTextField nickInputTF;
     
-    private ConnectionDialog(String hostArg, String hostError, String portArg,
+    private ConnectionSettingsDialog(String hostArg, String hostError, String portArg,
             String portError, String nickArg, String nickError) {
         JLabel hostLabel = new JLabel("IP adresa nebo název:");
         hostInputTF = new JTextField(hostArg);
@@ -145,7 +142,7 @@ public class ConnectionDialog extends JDialog {
             }
             
             // TODO vytvorit dialog a ulozit do predanych promennych stringy z policek dialogu
-            ConnectionDialog dialog = new ConnectionDialog(hostArg, hostError, portArg, portError, nickArg, nickError);
+            ConnectionSettingsDialog dialog = new ConnectionSettingsDialog(hostArg, hostError, portArg, portError, nickArg, nickError);
             hostArg = dialog.hostInputTF.toString();
             portArg = dialog.portInputTF.toString();
             nickArg = dialog.nickInputTF.toString();

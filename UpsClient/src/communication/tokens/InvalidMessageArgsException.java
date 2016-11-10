@@ -1,9 +1,9 @@
-package communication;
+package communication.tokens;
 
 /**
  *
  * @author Petr Kozler
  */
-public class InvalidMessageException extends Exception {
+public class InvalidMessageArgsException extends Exception {
     
 }

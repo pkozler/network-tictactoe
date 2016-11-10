@@ -2,7 +2,9 @@
  * Author: Petr Kozler
  */
 
-#include <err.h>
+#include "printer.h"
+#include "config.h"
+
 #include <error.h>
 #include <errno.h>
 #include <string.h>
@@ -10,20 +12,36 @@
 #include <stdlib.h>
 
 /**
+ * Vypíše na obrazovku zadanou hlášku a ukončí řádek.
+ * 
+ * @param format formát řetězce hlášky
+ * @param ... argumenty řetězce hlášky
+ */
+void print_out(const char *format, ...) {
+    char buf[LOG_LINE_LENGTH];
+    
+    va_list vargs;
+    va_start(vargs, format);
+    vsnprintf(buf, sizeof(buf), format, vargs);
+    va_end(vargs);
+    
+    printf("%s.\n", buf);
+}
+
+/**
  * Vypíše na obrazovku zadanou chybovou hlášku spolu s popisem chyby podle čísla
- * uloženého v konstantě errno a poté ukončí program.
- * Funkce je určena pro případy výskytu závažné chyby, pro kterou server
- * nemůže nadále pokračovat v korektní činnosti.
+ * uloženého v konstantě errno a ukončí řádek.
  * 
  * @param format formát řetězce chybové hlášky
  * @param ... argumenty řetězce chybové hlášky
  */
-void die(const char *format, ...) {
-    va_list vargs;
+void print_err(const char *format, ...) {
+    char buf[LOG_LINE_LENGTH];
     
+    va_list vargs;
     va_start(vargs, format);
-    printf("%s: %s\n", vargs, strerror(errno));
+    vsnprintf(buf, sizeof(buf), format, vargs);
     va_end(vargs);
     
-    exit(errno);
+    printf("%s: %s\n", buf, strerror(errno));
 }

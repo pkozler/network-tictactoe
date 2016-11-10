@@ -3,8 +3,11 @@
  */
 
 #include "observed_list.h"
+#include "config.h"
 #include "broadcast.h"
+#include "printer.h"
 #include <string.h>
+#include <stdlib.h>
 
 void lock_list(observed_list_t *list) {
     pthread_mutex_lock(&(list->lock));
@@ -20,7 +23,13 @@ bool is_item_id_valid(int32_t id) {
 }
 
 bool is_item_name_valid(char *name) {
-    if (name == NULL || strlen(name) == 0) {
+    if (name == NULL) {
+        return false;
+    }
+    
+    int32_t len = strlen(name);
+    
+    if (len < 1 || MAX_NAME_LENGTH < len) {
         return false;
     }
     
@@ -192,8 +201,8 @@ message_t **list_to_messages(observed_list_t *list, int32_t count) {
 }
 
 void send_list_update(observed_list_t *list) {
-    int32_t count = count_list_messages();
-    message_t **messages = list_to_messages(count);
+    int32_t count = count_list_messages(list);
+    message_t **messages = list_to_messages(list, count);
     send_to_all_clients(count, messages);
     
     int32_t i;
@@ -204,16 +213,18 @@ void send_list_update(observed_list_t *list) {
     free(messages);
 }
 
-void run_list_observer(void *arg) {
+void *run_list_observer(void *arg) {
     observed_list_t *list = (observed_list_t *) arg;
     
     while (true) {
         if (list->changed) {
             lock_list(list);
-            send_list_update();
+            send_list_update(list);
             unlock_list(list, false);
         }
     }
+    
+    return NULL;
 }
 
 observed_list_t *create_list(char *label,
@@ -222,30 +233,29 @@ observed_list_t *create_list(char *label,
         get_item_name_func_t get_item_name_func,
         item_to_msg_func_t item_to_message_func,
         list_to_msg_func_t list_to_message_func) {
-    
     observed_list_t *list = (observed_list_t *) malloc(sizeof(observed_list_t));
     list->get_item_key_func = get_item_key_func;
     list->get_item_name_func = get_item_name_func;
     list->item_to_message_func = item_to_message_func;
     list->list_to_message_func = list_to_message_func;
-    list->set_item_key_func_t = set_item_key_func_t;
+    list->set_item_key_func = set_item_key_func;
     list->label = label;
     list->first = NULL;
     list->last = NULL;
     list->count = 0;
     list->changed = true;
     
-    if (pthread_mutex_init(&(list->lock), run_list_observer, NULL) < 0) {
-        die("Chyba při vytváření zámku pro %s", list->label);
+    if (pthread_mutex_init(&(list->lock), NULL) < 0) {
+        print_err("Chyba při vytváření zámku pro %s", list->label);
     }
     
     if (pthread_create(&(list->thread), NULL, run_list_observer, list) < 0) {
-        die("Chyba při vytváření vlákna pro %s", list->label);
+        print_err("Chyba při vytváření vlákna pro %s", list->label);
     }
 }
 
 void delete_list(observed_list_t *list) {
-    pthread_cancel(&(list->thread));
+    pthread_cancel(list->thread);
     pthread_mutex_destroy(&(list->lock));
     
     list_node_t *node = list->first;

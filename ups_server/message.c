@@ -4,9 +4,13 @@
 
 #include "message.h"
 #include "config.h"
-#include <stdbool.h>
-#include <sys/socket.h>
+
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #define BYTE_BUF_LEN 4
 #define INT_BUF_LEN 11
@@ -133,7 +137,7 @@ char *byte_to_string(int8_t i) {
 }
 
 int8_t string_to_byte(char *str) {
-    return (int8_t) strtol(str);
+    return (int8_t) strtol(str, NULL, 10);
 }
 
 char *int_to_string(int32_t i) {
@@ -144,7 +148,7 @@ char *int_to_string(int32_t i) {
 }
 
 int32_t string_to_int(char *str) {
-    return (int32_t) strtol(str);
+    return (int32_t) strtol(str, NULL, 10);
 }
 
 /**
@@ -211,14 +215,14 @@ message_t *receive_message(int sock) {
     
     int32_t delim_cnt = 0;
     
-    char *pch = strpbrk(msg_str, DELIMITER);
+    char *pch = strpbrk(msg_str, SEPARATOR);
     
     while (pch != NULL) {
         delim_cnt++;
-        pch = strpbrk(pch + 1, DELIMITER);
+        pch = strpbrk(pch + 1, SEPARATOR);
     }
     
-    pch = strtok(msg_str, DELIMITER);
+    pch = strtok(msg_str, SEPARATOR);
     
     if (pch == NULL || strlen(pch) == 0) {
         return NULL;
@@ -227,7 +231,7 @@ message_t *receive_message(int sock) {
     message_t *message = create_message(pch, delim_cnt);
     
     int32_t i = 0;
-    pch = strtok(NULL, DELIMITER);
+    pch = strtok(NULL, SEPARATOR);
     
     while (pch != NULL) {
         if (strlen(pch) == 0) {
@@ -236,7 +240,7 @@ message_t *receive_message(int sock) {
         
         message->argv[i] = pch;
         i++;
-        pch = strtok(NULL, DELIMITER);
+        pch = strtok(NULL, SEPARATOR);
     }
     
     free(msg_str);
@@ -268,11 +272,11 @@ bool send_message(message_t *msg, int sock) {
         strcat(msg_str, msg->type);
         
         for (i = 0; i < msg->argc; i++) {
-            strcat(msg_str, DELIMITER);
+            strcat(msg_str, SEPARATOR);
             strcat(msg_str, msg->argv[i]);
         }
     }
-    else if (msg->type == NULL && msg->argc = 0) {
+    else if (msg->type == NULL && msg->argc == 0) {
         msg_str = (char *) malloc(sizeof(char));
         msg_str[0] = '\0';
     }

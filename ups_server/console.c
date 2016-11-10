@@ -5,14 +5,14 @@
 #include "connection.h"
 #include "config.h"
 #include "console.h"
-#include "connection_status.h"
+#include "connection_stats.h"
 #include "message.h"
+#include "printer.h"
+#include "logger.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <logger.h>
-#include <err.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -26,6 +26,7 @@
 #define RESET_CMD "reset" // příkaz pro restart serveru s novými parametry
 #define HELP_CMD "help" // příkaz pro výpis všech dostupných příkazů
 #define EXIT_CMD "exit" // příkaz pro zastavení komunikace a ukončení programu
+
 
 /**
  * Zobrazí dialog pro zadání IP adresy pro naslouchání příchozím spojením
@@ -45,14 +46,14 @@ int32_t parse_host(char *host_arg) {
         
         if (host_arg != NULL) {
             if (strcmp(ANY_IP_STR, host_arg)) {
-                printf("Server bude přijímat spojení z libovolné adresy.\n");
+                print_out("Server bude přijímat spojení z libovolné adresy.\n");
                 
                 return INADDR_ANY;
             }
 
-            if (inet_pton(AF_INET, host_arg, host)) {
+            if (inet_pton(AF_INET, host_arg, ((void *) &host))) {
                 printf("Server bude přijímat spojení z adresy %s.\n", host_arg);
-                *host = htonl(*host);
+                host = htonl(host);
                 
                 return host;
             }
@@ -148,16 +149,16 @@ char *parse_log(char *log_arg) {
 void print_stats() {
     // zjištění aktuálního času a výpočet doby běhu v sekundách
     struct timeval current_time;
-    gettimeofday(&current_time);
-    double elapsed_time = (current_time.tv_sec - g_summary.start_time.tv_sec) +
-                          (current_time.tv_usec - g_summary.start_time.tv_usec) / 1000000.0;
+    gettimeofday(&current_time, NULL);
+    double elapsed_time = (current_time.tv_sec - g_stats.start_time.tv_sec) +
+                          (current_time.tv_usec - g_stats.start_time.tv_usec) / 1000000.0;
     
     printf("Statistika běhu serveru:\n");
-    printf("Přenesený počet bytů: %d\n", g_summary.bytes_transferred);
-    printf("Přenesený počet zpráv: %d\n", g_summary.messages_transferred);
-    printf("Počet navázaných spojení: %d\n", g_summary.connections_established);
-    printf("Počet přenosů zrušených pro chybu: %d\n", g_summary.transfers_failed);
-    printf("Doba běhu: %d\n", elapsed_time);
+    printf("Přenesený počet bytů: %o\n", g_stats.bytes_transferred);
+    printf("Přenesený počet zpráv: %o\n", g_stats.messages_transferred);
+    printf("Počet navázaných spojení: %o\n", g_stats.connections_established);
+    printf("Počet přenosů zrušených pro chybu: %o\n", g_stats.transfers_failed);
+    printf("Doba běhu: %f\n", elapsed_time);
 }
 
 /**
@@ -168,8 +169,6 @@ void print_stats() {
  */
 void restart_server() {
     g_running = false;
-    
-    // TODO vytvořit a odeslat zprávu o restartu serveru
 }
 
 /**
@@ -190,7 +189,7 @@ void print_commands() {
  * 
  * @param arg argument
  */
-void run_prompt(void *arg) {
+void *run_prompt(void *arg) {
     while (true) {
         char buf[CMD_MAX_LEN];
         fgets(buf, CMD_MAX_LEN, stdin);
@@ -212,6 +211,7 @@ void run_prompt(void *arg) {
         }
     }
     
+    return NULL;
 }
 
 /**
@@ -222,7 +222,7 @@ void start_prompt() {
     print_commands();
     
     if (pthread_create(&g_cmd_thread, NULL, run_prompt, NULL) < 0) {
-        die("Chyba při vytváření vlákna pro čtení příkazů");
+        print_err("Chyba při vytváření vlákna pro čtení příkazů");
     }
 }
 
@@ -230,5 +230,5 @@ void start_prompt() {
  * Ukončí vlákno pro čtení příkazů z konzole.
  */
 void shutdown_prompt() {
-    pthread_cancel(&g_cmd_thread);
+    pthread_cancel(g_cmd_thread);
 }

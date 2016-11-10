@@ -1,109 +1,128 @@
 package interaction;
 
 import communication.ConnectionManager;
-import communication.InvalidMessageException;
+import communication.InvalidMessageStringLengthException;
 import communication.Message;
-import configuration.Config;
+import communication.ClientNotActivatedException;
+import communication.ClientAlreadyActiveException;
+import communication.containers.InvalidListItemException;
+import communication.tokens.InvalidMessageArgsException;
+import communication.containers.MissingListHeaderException;
+import communication.tokens.MissingMessageArgsException;
+import communication.tokens.UnknownMessageTypeException;
+import interaction.receiving.AReceiver;
+import interaction.receiving.IListReceiver;
 import java.io.IOException;
-import javax.swing.SwingWorker;
 
 /**
  *
  * @author Petr Kozler
  */
-public class ResponseReceiveWorker extends SwingWorker<Object, Object> {
+public class MainMessageHandler implements Runnable {
 
-    private ConnectionManager connectionManager;
-    private ClientRequestResponseHandler requestHandler;
-    private ServerUpdateResponseHandler updateHandler;
+    private final ConnectionManager CONNECTION_MANAGER;
+    private final ResponseHandler RESPONSE_HANDLER;
+    private final UpdateHandler UPDATE_HANDLER;
     
-    public ResponseReceiveWorker(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-        requestHandler = new ClientRequestResponseHandler(connectionManager);
-        updateHandler = new ServerUpdateResponseHandler(connectionManager);
+    private AReceiver currentReceiver = null;
+    
+    public MainMessageHandler(ConnectionManager connectionManager,
+            ResponseHandler responseHandler, UpdateHandler updateHandler) {
+        CONNECTION_MANAGER = connectionManager;
+        RESPONSE_HANDLER = responseHandler;
+        UPDATE_HANDLER = updateHandler;
     }
     
-    private void parseReceivedMessage() {
+    private AReceiver handleResonseOrUpdate(Message message) throws MissingListHeaderException,
+            UnknownMessageTypeException, ClientAlreadyActiveException,
+            InvalidMessageArgsException, MissingMessageArgsException {
+        AReceiver receiver = RESPONSE_HANDLER.handleResponse(message);
+        
+        if (receiver != null) {
+            return receiver;
+        }
+        
+        return UPDATE_HANDLER.handleUpdate(message);
+    }
+    
+    private void handleReceivedMessage() {
         try {
-            Message response = connectionManager.receiveMessage();
+            Message message = CONNECTION_MANAGER.receiveMessage();
             
-            if (!response.hasType()) {
-                // přijata odpověď na testování odezvy - spojení je v pořádku
+            if (message.isPing()) {
                 return;
             }
             
-            if (!connectionManager.isActive()) {
-                switch (response.getType()) {
-                    case Config.MSG_ACTIVATE_CLIENT: {
-                        requestHandler.handleActivationResponse(response);
-                        break;
-                    }
+            if (!CONNECTION_MANAGER.isActive()) {
+                currentReceiver = RESPONSE_HANDLER.handleActivation(message);
+            }
+            else if (UPDATE_HANDLER.isListUpdateInProgress(currentReceiver)) {
+                UPDATE_HANDLER.forwardListItemMessage(currentReceiver, message);
+            }
+            else {
+                AReceiver receiver = handleResonseOrUpdate(message);
+                
+                if (receiver == null) {
+                    throw new UnknownMessageTypeException();
                 }
                 
-                return;
+                currentReceiver = receiver;
             }
             
-            switch (response.getType()) {
-                case Config.MSG_DEACTIVATE_CLIENT: {
-                    requestHandler.handleDeactivationResponse(response);
-                    break;
-                }
-                case Config.MSG_CREATE_GAME: {
-                    requestHandler.handleCreateGameResponse(response);
-                    break;
-                }
-                case Config.MSG_JOIN_GAME: {
-                    requestHandler.handleJoinGameResponse(response);
-                    break;
-                }
-                case Config.MSG_LEAVE_GAME: {
-                    requestHandler.handleLeaveGameResponse(response);
-                    break;
-                }
-                case Config.MSG_START_GAME: {
-                    requestHandler.handleStartGameResponse(response);
-                    break;
-                }
-                case Config.MSG_PLAY_GAME: {
-                    requestHandler.handlePlayGameResponse(response);
-                    break;
-                }
-                case Config.MSG_CLIENT_LIST: {
-                    updateHandler.handleClientListUpdate();
-                    break;
-                }
-                case Config.MSG_GAME_LIST: {
-                    updateHandler.handleGameListUpdate();
-                    break;
-                }
-                case Config.MSG_GAME_STATUS: {
-                    updateHandler.handleGameStatusUpdate();
-                    break;
-                }
-                case Config.MSG_SERVER_SHUTDOWN: {
-                    updateHandler.handleServerShutdownUpdate();
-                    break;
-                }
-                default: {
-                    // TODO prijata neplatna zprava
-                    break;
-                }
-            }
+            tryExecuteReceiver();
         }
         catch (IOException ex) {
             // TODO chyba pri nacteni zpravy
         }
-        catch (InvalidMessageException ex) {
-            // TODO neplatna zprava - bude ignorovana
+        catch (InvalidMessageStringLengthException ex) {
+            // TODO neplatna delka zpravy - zprava bude ignorovana
+        }
+        catch (InvalidMessageArgsException ex) {
+            // TODO neplatne argumenty zpravy
+        }
+        catch (MissingMessageArgsException ex) {
+            // TODO chybejici argumenty zpravy
+        }
+        catch (ClientNotActivatedException ex) {
+            // TODO hrac neni aktivni
+        }
+        catch (ClientAlreadyActiveException ex) {
+            // TODO hrac je jiz aktivni
+        }
+        catch (MissingListHeaderException ex) {
+            // TODO prijata polozka seznamu bez predchazejici hlavicky
+        }
+        catch (InvalidListItemException ex) {
+            // TODO prijata neplatna polozka aktualne nacitaneho seznamu
+        }
+        catch (UnknownMessageTypeException ex) {
+            // TODO prijat neznamy typ zpravy
+        }
+    }
+    
+    private void tryExecuteReceiver() {
+        if (currentReceiver == null) {
+            return;
+        }
+        
+        if (!(currentReceiver instanceof IListReceiver)) {
+            currentReceiver.execute();
+            
+            return;
+        }
+        
+        IListReceiver currentListReceiver = (IListReceiver) currentReceiver;
+        
+        if (!currentListReceiver.hasNextItem()) {
+            currentReceiver.execute();
         }
     }
     
     @Override
-    protected Object doInBackground() throws Exception {
-        while (connectionManager.isActive()) {
-            parseReceivedMessage();
+    public void run() {
+        while (CONNECTION_MANAGER.isActive()) {
+            handleReceivedMessage();
         }
-        
-        return null;
     }
+    
 }

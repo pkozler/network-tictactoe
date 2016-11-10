@@ -1,14 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package visualisation;
+package visualisation.components.game;
+
+import communication.containers.GameBoard;
+import javax.swing.JPanel;
 
 /**
  *
- * @author petr
+ * @author Petr Kozler
  */
-public class CellButton {
+public class BoardPanel extends JPanel {
+
+    private GameBoard gameBoard;
     
+    public void setGameBoard(GameBoard gameBoard) {
+        this.gameBoard = gameBoard;
+    }
+    
+    private void setListener() {
+        
+    }
+    
+    private void playGameActionPerformed() {
+        
+    }
+
 }

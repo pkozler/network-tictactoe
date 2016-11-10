@@ -7,7 +7,7 @@
 
 #include <stdarg.h>
 
-void log(const char *format, ...);
+void print_log(const char *format, ...);
 void start_logging(char *log_file_name);
 void shutdown_logging();
 

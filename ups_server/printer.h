@@ -2,12 +2,14 @@
  * Author: Petr Kozler
  */
 
-#ifndef ERR_H
-#define ERR_H
+#ifndef PRINTER_H
+#define PRINTER_H
 
 #include <stdarg.h>
 
-void die(const char *format, ...);
+void print_out(const char *format, ...);
 
-#endif /* ERR_H */
+void print_err(const char *format, ...);
+
+#endif /* PRINTER_H */
 

@@ -5,6 +5,7 @@
 #include "broadcast.h"
 #include "observed_list.h"
 #include "player.h"
+#include "message.h"
 #include <stdlib.h>
 
 void send_to_all_clients(int32_t msgc, message_t **msgv) {

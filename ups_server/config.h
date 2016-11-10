@@ -14,13 +14,16 @@
 #define MAX_PORT 65535 // nejvyšší povolené číslo portu
 #define DEFAULT_PORT 10001 // výchozí port pro naslouchání
 #define QUEUE_LEN 8 // délka fronty pro příchozí spojení
-#define SOCKET_TIMEOUT_SEC 5 // timeout připojení klienta v sekundách
+#define SOCKET_TIMEOUT_SEC 1 // timeout příjmu/odeslání zprávy klienta v sekundách
+#define MAX_TIMEOUTS 5 // maximální počet timeoutů v řadě před zrušením spojení
+#define MAX_NAME_LENGTH 16
 #define MIN_BOARD_SIZE 3
 #define MAX_BOARD_SIZE 12
 #define MIN_PLAYERS_SIZE 2
 #define MAX_PLAYERS_SIZE 4
 #define MIN_CELL_COUNT 2
 #define MAX_CELL_COUNT 12
+#define LOG_LINE_LENGTH 1024 // velikost bufferu pro výpis hlášení
 
 /*
  * Dostupné požadavky klienta a počty argumentů:
@@ -30,7 +33,7 @@
 #define MSG_ACTIVATE_CLIENT_ARGC 1 // počet argumentů: aktivace připojeného klienta
 #define MSG_ACTIVATE_CLIENT_ID_ARGC 2 // počet argumentů: odpověď serveru pro aktivaci (obsahuje ID)
 #define MSG_DEACTIVATE_CLIENT "deactivate-client" // typ zprávy: deaktivace odpojeného klienta
-#define MSG_DEACTIVATE_CLIENT_ARGC 1 // počet argumentů: deaktivace odpojeného klienta
+#define MSG_DEACTIVATE_CLIENT_ARGC 0 // počet argumentů: deaktivace odpojeného klienta
 #define MSG_CREATE_GAME "create-game" // typ zprávy: vytvoření hry klientem
 #define MSG_CREATE_GAME_ARGC 4 // počet argumentů: vytvoření hry klientem
 #define MSG_CREATE_GAME_ID_ARGC 2 // počet argumentů: odpověď serveru pro vytvoření hry (obsahuje ID)
@@ -77,18 +80,16 @@
  * Dostupné odpovědi serveru a počty argumentů:
  */
 
-#define MSG_SERVER_SHUTDOWN "server-shutdown" // typ zprávy: restart serveru
-#define MSG_SERVER_SHUTDOWN_ARGC 0 // počet argumentů: restart serveru
-#define MSG_CLIENT_LIST "client-list" // typ zprávy: změna v seznamu hráčů
-#define MSG_CLIENT_LIST_ARGC 1 // počet argumentů: změna v seznamu hráčů
-#define MSG_CLIENT_LIST_ITEM "client-item" // typ zprávy: položka seznamu hráčů
-#define MSG_CLIENT_LIST_ITEM_ARGC 3 // počet argumentů: položka seznamu hráčů
+#define MSG_PLAYER_LIST "player-list" // typ zprávy: změna v seznamu hráčů
+#define MSG_PLAYER_LIST_ARGC 1 // počet argumentů: změna v seznamu hráčů
+#define MSG_PLAYER_LIST_ITEM "player-item" // typ zprávy: položka seznamu hráčů
+#define MSG_PLAYER_LIST_ITEM_ARGC 3 // počet argumentů: položka seznamu hráčů
 #define MSG_GAME_LIST "game-list" // typ zprávy: změna v seznamu her
 #define MSG_GAME_LIST_ARGC 1 // počet argumentů: změna v seznamu her
 #define MSG_GAME_LIST_ITEM "game-item" // typ zprávy: položka seznamu her
 #define MSG_GAME_LIST_ITEM_ARGC 8 // počet argumentů: položka seznamu her
-#define MSG_GAME_STATUS "game-status" // typ zprávy: změna ve stavu hry
-#define MSG_GAME_STATUS_ARGC 3 // počet argumentů: změna ve stavu hry
+#define MSG_GAME_DETAIL "game-detail" // typ zprávy: změna ve stavu hry
+#define MSG_GAME_DETAIL_ARGC 3 // počet argumentů: změna ve stavu hry
 #define MSG_GAME_PLAYER "game-player" // typ zprávy: položka seznamu aktuálních hráčů hry
 #define MSG_GAME_PLAYER_ARGC 3 // počet argumentů: položka seznamu aktuálních hráčů hry
 
@@ -101,8 +102,8 @@
 #define BOARD_CELL_SEED_SIZE 1 // délka řetězce představujícího označení hráče na daném políčku v bajtech
 #define NORMAL_CELL_SYMBOL "_" // označení políčka, které nepatří mezi políčka vítěze, v řetězci zprávy
 #define WINNING_CELL_SYMBOL "W" // označení políčka, které je políčkem vítěze, v řetězci zprávy
-#define MSG_OK "ok" // pozitivní přijetí zprávy (požadavek klienta je v pořádku)
-#define MSG_FAIL "fail" // negativní přijetí zprávy (v požadavku klienta je chyba)
-#define DELIMITER "/" // 1znakový oddělovač tokenů (označení typu a argumentů) zprávy
+#define MSG_TRUE "true" // logická pravda, značí mj. pozitivní přijetí zprávy (požadavek klienta je v pořádku)
+#define MSG_FALSE "false" // logická nepravda, značí mj. negativní přijetí zprávy (v požadavku klienta je chyba)
+#define SEPARATOR "/" // 1znakový oddělovač tokenů (označení typu a argumentů) zprávy
  
 #endif /* CONFIG_H */

@@ -2,8 +2,8 @@
  * Author: Petr Kozler
  */
 
-#ifndef CONNECTION_STATUS_H
-#define CONNECTION_STATUS_H
+#ifndef CONNECTION_STATS_H
+#define CONNECTION_STATS_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,8 +20,8 @@ struct {
     uint32_t connections_established; // počet navázaných spojení
     uint32_t transfers_failed; // počet přenosů zrušených pro chybu
     struct timeval start_time; // čas spuštění serveru
-} g_summary;
+} g_stats;
 
 
-#endif /* CONNECTION_STATUS_H */
+#endif /* CONNECTION_STATS_H */
 

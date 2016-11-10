@@ -38,13 +38,14 @@ OBJECTFILES= \
 	${OBJECTDIR}/broadcast.o \
 	${OBJECTDIR}/connection.o \
 	${OBJECTDIR}/console.o \
-	${OBJECTDIR}/err.o \
 	${OBJECTDIR}/game.o \
+	${OBJECTDIR}/game_update.o \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/message.o \
 	${OBJECTDIR}/observed_list.o \
-	${OBJECTDIR}/player.o
+	${OBJECTDIR}/player.o \
+	${OBJECTDIR}/printer.o
 
 
 # C Compiler Flags
@@ -86,15 +87,15 @@ ${OBJECTDIR}/console.o: console.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/console.o console.c
 
-${OBJECTDIR}/err.o: err.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/err.o err.c
-
 ${OBJECTDIR}/game.o: game.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game.o game.c
+
+${OBJECTDIR}/game_update.o: game_update.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_update.o game_update.c
 
 ${OBJECTDIR}/logger.o: logger.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -120,6 +121,11 @@ ${OBJECTDIR}/player.o: player.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player.o player.c
+
+${OBJECTDIR}/printer.o: printer.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printer.o printer.c
 
 # Subprojects
 .build-subprojects:

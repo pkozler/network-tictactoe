@@ -2,11 +2,13 @@
  * Author: Petr Kozler
  */
 
-#include <stdlib.h>
-
 #include "player.h"
-#include "err.h"
+#include "observed_list.h"
+#include "printer.h"
 #include "config.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Pomocné funkce pro operace s hráči:
@@ -26,15 +28,15 @@ void unlock_player(player_t *player) {
 
 message_t *create_ack_message(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
-    new_message[0] = MSG_OK;
+    new_message->argv[0] = MSG_TRUE;
     
     return new_message;
 }
 
 message_t *create_err_message(message_t *message, char *err_msg, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ERR_ARGC);
-    new_message[0] = MSG_FAIL;
-    new_message[1] = err_msg;
+    new_message->argv[0] = MSG_FALSE;
+    new_message->argv[1] = err_msg;
     
     return new_message;
 }
@@ -72,8 +74,8 @@ message_t *handle_activation_request(message_t *message, player_t *player) {
     unlock_list(g_player_list, true);
 
     message_t *new_message = create_message(message->type, MSG_ACTIVATE_CLIENT_ID_ARGC);
-    new_message[0] = MSG_OK;
-    new_message[1] = int_to_string(player->id);
+    new_message->argv[0] = MSG_TRUE;
+    new_message->argv[1] = int_to_string(player->id);
     
     return new_message;
 }
@@ -84,7 +86,7 @@ message_t *handle_deactivation_request(message_t *message, player_t *player) {
     }
     
     lock_list(g_player_list);
-    remove_from_list_by_id(player->id);
+    remove_from_list_by_id(g_player_list, player->id);
     unlock_list(g_player_list, true);
     player->active = false;
     
@@ -119,10 +121,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_board_size_valid(board_size)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_BOARD_SIZE_ARGC);
-        new_message[0] = MSG_FAIL;
-        new_message[1] = MSG_ERR_INVALID_BOARD_SIZE;
-        new_message[2] = byte_to_string(MIN_BOARD_SIZE);
-        new_message[3] = byte_to_string(MAX_BOARD_SIZE);
+        new_message->argv[0] = MSG_FALSE;
+        new_message->argv[1] = MSG_ERR_INVALID_BOARD_SIZE;
+        new_message->argv[2] = byte_to_string(MIN_BOARD_SIZE);
+        new_message->argv[3] = byte_to_string(MAX_BOARD_SIZE);
         
         return new_message;
     }
@@ -130,10 +132,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_player_count_valid(player_count)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_PLAYER_COUNT_ARGC);
-        new_message[0] = MSG_FAIL;
-        new_message[1] = MSG_ERR_INVALID_PLAYER_COUNT;
-        new_message[2] = byte_to_string(MIN_PLAYERS_SIZE);
-        new_message[3] = byte_to_string(MAX_PLAYERS_SIZE);
+        new_message->argv[0] = MSG_FALSE;
+        new_message->argv[1] = MSG_ERR_INVALID_PLAYER_COUNT;
+        new_message->argv[2] = byte_to_string(MIN_PLAYERS_SIZE);
+        new_message->argv[3] = byte_to_string(MAX_PLAYERS_SIZE);
         
         return new_message;
     }
@@ -141,10 +143,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_cell_count_valid(cell_count)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_CELL_COUNT_ARGC);
-        new_message[0] = MSG_FAIL;
-        new_message[1] = MSG_ERR_INVALID_CELL_COUNT;
-        new_message[2] = byte_to_string(MIN_CELL_COUNT);
-        new_message[3] = byte_to_string(MAX_CELL_COUNT);
+        new_message->argv[0] = MSG_FALSE;
+        new_message->argv[1] = MSG_ERR_INVALID_CELL_COUNT;
+        new_message->argv[2] = byte_to_string(MIN_CELL_COUNT);
+        new_message->argv[3] = byte_to_string(MAX_CELL_COUNT);
         
         return new_message;
     }
@@ -154,8 +156,8 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     unlock_list(g_game_list, true);
 
     new_message = create_message(message->type, MSG_CREATE_GAME_ID_ARGC);
-    new_message[0] = MSG_OK;
-    new_message[1] = int_to_string(player->current_game->id);
+    new_message->argv[0] = MSG_TRUE;
+    new_message->argv[1] = int_to_string(player->current_game->id);
     
     return new_message;
 }
@@ -285,7 +287,7 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_ROUND_NOT_STARTED, player);
     }
     
-    if (!player->playing) {
+    if (!player->active) {
         unlock_game(player->current_game, false);
         unlock_list(g_game_list, false);
         
@@ -329,7 +331,7 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
 
 message_t *handle_unknown_request(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
-    new_message[0] = MSG_FAIL;
+    new_message->argv[0] = MSG_FALSE;
     
     return new_message;
 }
@@ -376,23 +378,7 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
         else if (!strcmp(message->type, MSG_PLAY_GAME)) {
             return handle_play_game_request(message, player);
         }
-        // odpověď na restart serveru
-        else if (!strcmp(message->type, MSG_SERVER_SHUTDOWN)) {
-            return NULL;
-        }
-        // odpověď na aktualizaci seznamu hráčů
-        else if (!strcmp(message->type, MSG_CLIENT_LIST)) {
-            return NULL;
-        }
-        // odpověď na aktualizaci seznamu her
-        else if (!strcmp(message->type, MSG_GAME_LIST)) {
-            return NULL;
-        }
-        // odpověď na aktualizaci stavu hry
-        else if (!strcmp(message->type, MSG_GAME_STATUS)) {
-            return NULL;
-        }
-        // neznámý požadavek - bude odeslána prázdná chybová odpověď
+        // neznámý požadavek - bude odeslána chybová odpověď
         else {
             return handle_unknown_request(message, player);
         }
@@ -440,7 +426,7 @@ void parse_received_message(player_t *player) {
  * Základní funkce pro vytvoření, běh a odstranění hráče:
  */
 
-void run_player(void *arg) {
+void *run_player(void *arg) {
     player_t *player = (player_t *) arg;
 
     while (true) {
@@ -451,6 +437,8 @@ void run_player(void *arg) {
             delete_player(player);
         }
     }
+    
+    return NULL;
 }
 
 void create_player(int sock) {
@@ -464,10 +452,14 @@ void create_player(int sock) {
     player->current_game_score = 0;
     player->total_score = 0;
     player->active = false;
-    player->playing = false;
+    player->timeout_counter = 0;
+    player->valid_transfers_count = 0;
+    player->invalid_transfers_count = 0;
+    player->update_nack_count = 0;
+    player->high_frequency_message_count = 0;
     
-    if (pthread_create(&player->thread, NULL, run_game, (void *) player) < 0) {
-        die("Chyba při spouštění vlákna pro příjem zpráv klienta");
+    if (pthread_create(&player->thread, NULL, run_player, (void *) player) < 0) {
+        print_err("Chyba při spouštění vlákna pro příjem zpráv klienta");
     }
 }
 
@@ -501,7 +493,7 @@ char *get_player_name(void *item) {
 
 message_t *player_to_msg(void *item) {
     player_t *player = (player_t *) item;
-    message_t *message = create_message(MSG_CLIENT_LIST_ITEM, MSG_CLIENT_LIST_ITEM_ARGC);
+    message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
     message->argv[0] = int_to_string(player->id);
     message->argv[1] = player->nick;
     message->argv[2] = int_to_string(player->total_score);
@@ -510,7 +502,7 @@ message_t *player_to_msg(void *item) {
 }
 
 message_t *player_list_to_msg()  {
-    message_t *message = create_message(MSG_CLIENT_LIST, MSG_CLIENT_LIST_ARGC);
+    message_t *message = create_message(MSG_PLAYER_LIST, MSG_PLAYER_LIST_ARGC);
     message->argv[0] = int_to_string(g_player_list->count);
     
     return message;

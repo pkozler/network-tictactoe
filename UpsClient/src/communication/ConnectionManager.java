@@ -1,15 +1,22 @@
 package communication;
 
+import communication.tokens.InvalidMessageArgsException;
 import configuration.Config;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 /**
- *
+ * Třída představující základní součást komunikační vrstvy aplikace.
+ * Zajišťuje volání vestavěných komunikačních metod pro navazování spojení
+ * se serverem a operace čtení a zápisu do socketu (tj. odesílání a příjem zpráv).
+ * Zároveň uchovává základní údaje o aktuálním stavu hráče (např. ID a nickname)
+ * a konfiguraci připojení k serveru (IP adresu a port).
+ * 
  * @author Petr Kozler
  */
 public class ConnectionManager {
@@ -19,9 +26,18 @@ public class ConnectionManager {
     private DataOutputStream dos;
     private InetAddress host;
     private int port;
-    private int id;
     private String nick;
+    private int playerId;
+    private int currentGameId;
+    private int timeoutCounter;
     
+    /**
+     * Inicializuje správce 
+     * 
+     * @param host
+     * @param port
+     * @param nick 
+     */
     public ConnectionManager(InetAddress host, int port, String nick) {
         this.host = host;
         this.port = port;
@@ -31,13 +47,16 @@ public class ConnectionManager {
     public void connect() throws IOException {
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
+        resetTimeoutCounter();
 
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        dis = new DataInputStream(socket.getInputStream());
+        dos = new DataOutputStream(socket.getOutputStream());
     }
     
     public void disconnect() throws IOException {
         if (socket != null && !socket.isClosed()) {
+            dis.close();
+            dos.close();
             socket.close();
         }
         
@@ -50,53 +69,58 @@ public class ConnectionManager {
     
     public void activate(int id) {
         if (id > 0) {
-            this.id = id;
+            playerId = id;
         }
     }
     
     public void deactivate() {
-        this.id = 0;
+        playerId = 0;
     }
     
     public boolean isActive() {
-        return id > 0;
+        return playerId > 0;
     }
     
-    public void sendMessage(Message message) throws IOException {
-        if (message.hasArgs()) {
-            String msgStr = message.getType();
-
-            if (message.getType() != null) {
-                msgStr += Config.DELIMITER + String.join(Config.DELIMITER, message.getArgs());
-            }
-            
-            writeToSocket(msgStr);
-            return;
+    public void incTimeoutCounter() throws IOException {
+        timeoutCounter++;
+        
+        if (timeoutCounter > Config.MAX_TIMEOUTS) {
+            disconnect();
+        }
+    }
+    
+    public void resetTimeoutCounter() {
+        timeoutCounter = 0;
+    }
+    
+    public void joinGame(int id) {
+        if (id > 0) {
+            currentGameId = id;
+        }
+    }
+    
+    public void leaveGame() {
+        currentGameId = 0;
+    }
+    
+    public int getGameId() {
+        return currentGameId;
+    }
+    
+    public synchronized void sendMessage(Message message) throws IOException, InvalidMessageArgsException {
+        String msgStr = message.toString();
+        
+        if (msgStr == null) {
+            throw new InvalidMessageArgsException();
         }
         
-        if (!message.hasType() && !message.hasArgs()) {
-            writeToSocket("");
-        }
+        writeToSocket(msgStr);
     }
     
-    public Message receiveMessage() throws IOException, InvalidMessageException {
+    public synchronized Message receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
         
-        if (msgStr.isEmpty()) {
-            return new Message(null);
-        }
-        
-        int firstDelimIndex = msgStr.indexOf(Config.DELIMITER);
-        
-        if (firstDelimIndex < 0) {
-            return new Message(msgStr);
-        }
-        
-        String type = msgStr.substring(0, firstDelimIndex);
-        String[] args = msgStr.substring(firstDelimIndex + 1).split(Config.DELIMITER);
-        Message message = new Message(type, args);
-        
-        return message;
+        return new Message(msgStr);
     }
     
     private void writeToSocket(String message) throws IOException {
@@ -110,11 +134,20 @@ public class ConnectionManager {
         dos.flush();
     }
     
-    private String readFromSocket() throws IOException, InvalidMessageException {
-        int length = dis.readInt();
+    private String readFromSocket() throws IOException, InvalidMessageStringLengthException {
+        int length;
+        
+        try {
+            length = dis.readInt();
+        }
+        catch (SocketTimeoutException ex) {
+            incTimeoutCounter();
+            
+            throw ex;
+        }
         
         if (length < 0) {
-            throw new InvalidMessageException();
+            throw new InvalidMessageStringLengthException();
         }
         
         if (length == 0) {
@@ -122,7 +155,17 @@ public class ConnectionManager {
         }
         
         byte[] bytes = new byte[length];
-        dis.read(bytes);
+        
+        try {
+            dis.read(bytes);
+        }
+        catch (SocketTimeoutException ex) {
+            incTimeoutCounter();
+            
+            throw ex;
+        }
+        
+        resetTimeoutCounter();
         
         return new String(bytes, StandardCharsets.US_ASCII);
     }

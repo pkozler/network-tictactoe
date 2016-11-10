@@ -4,6 +4,6 @@ package communication;
  *
  * @author Petr Kozler
  */
-public class InvalidMessageException extends Exception {
+public class InvalidMessageStringLengthException extends Exception {
     
 }

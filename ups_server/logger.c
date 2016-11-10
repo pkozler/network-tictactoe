@@ -3,7 +3,7 @@
  */
 
 #include "logger.h"
-#include "err.h"
+#include "printer.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -21,7 +21,7 @@
  * FIFO (fronta).
  */
 typedef struct STRING_NODE {
-    STRING_NODE *next_str;
+    struct STRING_NODE *next_str;
     char *str;
 } string_node_t;
 
@@ -68,8 +68,6 @@ void enqueue_log_string(char *str) {
  * @return řetězec logu
  */
 char *dequeue_log_string() {
-    char *str;
-    
     if (g_logger.first_str == NULL) {
         return NULL;
     }
@@ -94,7 +92,7 @@ char *dequeue_log_string() {
  * @param format formát řetězce záznamu logu
  * @param ... argumenty řetězce záznamu logu
  */
-void log(const char *format, ...) { 
+void print_log(const char *format, ...) { 
     va_list vargs;
     
     // vytvoření a zformátování řetězce
@@ -133,10 +131,12 @@ void write_logs() {
  * 
  * @param arg argument
  */
-void run_logging(void *arg) {
+void *run_logging(void *arg) {
     while (true) {
         write_logs();
     }
+    
+    return NULL;
 }
 
 /**
@@ -153,7 +153,7 @@ void start_logging(char *log_file_name) {
     g_logger.file = fopen(log_file_name, "a");
     
     if (g_logger.file == NULL) {
-        die("Chyba při otevírání souboru pro zápis logů");
+        print_err("Chyba při otevírání souboru pro zápis logů");
     }
 
     g_logger.first_str = NULL;
@@ -161,11 +161,11 @@ void start_logging(char *log_file_name) {
     g_logger.str_count = 0;
     
     if (pthread_mutex_init(&(g_logger.lock), NULL) < 0) {
-        die("Chyba při vytváření zámku pro zápis logů");
+        print_err("Chyba při vytváření zámku pro zápis logů");
     }
     
     if (pthread_create(&(g_logger.thread), NULL, run_logging, NULL) < 0) {
-        die("Chyba při vytváření vlákna pro zápis logů");
+        print_err("Chyba při vytváření vlákna pro zápis logů");
     }
 }
 
@@ -174,7 +174,7 @@ void start_logging(char *log_file_name) {
  * a uzavře logovací soubor.
  */
 void shutdown_logging() {
-    pthread_cancel(&(g_logger.thread));
+    pthread_cancel(g_logger.thread);
     pthread_mutex_destroy(&(g_logger.lock));
     
     // výpis zbylých logů ve frontě po ukončení serveru

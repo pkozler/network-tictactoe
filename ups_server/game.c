@@ -3,9 +3,12 @@
  */
 
 #include "game.h"
-#include "err.h"
+#include "observed_list.h"
+#include "printer.h"
+#include "message.h"
 #include "config.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 /*
@@ -42,10 +45,6 @@ bool is_cell_in_board(game_t *game, int8_t x, int8_t y) {
             && 0 <= y && y < game->board_size;
 }
 
-bool is_current_player(game_t *game, player_t *player) {
-    return player->current_game_index == game->current_player;
-}
-
 /*
  * Funkce pro sestavování a odesílání odpovědí serveru o aktuálním stavu hry:
  */
@@ -54,11 +53,11 @@ int32_t count_status_messages(game_t *game) {
     return game->player_counter + 1;
 }
 
-message_t *game_to_message(game_t *game) {
-    message_t *new_message = create_message(MSG_GAME_STATUS, MSG_GAME_STATUS_ARGC)
+message_t *game_board_to_message(game_t *game) {
+    message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);
     
-    new_message[0] = byte_to_string(game->winner);
-    new_message[1] = byte_to_string(game->current_player);
+    new_message->argv[0] = byte_to_string(game->winner);
+    new_message->argv[1] = byte_to_string(game->current_player);
     
     char *board_str = (char *) malloc(sizeof(char) *
         (game->board_size * game->board_size * (BOARD_CELL_SEED_SIZE + 1) + 1));
@@ -78,24 +77,24 @@ message_t *game_to_message(game_t *game) {
     return new_message;
 }
 
-message_t *player_to_message(player_t *player) {
+message_t *joined_player_to_message(player_t *player) {
     message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
-    new_message[0] = int_to_string(player->id); // TODO prevest na retezec
-    new_message[1] = int_to_string(player->current_game_index); // TODO prevest na retezec
-    new_message[2] = int_to_string(player->current_game_score); // TODO prevest na retezec
+    new_message->argv[0] = int_to_string(player->id); // TODO prevest na retezec
+    new_message->argv[1] = int_to_string(player->current_game_index); // TODO prevest na retezec
+    new_message->argv[2] = int_to_string(player->current_game_score); // TODO prevest na retezec
     
     return new_message;
 }
 
 message_t **status_to_messages(game_t *game, int32_t count) {
     message_t **messages = (message_t **) malloc(sizeof(message_t *) * count);
-    messages[0] = game_to_message(game);
+    messages[0] = game_board_to_message(game);
     
     int32_t i = 1;
     int32_t j;
     for (j = 1; j < game->player_count; j++) {
         if (game->players[j] != NULL) {
-            messages[i] = player_to_message(game->players[j]);
+            messages[i] = joined_player_to_message(game->players[j]);
             i++;
         }
     }
@@ -121,7 +120,7 @@ void send_to_current_players(game_t *game, int32_t msgc, message_t **msgv) {
 void send_game_status(game_t *game) {
     int32_t count = count_status_messages(game);
     message_t **messages = status_to_messages(game, count);
-    send_to_current_players(count, messages);
+    send_to_current_players(game, count, messages);
     
     int32_t i;
     for (i = 0; i < count; i++) {
@@ -135,7 +134,7 @@ void send_game_status(game_t *game) {
  * Základní funkce pro vytvoření, běh a odstranění hry:
  */
 
-void run_game(void *arg) {
+void *run_game(void *arg) {
     game_t *game = (game_t *) arg;
     
     while (true) {
@@ -145,6 +144,8 @@ void run_game(void *arg) {
             unlock_game(game, false);
         }
     }
+    
+    return NULL;
 }
 
 void create_game(player_t *player, char *name,
@@ -172,11 +173,9 @@ void create_game(player_t *player, char *name,
     game->changed = true;
     add_player(game, player);
     
-    if (pthread_create(game->thread, NULL, run_game, game) < 0) {
-        die("Chyba při spouštění vlákna pro rozesílání stavu hry");
+    if (pthread_create(&(game->thread), NULL, run_game, game) < 0) {
+        print_err("Chyba při spouštění vlákna pro rozesílání stavu hry");
     }
-    
-    return game;
 }
 
 void delete_game(game_t *game) {
@@ -278,7 +277,7 @@ int8_t check_horizontal(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[y][j] == player_pos) {
+        if (game->board[y][j].index == player_pos) {
             game->board[y][j].win = true;
             counter++;
         }
@@ -304,7 +303,7 @@ int8_t check_vertical(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][x] == player_pos) {
+        if (game->board[i][x].index == player_pos) {
             game->board[i][x].win = true;
             counter++;
         }
@@ -334,7 +333,7 @@ int8_t check_diag_right(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][j] == game->player_count) {
+        if (game->board[i][j].index == game->player_count) {
             game->board[i][j].win = true;
             counter++;
         }
@@ -366,7 +365,7 @@ int8_t check_diag_left(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][j] == player_pos) {
+        if (game->board[i][j].index == player_pos) {
             game->board[i][j].win = true;
             counter++;
         }
@@ -421,7 +420,7 @@ bool is_draw(game_t *game) {
 }
 
 void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
-    game->board[y][x] = player_pos;
+    game->board[y][x].index = player_pos;
     game->occupied_cell_counter++;
     set_next_player(game);
 
@@ -477,8 +476,8 @@ message_t *game_list_to_msg() {
  */
 
 void create_game_list() {
-    g_game_list = create_list("seznam her", get_player_key, set_player_key,
-            get_player_name, player_to_msg, player_list_to_msg);
+    g_game_list = create_list("seznam her", get_game_key, set_game_key,
+            get_game_name, game_to_msg, game_list_to_msg);
 }
 
 void delete_game_list() {
@@ -488,7 +487,7 @@ void delete_game_list() {
     
     while (game != NULL) {
         delete_game(game);
-        game = (game *) get_next_item(iterator);
+        game = (game_t *) get_next_item(iterator);
     }
     
     free(iterator);
