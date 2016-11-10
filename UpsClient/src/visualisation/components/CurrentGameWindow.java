@@ -1,5 +1,6 @@
 package visualisation.components;
 
+import interaction.MessageBackgroundSender;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -22,8 +23,9 @@ public class CurrentGameWindow extends JFrame {
     private final JoinedPlayerListPanel JOINED_PLAYER_LIST_PANEL;
     private final JButton START_GAME_BUTTON;
     private final JButton LEAVE_GAME_BUTTON;
+    private final MessageBackgroundSender MESSAGE_SENDER;
     
-    public CurrentGameWindow() {
+    public CurrentGameWindow(MessageBackgroundSender messageBackgroundSender) {
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -31,6 +33,7 @@ public class CurrentGameWindow extends JFrame {
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(0, 0));
         
+        MESSAGE_SENDER = messageBackgroundSender;
         BOARD_PANEL = new BoardPanel();
         JOINED_PLAYER_LIST_PANEL = new JoinedPlayerListPanel();
         

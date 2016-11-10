@@ -8,4 +8,9 @@ import javax.swing.JPanel;
  */
 public class StatusBarPanel extends JPanel {
     
+    public void printStatus(String format, Object... args) {
+        String str = String.format(format, args);
+        // TODO vypsat
+    }
+    
 }

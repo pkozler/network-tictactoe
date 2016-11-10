@@ -41,8 +41,6 @@
 #define MSG_JOIN_GAME_ARGC 1 // počet argumentů: připojení klienta do hry
 #define MSG_LEAVE_GAME "leave-game" // typ zprávy: odpojení klienta ze hry
 #define MSG_LEAVE_GAME_ARGC 0 // počet argumentů: odpojení klienta ze hry
-#define MSG_START_GAME "start-game" // typ zprávy: zahájení herního kola klientem
-#define MSG_START_GAME_ARGC 0 // počet argumentů: zahájení herního kola klientem
 #define MSG_PLAY_GAME "play-game" // typ zprávy: tah klienta ve hře
 #define MSG_PLAY_GAME_ARGC 2 // počet argumentů: tah klienta ve hře
 
@@ -67,8 +65,6 @@
 #define MSG_ERR_ROOM_FULL "room-full" // typ chyby: herní místnost plná
 #define MSG_ERR_ALREADY_IN_ROOM "already-in-room" // typ chyby: hráč již připojen ve hře
 #define MSG_ERR_NOT_IN_ROOM "not-in-room" // typ chyby: hráč není připojen ve hře
-#define MSG_ERR_NOT_ENOUGH_PLAYERS "not-enough-players" // typ chyby: nedostatečný počet hráčů pro zahájení hry
-#define MSG_ERR_ROUND_NOT_FINISHED "round-not-finished" // typ chyby: herní kolo ještě nebylo odehráno
 #define MSG_ERR_ROUND_NOT_STARTED "round-not-started" // typ chyby: hra ještě nebyla zahájena
 #define MSG_ERR_CANNOT_PLAY_IN_ROUND "cannot-play-in-round" // typ chyby: hráč nemůže v daném kole hrát
 #define MSG_ERR_CANNOT_PLAY_NOW "cannot-play-now" // typ chyby: hráč není na řadě

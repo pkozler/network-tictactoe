@@ -1,6 +1,6 @@
 package configuration;
 
-import communication.tokens.MessageErrorArg;
+import communication.tokens.ClientMessageErrorArg;
 import communication.tokens.ClientMessageType;
 import communication.tokens.ServerMessageType;
 
@@ -14,6 +14,8 @@ public class Config {
      * Základní konfigurační konstanty klienta:
      */
 
+    public static final String HOST_OPTION = "-h";
+    public static final String PORT_OPTION = "-p";
     public static final String DEFAULT_HOST = "127.0.0.1";
     public static final int MIN_PORT = 1;
     public static final int MAX_PORT = 65535;
@@ -39,7 +41,6 @@ public class Config {
     public static final ClientMessageType MSG_CREATE_GAME = new ClientMessageType("create-game", 4);
     public static final ClientMessageType MSG_JOIN_GAME = new ClientMessageType("join-game", 1);
     public static final ClientMessageType MSG_LEAVE_GAME = new ClientMessageType("leave-game");
-    public static final ClientMessageType MSG_START_GAME = new ClientMessageType("start-game");
     public static final ClientMessageType MSG_PLAY_GAME = new ClientMessageType("play-game", 2);
     public static final int MSG_ACTIVATE_CLIENT_ID_ARGC = 2;
     public static final int MSG_CREATE_GAME_ID_ARGC = 2;
@@ -48,28 +49,26 @@ public class Config {
      * Ošetřované chyby požadavků klienta:
      */
 
-    public static final MessageErrorArg MSG_ERR_INVALID_ARG_COUNT = new MessageErrorArg("invalid-arg-count");
-    public static final MessageErrorArg MSG_ERR_ALREADY_ACTIVE = new MessageErrorArg("already-active");
-    public static final MessageErrorArg MSG_ERR_INVALID_NAME = new MessageErrorArg("invalid-name");
-    public static final MessageErrorArg MSG_ERR_EXISTING_NAME = new MessageErrorArg("existing-name");
-    public static final MessageErrorArg MSG_ERR_NOT_ACTIVE = new MessageErrorArg("not-active");
-    public static final MessageErrorArg MSG_ERR_INVALID_PLAYER_COUNT = new MessageErrorArg("invalid-player-count", 4);
-    public static final MessageErrorArg MSG_ERR_INVALID_BOARD_SIZE = new MessageErrorArg("invalid-board-size", 4);
-    public static final MessageErrorArg MSG_ERR_INVALID_CELL_COUNT = new MessageErrorArg("invalid-cell-count", 4);
-    public static final MessageErrorArg MSG_ERR_INVALID_ID = new MessageErrorArg("invalid-id");
-    public static final MessageErrorArg MSG_ERR_EXISTING_ID = new MessageErrorArg("existing-id");
-    public static final MessageErrorArg MSG_ERR_ID_NOT_FOUND = new MessageErrorArg("id-not-found");
-    public static final MessageErrorArg MSG_ERR_ROOM_FULL = new MessageErrorArg("room-full");
-    public static final MessageErrorArg MSG_ERR_ALREADY_IN_ROOM = new MessageErrorArg("already-in-room");
-    public static final MessageErrorArg MSG_ERR_NOT_IN_ROOM = new MessageErrorArg("not-in-room");
-    public static final MessageErrorArg MSG_ERR_NOT_ENOUGH_PLAYERS = new MessageErrorArg("not-enough-players");
-    public static final MessageErrorArg MSG_ERR_ROUND_NOT_FINISHED = new MessageErrorArg("round-not-finished");
-    public static final MessageErrorArg MSG_ERR_ROUND_NOT_STARTED = new MessageErrorArg("round-not-started");
-    public static final MessageErrorArg MSG_ERR_CANNOT_PLAY_IN_ROUND = new MessageErrorArg("cannot-play-in-round");
-    public static final MessageErrorArg MSG_ERR_CANNOT_PLAY_NOW = new MessageErrorArg("cannot-play-now");
-    public static final MessageErrorArg MSG_ERR_CELL_OCCUPIED = new MessageErrorArg("cell-occupied");
-    public static final MessageErrorArg MSG_ERR_CELL_OUT_OF_BOARD = new MessageErrorArg("cell-out-of-board");
-    public static final MessageErrorArg MSG_ERR_INVALID_POSITION = new MessageErrorArg("invalid-position");
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_ARG_COUNT = new ClientMessageErrorArg("invalid-arg-count");
+    public static final ClientMessageErrorArg MSG_ERR_ALREADY_ACTIVE = new ClientMessageErrorArg("already-active");
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_NAME = new ClientMessageErrorArg("invalid-name");
+    public static final ClientMessageErrorArg MSG_ERR_EXISTING_NAME = new ClientMessageErrorArg("existing-name");
+    public static final ClientMessageErrorArg MSG_ERR_NOT_ACTIVE = new ClientMessageErrorArg("not-active");
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_PLAYER_COUNT = new ClientMessageErrorArg("invalid-player-count", 4);
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_BOARD_SIZE = new ClientMessageErrorArg("invalid-board-size", 4);
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_CELL_COUNT = new ClientMessageErrorArg("invalid-cell-count", 4);
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_ID = new ClientMessageErrorArg("invalid-id");
+    public static final ClientMessageErrorArg MSG_ERR_EXISTING_ID = new ClientMessageErrorArg("existing-id");
+    public static final ClientMessageErrorArg MSG_ERR_ID_NOT_FOUND = new ClientMessageErrorArg("id-not-found");
+    public static final ClientMessageErrorArg MSG_ERR_ROOM_FULL = new ClientMessageErrorArg("room-full");
+    public static final ClientMessageErrorArg MSG_ERR_ALREADY_IN_ROOM = new ClientMessageErrorArg("already-in-room");
+    public static final ClientMessageErrorArg MSG_ERR_NOT_IN_ROOM = new ClientMessageErrorArg("not-in-room");
+    public static final ClientMessageErrorArg MSG_ERR_ROUND_NOT_STARTED = new ClientMessageErrorArg("round-not-started");
+    public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_IN_ROUND = new ClientMessageErrorArg("cannot-play-in-round");
+    public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_NOW = new ClientMessageErrorArg("cannot-play-now");
+    public static final ClientMessageErrorArg MSG_ERR_CELL_OCCUPIED = new ClientMessageErrorArg("cell-occupied");
+    public static final ClientMessageErrorArg MSG_ERR_CELL_OUT_OF_BOARD = new ClientMessageErrorArg("cell-out-of-board");
+    public static final ClientMessageErrorArg MSG_ERR_INVALID_POSITION = new ClientMessageErrorArg("invalid-position");
 
     /*
      * Dostupné odpovědi serveru a počty argumentů:
@@ -94,41 +93,5 @@ public class Config {
     public static final String MSG_TRUE = "true";
     public static final String MSG_FALSE = "false";
     public static final String SEPARATOR = "/";
-    
-    /*
-     * Propojení požadavků klienta a možných chybových stavů:
-     */
-    
-    // TODO doplnit formátované texty chybových hlášení !!!
-    
-    static {
-        MSG_ERR_INVALID_NAME.associateWithMessageType(MSG_ACTIVATE_CLIENT, "Zadaný nickname hráče není platný.");
-        MSG_ERR_EXISTING_NAME.associateWithMessageType(MSG_ACTIVATE_CLIENT, "Hráč se zadaným nickname již existuje.");
-        
-        MSG_ERR_INVALID_NAME.associateWithMessageType(MSG_CREATE_GAME, "");
-        MSG_ERR_EXISTING_NAME.associateWithMessageType(MSG_CREATE_GAME, "");
-        MSG_ERR_INVALID_BOARD_SIZE.associateWithMessageType(MSG_CREATE_GAME, "");
-        MSG_ERR_INVALID_PLAYER_COUNT.associateWithMessageType(MSG_CREATE_GAME, "");
-        MSG_ERR_INVALID_CELL_COUNT.associateWithMessageType(MSG_CREATE_GAME, "");
-        
-        MSG_ERR_INVALID_ID.associateWithMessageType(MSG_JOIN_GAME, "");
-        MSG_ERR_ID_NOT_FOUND.associateWithMessageType(MSG_JOIN_GAME, "");
-        MSG_ERR_ALREADY_IN_ROOM.associateWithMessageType(MSG_JOIN_GAME, "");
-        MSG_ERR_ROOM_FULL.associateWithMessageType(MSG_JOIN_GAME, "");
-        
-        MSG_ERR_NOT_IN_ROOM.associateWithMessageType(MSG_LEAVE_GAME, "");
-        
-        MSG_ERR_NOT_IN_ROOM.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_NOT_ENOUGH_PLAYERS.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_ROUND_NOT_FINISHED.associateWithMessageType(MSG_START_GAME, "");
-        
-        MSG_ERR_NOT_IN_ROOM.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_ROUND_NOT_STARTED.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_CANNOT_PLAY_IN_ROUND.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_CANNOT_PLAY_NOW.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_INVALID_POSITION.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_CELL_OUT_OF_BOARD.associateWithMessageType(MSG_START_GAME, "");
-        MSG_ERR_CELL_OCCUPIED.associateWithMessageType(MSG_START_GAME, "");
-    }
     
 }

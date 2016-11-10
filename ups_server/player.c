@@ -226,42 +226,6 @@ message_t *handle_leave_game_request(message_t *message, player_t *player) {
     return create_ack_message(message, player);
 }
 
-message_t *handle_start_game_request(message_t *message, player_t *player) {
-    if (message->argc != MSG_START_GAME_ARGC) {
-        return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
-    }
-    
-    lock_list(g_game_list);
-    
-    if (player->current_game == NULL) {
-        unlock_list(g_game_list, false);
-        
-        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
-    }
-    
-    lock_game(player->current_game);
-    
-    if (has_game_enough_players(player->current_game)) {
-        unlock_game(player->current_game, false);
-        unlock_list(g_game_list, false);
-        
-        return create_err_message(message, MSG_ERR_NOT_ENOUGH_PLAYERS, player);
-    }
-    
-    if (is_game_active(player->current_game)) {
-        unlock_game(player->current_game, false);
-        unlock_list(g_game_list, false);
-        
-        return create_err_message(message, MSG_ERR_ROUND_NOT_FINISHED, player);
-    }
-    
-    restart_game(player->current_game);
-    unlock_game(player->current_game, true);
-    unlock_list(g_game_list, true);
-    
-    return create_ack_message(message, player);
-}
-
 message_t *handle_play_game_request(message_t *message, player_t *player) {
     if (message->argc != MSG_PLAY_GAME_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -369,10 +333,6 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
         // požadavek na opuštění herní místnosti
         else if (!strcmp(message->type, MSG_LEAVE_GAME)) {
             return handle_leave_game_request(message, player);
-        }
-        // požadavek na zahájení herního kola v místnosti
-        else if (!strcmp(message->type, MSG_START_GAME)) {
-            return handle_start_game_request(message, player);
         }
         // požadavek na herní tah v místnosti
         else if (!strcmp(message->type, MSG_PLAY_GAME)) {

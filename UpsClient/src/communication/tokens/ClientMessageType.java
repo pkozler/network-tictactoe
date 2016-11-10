@@ -9,7 +9,7 @@ import java.util.Set;
  */
 public class ClientMessageType extends AMessageType {
     
-    protected Set<MessageErrorArg> errorTypes = new HashSet<>();
+    protected Set<ClientMessageErrorArg> errorTypes = new HashSet<>();
 
     public ClientMessageType(String keyword, int argCount) {
         super(keyword, argCount);
@@ -19,12 +19,12 @@ public class ClientMessageType extends AMessageType {
         super(keyword);
     }
     
-    public void addErrorType(MessageErrorArg errorType) {
+    public void addErrorType(ClientMessageErrorArg errorType) {
         errorTypes.add(errorType);
     }
     
-    public MessageErrorArg getErrorType(String keyword) throws InvalidMessageArgsException {
-        for (MessageErrorArg errorType : errorTypes) {
+    public ClientMessageErrorArg getErrorType(String keyword) throws InvalidMessageArgsException {
+        for (ClientMessageErrorArg errorType : errorTypes) {
             if (errorType.KEYWORD.equals(keyword)) {
                 return errorType;
             }

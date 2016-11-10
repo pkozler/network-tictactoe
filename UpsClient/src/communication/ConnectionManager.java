@@ -31,20 +31,10 @@ public class ConnectionManager {
     private int currentGameId;
     private int timeoutCounter;
     
-    /**
-     * Inicializuje správce 
-     * 
-     * @param host
-     * @param port
-     * @param nick 
-     */
-    public ConnectionManager(InetAddress host, int port, String nick) {
+    public synchronized void connect(InetAddress host, int port) throws IOException {
         this.host = host;
         this.port = port;
-        this.nick = nick;
-    }
-    
-    public void connect() throws IOException {
+        
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
         resetTimeoutCounter();
@@ -53,7 +43,7 @@ public class ConnectionManager {
         dos = new DataOutputStream(socket.getOutputStream());
     }
     
-    public void disconnect() throws IOException {
+    public synchronized void disconnect() throws IOException {
         if (socket != null && !socket.isClosed()) {
             dis.close();
             dos.close();
@@ -63,25 +53,25 @@ public class ConnectionManager {
         socket = null;
     }
     
-    public boolean isConnected() {
+    public synchronized boolean isConnected() {
         return socket != null && !socket.isClosed();
     }
     
-    public void activate(int id) {
+    public synchronized void logIn(int id) {
         if (id > 0) {
             playerId = id;
         }
     }
     
-    public void deactivate() {
+    public synchronized void logOut() {
         playerId = 0;
     }
     
-    public boolean isActive() {
+    public synchronized boolean isLoggedIn() {
         return playerId > 0;
     }
     
-    public void incTimeoutCounter() throws IOException {
+    public synchronized void incTimeoutCounter() throws IOException {
         timeoutCounter++;
         
         if (timeoutCounter > Config.MAX_TIMEOUTS) {
@@ -89,21 +79,29 @@ public class ConnectionManager {
         }
     }
     
-    public void resetTimeoutCounter() {
+    public synchronized void resetTimeoutCounter() {
         timeoutCounter = 0;
     }
     
-    public void joinGame(int id) {
+    public synchronized void joinGame(int id) {
         if (id > 0) {
             currentGameId = id;
         }
     }
     
-    public void leaveGame() {
+    public synchronized void leaveGame() {
         currentGameId = 0;
     }
     
-    public int getGameId() {
+    public synchronized int getPlayerId() {
+        return playerId;
+    }
+    
+    public synchronized String getPlayerNick() {
+        return nick;
+    }
+    
+    public synchronized int getGameId() {
         return currentGameId;
     }
     

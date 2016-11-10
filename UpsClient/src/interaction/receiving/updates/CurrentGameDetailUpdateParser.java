@@ -11,15 +11,12 @@ import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
-import interaction.receiving.AReceiver;
-import interaction.receiving.IListReceiver;
+import interaction.receiving.AUpdateParser;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 import javax.swing.JList;
 import visualisation.components.CurrentGameWindow;
 import visualisation.components.GameListPanel;
 import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
 import visualisation.listmodels.GameListModel;
 import visualisation.listmodels.PlayerListModel;
 
@@ -27,9 +24,8 @@ import visualisation.listmodels.PlayerListModel;
  *
  * @author Petr Kozler
  */
-public class CurrentGameDetailUpdateReceiver extends AReceiver<CurrentGameDetail, Object> implements IListReceiver {
+public class CurrentGameDetailUpdateParser extends AUpdateParser {
 
-    private final StatusBarPanel STATUS_BAR_PANEL;
     private final JList<PlayerInfo> PLAYER_LIST;
     private final JList<GameInfo> GAME_LIST;
     private final PlayerListModel PLAYER_LIST_MODEL;
@@ -37,13 +33,13 @@ public class CurrentGameDetailUpdateReceiver extends AReceiver<CurrentGameDetail
     private final CurrentGameWindow CURRENT_GAME_WINDOW;
     private final GameBoard CURRENT_GAME_BOARD;
     private final ArrayList<JoinedPlayer> JOINED_PLAYER_LIST;
-    private boolean valid = true;
     
-    public CurrentGameDetailUpdateReceiver(ConnectionManager connectionManager, StatusBarPanel statusBarPanel,
-            PlayerListPanel playerListPanel, GameListPanel gameListPanel, CurrentGameWindow currentGameWindow, Message message) {
+    public CurrentGameDetailUpdateParser(ConnectionManager connectionManager,
+            PlayerListPanel playerListPanel, GameListPanel gameListPanel,
+            CurrentGameWindow currentGameWindow, Message message)
+            throws InvalidMessageArgsException, MissingMessageArgsException {
         super(connectionManager, message);
         
-        STATUS_BAR_PANEL = statusBarPanel;
         PLAYER_LIST = playerListPanel.getPlayerList();
         GAME_LIST = gameListPanel.getGameList();
         PLAYER_LIST_MODEL = (PlayerListModel) PLAYER_LIST.getModel();
@@ -52,21 +48,41 @@ public class CurrentGameDetailUpdateReceiver extends AReceiver<CurrentGameDetail
         
         GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(connectionManager.getGameId());
         
-        byte winnerIndex = 0;
-        byte currentIndex = 0;
-        Cell[][] cells = null;
+        byte winnerIndex;
+        byte currentIndex;
+        Cell[][] cells;
         
-        try {
-            winnerIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-            currentIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-            cells = getCellsFromString(message.getNextArg(), currentGameInfo.BOARD_SIZE);
-        }
-        catch (InvalidMessageArgsException | MissingMessageArgsException ex) {
-            valid = false;
-        }
-        
+        winnerIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        currentIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        cells = getCellsFromString(message.getNextArg(), currentGameInfo.BOARD_SIZE);
+
         CURRENT_GAME_BOARD = new GameBoard(currentGameInfo, winnerIndex, currentIndex, cells);
         JOINED_PLAYER_LIST = new ArrayList<>(CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter());
+    }
+    
+    @Override
+    public boolean hasNextItemMessage() {
+        return JOINED_PLAYER_LIST.size() < CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter();
+    }
+
+    @Override
+    public void parseNextItemMessage(Message itemMessage)
+            throws InvalidMessageArgsException, MissingMessageArgsException {
+        int id = itemMessage.getNextIntArg(1);
+        byte currentGameIndex = itemMessage.getNextByteArg((byte) 1, CURRENT_GAME_BOARD.GAME_INFO.PLAYER_COUNT);
+        int currentGameScore = itemMessage.getNextIntArg(0);
+
+        PlayerInfo joinedPlayerInfo = PLAYER_LIST_MODEL.getElementByKey(id);
+        JOINED_PLAYER_LIST.add(new JoinedPlayer(joinedPlayerInfo, currentGameIndex, currentGameScore));
+    }
+
+    @Override
+    public String getStatusAndUpdateGUI() {
+        CurrentGameDetail currentGameDetail = new CurrentGameDetail(
+                CURRENT_GAME_BOARD, JOINED_PLAYER_LIST);
+        CURRENT_GAME_WINDOW.setGameDetail(currentGameDetail);
+        
+        return "Byl aktualizován stav herní místnosti.";
     }
     
     private Cell getCellFromSubstring(String cellSubstr) throws InvalidMessageArgsException {
@@ -120,44 +136,4 @@ public class CurrentGameDetailUpdateReceiver extends AReceiver<CurrentGameDetail
         return cells;
     }
 
-    @Override
-    protected CurrentGameDetail doInBackground() throws Exception {
-        return new CurrentGameDetail(CURRENT_GAME_BOARD, JOINED_PLAYER_LIST);
-    }
-
-    @Override
-    protected void done() {
-        try {
-            if (!valid) {
-                return;
-            }
-            
-            CurrentGameDetail currentGameDetail = get();
-            CURRENT_GAME_WINDOW.setGameDetail(currentGameDetail);
-        }
-        catch (InterruptedException | ExecutionException ex) {
-            // TODO
-        }
-    }
-
-    @Override
-    public boolean hasNextItem() {
-        return JOINED_PLAYER_LIST.size() < CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter();
-    }
-
-    @Override
-    public void addNextItem(Message itemMessage) {
-        try {
-            int id = itemMessage.getNextIntArg(1);
-            byte currentGameIndex = itemMessage.getNextByteArg((byte) 1, CURRENT_GAME_BOARD.GAME_INFO.PLAYER_COUNT);
-            int currentGameScore = itemMessage.getNextIntArg(0);
-
-            PlayerInfo joinedPlayerInfo = PLAYER_LIST_MODEL.getElementByKey(id);
-            JOINED_PLAYER_LIST.add(new JoinedPlayer(joinedPlayerInfo, currentGameIndex, currentGameScore));
-        }
-        catch (InvalidMessageArgsException | MissingMessageArgsException ex) {
-            valid = false;
-        }
-    }
-    
 }

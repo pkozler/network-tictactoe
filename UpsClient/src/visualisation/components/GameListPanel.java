@@ -1,6 +1,7 @@
 package visualisation.components;
 
 import communication.containers.GameInfo;
+import interaction.MessageBackgroundSender;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -21,23 +22,26 @@ public class GameListPanel extends JPanel {
     private final GameListModel GAME_LIST_MODEL;
     private final JButton CREATE_GAME_BUTTON;
     private final JButton JOIN_GAME_BUTTON;
+    private final MessageBackgroundSender MESSAGE_SENDER;
     
-    public GameListPanel() {
+    public GameListPanel(MessageBackgroundSender messageBackgroundSender) {
         super(new BorderLayout());
         
+        MESSAGE_SENDER = messageBackgroundSender;
         GAME_LIST_MODEL = new GameListModel();
         GAME_LIST_VIEW = new JList<>(GAME_LIST_MODEL);
         
         CREATE_GAME_BUTTON = new JButton("Vytvořit hru");
         JOIN_GAME_BUTTON = new JButton("Připojit ke hře");
-        
-        setListeners();
+        CREATE_GAME_BUTTON.setEnabled(false);
+        CREATE_GAME_BUTTON.setEnabled(false);
         
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(CREATE_GAME_BUTTON);
         buttonPanel.add(JOIN_GAME_BUTTON);
-        
         add(buttonPanel, BorderLayout.SOUTH);
+        
+        setListeners();
     }
     
     public JList<GameInfo> getGameList() {
@@ -68,6 +72,11 @@ public class GameListPanel extends JPanel {
         });
     }
     
+    public void setButtons(boolean enabled) {
+        CREATE_GAME_BUTTON.setEnabled(enabled);
+        JOIN_GAME_BUTTON.setEnabled(enabled);
+    }
+
     private void createGameActionPerformed() {
         
     }
@@ -75,5 +84,5 @@ public class GameListPanel extends JPanel {
     private void joinGameActionPerformed() {
         
     }
-
+    
 }

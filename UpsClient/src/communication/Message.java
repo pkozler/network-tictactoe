@@ -46,6 +46,10 @@ public class Message {
         args = msgStr.substring(firstDelimIndex + 1).split(Config.SEPARATOR);
     }
     
+    public Message() {
+        this(null);
+    }
+    
     public boolean hasTypeToken() {
         return type != null;
     }
