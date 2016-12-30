@@ -1,7 +1,7 @@
 package interaction.receiving.responses;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
@@ -17,14 +17,14 @@ public class JoinGameResponseParser extends AResponseParser {
 
     protected int gameId;
     
-    public JoinGameResponseParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, Message message)
+    public JoinGameResponseParser(TcpClient client,
+            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, gameListPanel, statusBarPanel, message);
+        super(client, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CONNECTION_MANAGER.joinGame(MESSAGE.getNextIntArg(1));
-            gameId = CONNECTION_MANAGER.getGameId();
+            CLIENT.joinGame(MESSAGE.getNextIntArg(1));
+            gameId = CLIENT.getGameId();
             
             return;
         }

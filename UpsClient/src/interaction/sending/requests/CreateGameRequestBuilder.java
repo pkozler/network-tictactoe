@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.Message;
+import communication.TcpMessage;
 import configuration.Config;
 import interaction.sending.ARequestBuilder;
 
@@ -22,7 +22,7 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
         BOARD_SIZE = boardSize;
         CELL_COUNT = cellCount;
         
-        message = new Message(Config.MSG_CREATE_GAME.KEYWORD, NAME,
+        message = new TcpMessage(Config.MSG_CREATE_GAME.KEYWORD, NAME,
                 Byte.toString(PLAYER_COUNT), Byte.toString(BOARD_SIZE), Byte.toString(CELL_COUNT));
     }
     

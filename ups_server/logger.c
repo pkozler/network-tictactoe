@@ -132,7 +132,7 @@ void write_logs() {
  * @param arg argument
  */
 void *run_logging(void *arg) {
-    while (true) {
+    while (is_server_running()) {
         write_logs();
     }
     
@@ -174,7 +174,6 @@ void start_logging(char *log_file_name) {
  * a uzavře logovací soubor.
  */
 void shutdown_logging() {
-    pthread_cancel(g_logger.thread);
     pthread_mutex_destroy(&(g_logger.lock));
     
     // výpis zbylých logů ve frontě po ukončení serveru

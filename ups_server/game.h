@@ -12,8 +12,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-observed_list_t *g_game_list;
-
 struct PLAYER;
 
 typedef struct {

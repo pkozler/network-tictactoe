@@ -1,7 +1,7 @@
 package interaction.receiving.responses;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
@@ -17,13 +17,13 @@ public class PlayGameResponseParser extends AResponseParser {
 
     protected int gameId;
     
-    public PlayGameResponseParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, Message message)
+    public PlayGameResponseParser(TcpClient client,
+            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, gameListPanel, statusBarPanel, message);
+        super(client, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            gameId = CONNECTION_MANAGER.getGameId();
+            gameId = CLIENT.getGameId();
             
             return;
         }

@@ -36,16 +36,18 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/broadcast.o \
-	${OBJECTDIR}/connection.o \
+	${OBJECTDIR}/cmd_arg.o \
 	${OBJECTDIR}/console.o \
 	${OBJECTDIR}/game.o \
-	${OBJECTDIR}/game_update.o \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/message.o \
 	${OBJECTDIR}/observed_list.o \
 	${OBJECTDIR}/player.o \
-	${OBJECTDIR}/printer.o
+	${OBJECTDIR}/printer.o \
+	${OBJECTDIR}/string_builder.o \
+	${OBJECTDIR}/tcp_server.o \
+	${OBJECTDIR}/tcp_server_info.o
 
 
 # C Compiler Flags
@@ -77,10 +79,10 @@ ${OBJECTDIR}/broadcast.o: broadcast.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcast.o broadcast.c
 
-${OBJECTDIR}/connection.o: connection.c 
+${OBJECTDIR}/cmd_arg.o: cmd_arg.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/connection.o connection.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/cmd_arg.o cmd_arg.c
 
 ${OBJECTDIR}/console.o: console.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -91,11 +93,6 @@ ${OBJECTDIR}/game.o: game.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game.o game.c
-
-${OBJECTDIR}/game_update.o: game_update.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_update.o game_update.c
 
 ${OBJECTDIR}/logger.o: logger.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -126,6 +123,21 @@ ${OBJECTDIR}/printer.o: printer.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printer.o printer.c
+
+${OBJECTDIR}/string_builder.o: string_builder.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_builder.o string_builder.c
+
+${OBJECTDIR}/tcp_server.o: tcp_server.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server.o tcp_server.c
+
+${OBJECTDIR}/tcp_server_info.o: tcp_server_info.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server_info.o tcp_server_info.c
 
 # Subprojects
 .build-subprojects:

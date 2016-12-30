@@ -1,6 +1,6 @@
 package interaction.sending;
 
-import communication.Message;
+import communication.TcpMessage;
 
 /**
  *
@@ -8,9 +8,9 @@ import communication.Message;
  */
 public abstract class ARequestBuilder {
     
-    protected Message message;
+    protected TcpMessage message;
     
-    public Message getMessage() {
+    public TcpMessage getMessage() {
         return message;
     }
     

@@ -151,6 +151,39 @@ int32_t string_to_int(char *str) {
     return (int32_t) strtol(str, NULL, 10);
 }
 
+bool put_str_arg(message_t *msg, char *arg) {
+    msg->argv[msg->counter++] = arg;
+}
+
+char *get_str_arg(message_t *msg) {
+    char *arg = msg->argv[msg->argc - msg->counter];
+    msg->counter--;
+    
+    return arg;
+}
+
+bool put_byte_arg(message_t *msg, int8_t arg) {
+    msg->argv[msg->counter++] = byte_to_string(arg);
+}
+
+int8_t get_byte_arg(message_t *msg) {
+    int8_t arg = string_to_byte(msg->argv[msg->argc - msg->counter]);
+    msg->counter--;
+    
+    return arg;
+}
+
+bool put_int_arg(message_t *msg, int32_t arg) {
+    msg->argv[msg->counter++] = int_to_string(arg);
+}
+
+int32_t get_int_arg(message_t *msg) {
+    int32_t arg = string_to_int(msg->argv[msg->argc - msg->counter]);
+    msg->counter--;
+    
+    return arg;
+}
+
 /**
  * Vytvoří novou strukturu zprávy zadaného typu se zadaným počtem parametrů
  * určenou k odeslání klientovi.
@@ -164,6 +197,7 @@ message_t *create_message(char *msg_type, int32_t msg_argc) {
     
     message->type = msg_type;
     message->argc = msg_argc;
+    message->counter = 0;
     
     if (message->argc > 0) {
         message->argv = (char **) malloc(sizeof(char *) * msg_argc);
@@ -229,8 +263,6 @@ message_t *receive_message(int sock) {
     }
     
     message_t *message = create_message(pch, delim_cnt);
-    
-    int32_t i = 0;
     pch = strtok(NULL, SEPARATOR);
     
     while (pch != NULL) {
@@ -238,12 +270,12 @@ message_t *receive_message(int sock) {
             return NULL;
         }
         
-        message->argv[i] = pch;
-        i++;
+        message->argv[message->counter++] = pch;
         pch = strtok(NULL, SEPARATOR);
     }
     
     free(msg_str);
+    message->argc = message->counter;
     
     return message;
 }

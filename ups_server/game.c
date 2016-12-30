@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 
+observed_list_t *g_game_list;
+
 /*
  * Pomocné funkce pro operace s hrami:
  */
@@ -56,8 +58,8 @@ int32_t count_status_messages(game_t *game) {
 message_t *game_board_to_message(game_t *game) {
     message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);
     
-    new_message->argv[0] = byte_to_string(game->winner);
-    new_message->argv[1] = byte_to_string(game->current_player);
+    put_byte_arg(new_message, game->winner);
+    put_byte_arg(new_message, game->current_player);
     
     char *board_str = (char *) malloc(sizeof(char) *
         (game->board_size * game->board_size * (BOARD_CELL_SEED_SIZE + 1) + 1));
@@ -79,9 +81,9 @@ message_t *game_board_to_message(game_t *game) {
 
 message_t *joined_player_to_message(player_t *player) {
     message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
-    new_message->argv[0] = int_to_string(player->id); // TODO prevest na retezec
-    new_message->argv[1] = int_to_string(player->current_game_index); // TODO prevest na retezec
-    new_message->argv[2] = int_to_string(player->current_game_score); // TODO prevest na retezec
+    put_int_arg(new_message, player->id);
+    put_int_arg(new_message, player->current_game_index);
+    put_int_arg(new_message, player->current_game_score);
     
     return new_message;
 }
@@ -452,21 +454,21 @@ char *get_game_name(void *item) {
 message_t *game_to_msg(void *item) {
     game_t *game = (game_t *) item;
     message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
-    message->argv[0] = int_to_string(game->id);
-    message->argv[1] = game->name;
-    message->argv[2] = byte_to_string(game->player_count);
-    message->argv[3] = byte_to_string(game->board_size);
-    message->argv[4] = byte_to_string(game->cell_count);
-    message->argv[5] = byte_to_string(game->player_counter);
-    message->argv[6] = int_to_string(game->round_counter);
-    message->argv[7] = int_to_string((game->active ? 1 : 0));
+    put_int_arg(message, game->id);
+    put_str_arg(message, game->name);
+    put_byte_arg(message, game->player_count);
+    put_byte_arg(message, game->board_size);
+    put_byte_arg(message, game->cell_count);
+    put_byte_arg(message, game->player_counter);
+    put_int_arg(message, game->round_counter);
+    put_int_arg(message, (game->active ? 1 : 0));
     
     return message;
 }
 
 message_t *game_list_to_msg() {
     message_t *message = create_message(MSG_GAME_LIST, MSG_GAME_LIST_ARGC);
-    message->argv[0] = int_to_string(g_player_list->count);
+    put_int_arg(message, g_player_list->count);
     
     return message;
 }

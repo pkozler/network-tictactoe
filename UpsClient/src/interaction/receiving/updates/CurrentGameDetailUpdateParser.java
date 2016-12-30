@@ -1,7 +1,7 @@
 package interaction.receiving.updates;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.containers.Cell;
 import communication.containers.GameBoard;
 import communication.containers.GameInfo;
@@ -34,11 +34,11 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     private final GameBoard CURRENT_GAME_BOARD;
     private final ArrayList<JoinedPlayer> JOINED_PLAYER_LIST;
     
-    public CurrentGameDetailUpdateParser(ConnectionManager connectionManager,
+    public CurrentGameDetailUpdateParser(TcpClient client,
             PlayerListPanel playerListPanel, GameListPanel gameListPanel,
-            CurrentGameWindow currentGameWindow, Message message)
+            CurrentGameWindow currentGameWindow, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, message);
+        super(client, message);
         
         PLAYER_LIST = playerListPanel.getPlayerList();
         GAME_LIST = gameListPanel.getGameList();
@@ -46,7 +46,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         GAME_LIST_MODEL = (GameListModel) GAME_LIST.getModel();
         CURRENT_GAME_WINDOW = currentGameWindow;
         
-        GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(connectionManager.getGameId());
+        GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(client.getGameId());
         
         byte winnerIndex;
         byte currentIndex;
@@ -66,7 +66,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
 
     @Override
-    public void parseNextItemMessage(Message itemMessage)
+    public void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         int id = itemMessage.getNextIntArg(1);
         byte currentGameIndex = itemMessage.getNextByteArg((byte) 1, CURRENT_GAME_BOARD.GAME_INFO.PLAYER_COUNT);

@@ -1,7 +1,7 @@
 package interaction;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.ClientNotActivatedException;
 import communication.ClientAlreadyActiveException;
 import communication.containers.InvalidListItemException;
@@ -33,7 +33,7 @@ import visualisation.components.StatusBarPanel;
  */
 public class MessageBackgroundReceiver implements Runnable {
 
-    private final ConnectionManager CONNECTION_MANAGER;
+    private final TcpClient CLIENT;
     private final StatusBarPanel STATUS_BAR_PANEL;
     private final PlayerListPanel PLAYER_LIST_PANEL;
     private final GameListPanel GAME_LIST_PANEL;
@@ -41,10 +41,10 @@ public class MessageBackgroundReceiver implements Runnable {
     
     private AParser currentParser;
     
-    public MessageBackgroundReceiver(ConnectionManager connectionManager,
+    public MessageBackgroundReceiver(TcpClient client,
             StatusBarPanel statusBarPanel, PlayerListPanel playerListPanel,
             GameListPanel gameListPanel, CurrentGameWindow currentGameWindow) {
-        CONNECTION_MANAGER = connectionManager;
+        CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
         PLAYER_LIST_PANEL = playerListPanel;
         GAME_LIST_PANEL = gameListPanel;
@@ -56,7 +56,7 @@ public class MessageBackgroundReceiver implements Runnable {
     public void run() {
         handleCreatedConnection();
         
-        while (CONNECTION_MANAGER.isConnected()) {
+        while (CLIENT.isConnected()) {
             handleReceivedMessage();
         }
         
@@ -89,7 +89,7 @@ public class MessageBackgroundReceiver implements Runnable {
         Runnable runnable;
         
         try {
-            Message message = CONNECTION_MANAGER.receiveMessage();
+            TcpMessage message = CLIENT.receiveMessage();
             executeParserOnBackground(message);
             
             runnable = new Runnable() {
@@ -121,7 +121,7 @@ public class MessageBackgroundReceiver implements Runnable {
         SwingUtilities.invokeLater(runnable);
     }
     
-    private void executeParserOnBackground(Message message) throws MissingListHeaderException,
+    private void executeParserOnBackground(TcpMessage message) throws MissingListHeaderException,
             UnknownMessageTypeException, ClientAlreadyActiveException,
             InvalidMessageArgsException, MissingMessageArgsException, InvalidListItemException, ClientNotActivatedException {
         // přijatá zpráva je testování odezvy
@@ -130,7 +130,7 @@ public class MessageBackgroundReceiver implements Runnable {
         }
 
         // přijatá zpráva je potvrzení o přihlášení
-        if (!CONNECTION_MANAGER.isLoggedIn()) {
+        if (!CLIENT.isLoggedIn()) {
             currentParser = handleResponse(message, false);
             
             return;
@@ -164,13 +164,13 @@ public class MessageBackgroundReceiver implements Runnable {
         throw new UnknownMessageTypeException();
     }
     
-    private AParser handleResponse(Message message, boolean active)
+    private AParser handleResponse(TcpMessage message, boolean active)
             throws UnknownMessageTypeException, ClientAlreadyActiveException,
             MissingListHeaderException, InvalidMessageArgsException,
             MissingMessageArgsException, ClientNotActivatedException {
         if (!active) {
             if (message.isTypeOf(Config.MSG_ACTIVATE_CLIENT)) {
-                return new ActivationResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+                return new ActivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
             }
             
             throw new ClientNotActivatedException();
@@ -180,36 +180,36 @@ public class MessageBackgroundReceiver implements Runnable {
             throw new ClientAlreadyActiveException();
         }
         else if (message.isTypeOf(Config.MSG_DEACTIVATE_CLIENT)) {
-            return new DeactivationResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new DeactivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_CREATE_GAME)) {
-            return new CreateGameResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new CreateGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_JOIN_GAME)) {
-            return new JoinGameResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new JoinGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_LEAVE_GAME)) {
-            return new LeaveGameResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new LeaveGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_PLAY_GAME)) {
-            return new PlayGameResponseParser(CONNECTION_MANAGER, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new PlayGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         return null;
     }
     
-    private AParser handleUpdate(Message message)
+    private AParser handleUpdate(TcpMessage message)
             throws MissingListHeaderException, InvalidMessageArgsException, MissingMessageArgsException {
         if (message.isTypeOf(Config.MSG_PLAYER_LIST)) {
-            return new PlayerListUpdateParser(CONNECTION_MANAGER,
+            return new PlayerListUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_GAME_LIST)) {
-            return new GameListUpdateParser(CONNECTION_MANAGER,
+            return new GameListUpdateParser(CLIENT,
                     GAME_LIST_PANEL, message);
         }
         else if (message.isTypeOf(Config.MSG_GAME_DETAIL)) {
-            return new CurrentGameDetailUpdateParser(CONNECTION_MANAGER,
+            return new CurrentGameDetailUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW, message);
         }
         else if (message.isTypeOf(Config.MSG_PLAYER_LIST_ITEM)
@@ -221,7 +221,7 @@ public class MessageBackgroundReceiver implements Runnable {
         return null;
     }
     
-    private void parseListItemMessage(AUpdateParser currentListReceiver, Message message)
+    private void parseListItemMessage(AUpdateParser currentListReceiver, TcpMessage message)
             throws InvalidListItemException, InvalidMessageArgsException, MissingMessageArgsException {
         if ((message.isTypeOf(Config.MSG_PLAYER_LIST_ITEM) && currentListReceiver instanceof PlayerListUpdateParser)
          || (message.isTypeOf(Config.MSG_GAME_LIST_ITEM) && currentListReceiver instanceof GameListUpdateParser)

@@ -9,21 +9,26 @@
  * Základní konfigurační konstanty serveru:
  */
 
-#define ANY_IP_STR "*" // řetězec označující libovolnou IP adresu pro naslouchání
-#define MIN_PORT 1 // nejnižší povolené číslo portu
+#define HOST_OPTION "-h" // argument příkazové řádky značící volbu IP adresy
+#define PORT_OPTION "-p" // argument příkazové řádky značící volbu čísla portu
+#define LOG_OPTION "-l" // argument příkazové řádky značící volbu logovacího souboru
+#define QUEUE_OPTION "-q" // argument příkazové řádky značící volbu délky fronty
+#define DEFAULT_HOST "0.0.0.0" // výchozí IP adresa pro naslouchání (INADDR_ANY)
+#define DEFAULT_LOG_FILE "log.txt" // výchozí název souboru pro logování
+#define MIN_PORT 0 // nejnižší povolené číslo portu
 #define MAX_PORT 65535 // nejvyšší povolené číslo portu
 #define DEFAULT_PORT 10001 // výchozí port pro naslouchání
-#define QUEUE_LEN 8 // délka fronty pro příchozí spojení
-#define SOCKET_TIMEOUT_SEC 1 // timeout příjmu/odeslání zprávy klienta v sekundách
-#define MAX_TIMEOUTS 5 // maximální počet timeoutů v řadě před zrušením spojení
-#define MAX_NAME_LENGTH 16
-#define MIN_BOARD_SIZE 3
-#define MAX_BOARD_SIZE 12
-#define MIN_PLAYERS_SIZE 2
-#define MAX_PLAYERS_SIZE 4
-#define MIN_CELL_COUNT 2
-#define MAX_CELL_COUNT 12
-#define LOG_LINE_LENGTH 1024 // velikost bufferu pro výpis hlášení
+#define MIN_QUEUE_LENGTH 1 // minimální délka fronty pro příchozí spojení
+#define MAX_QUEUE_LENGTH 10 // maximální délka fronty pro příchozí spojení
+#define DEFAULT_QUEUE_LENGTH 5 // výchozí délka fronty pro příchozí spojení
+#define SOCKET_TIMEOUT_SEC 3 // timeout příjmu/odeslání zprávy klienta v sekundách
+#define MAX_NAME_LENGTH 16 // maximální povolená délka jména hráče nebo názvu hry
+#define MIN_BOARD_SIZE 3 // minimální povolený rozměr hracího pole
+#define MAX_BOARD_SIZE 12 // maximální povolený rozměr hracího pole
+#define MIN_PLAYERS_SIZE 2 // minimální povolený počet hráčů ve hře
+#define MAX_PLAYERS_SIZE 4 // maximální povolený počet hráčů ve hře
+#define MIN_CELL_COUNT 2 // minimální povolený počet políček potřebných k obsazení
+#define MAX_CELL_COUNT 12 // maximální povolený počet políček potřebných k obsazení
 
 /*
  * Dostupné požadavky klienta a počty argumentů:

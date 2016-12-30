@@ -1,7 +1,7 @@
 package interaction.receiving;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 
 /**
  *
@@ -9,11 +9,11 @@ import communication.Message;
  */
 public abstract class AParser {
     
-    protected final ConnectionManager CONNECTION_MANAGER;
-    protected final Message MESSAGE;
+    protected final TcpClient CLIENT;
+    protected final TcpMessage MESSAGE;
     
-    public AParser(ConnectionManager connectionManager, Message message) {
-        CONNECTION_MANAGER = connectionManager;
+    public AParser(TcpClient client, TcpMessage message) {
+        CLIENT = client;
         MESSAGE = message;
     }
     

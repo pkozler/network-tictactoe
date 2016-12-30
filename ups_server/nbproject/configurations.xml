@@ -7,7 +7,6 @@
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.h</itemPath>
-          <itemPath>game_update.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.h</itemPath>
@@ -15,14 +14,16 @@
         <itemPath>observed_list.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
+        <itemPath>cmd_arg.h</itemPath>
         <itemPath>console.h</itemPath>
         <itemPath>logger.h</itemPath>
         <itemPath>printer.h</itemPath>
+        <itemPath>string_builder.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
-          <itemPath>connection.h</itemPath>
-          <itemPath>connection_stats.h</itemPath>
+          <itemPath>tcp_server.h</itemPath>
+          <itemPath>tcp_server_info.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcast.h</itemPath>
@@ -41,7 +42,6 @@
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.c</itemPath>
-          <itemPath>game_update.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.c</itemPath>
@@ -49,13 +49,16 @@
         <itemPath>observed_list.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
+        <itemPath>cmd_arg.c</itemPath>
         <itemPath>console.c</itemPath>
         <itemPath>logger.c</itemPath>
         <itemPath>printer.c</itemPath>
+        <itemPath>string_builder.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
-          <itemPath>connection.c</itemPath>
+          <itemPath>tcp_server.c</itemPath>
+          <itemPath>tcp_server_info.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcast.c</itemPath>
@@ -98,13 +101,11 @@
       </item>
       <item path="broadcast.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="connection.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="connection.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="connection_stats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="console.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -113,10 +114,6 @@
       <item path="game.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="game.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="game_update.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="game_update.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="logger.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -139,6 +136,18 @@
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="string_builder.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="string_builder.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_server_info.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_server_info.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -166,13 +175,11 @@
       </item>
       <item path="broadcast.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="connection.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="connection.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="connection_stats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="console.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -181,10 +188,6 @@
       <item path="game.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="game.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="game_update.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="game_update.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="logger.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -207,6 +210,18 @@
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="string_builder.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="string_builder.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_server_info.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_server_info.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

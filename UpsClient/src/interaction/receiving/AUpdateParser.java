@@ -1,7 +1,7 @@
 package interaction.receiving;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 
@@ -11,13 +11,13 @@ import communication.tokens.MissingMessageArgsException;
  */
 public abstract class AUpdateParser extends AParser {
     
-    public AUpdateParser(ConnectionManager connectionManager, Message message) {
-        super(connectionManager, message);
+    public AUpdateParser(TcpClient client, TcpMessage message) {
+        super(client, message);
     }
     
     public abstract boolean hasNextItemMessage();
     
-    public abstract void parseNextItemMessage(Message itemMessage)
+    public abstract void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException;
     
 }

@@ -17,11 +17,11 @@ public class Config {
     public static final String HOST_OPTION = "-h";
     public static final String PORT_OPTION = "-p";
     public static final String DEFAULT_HOST = "127.0.0.1";
-    public static final int MIN_PORT = 1;
+    public static final int MIN_PORT = 0;
     public static final int MAX_PORT = 65535;
     public static final int DEFAULT_PORT = 10001;
-    public static final int SOCKET_TIMEOUT_MILLIS = 1000;
-    public static final int MAX_TIMEOUTS = 5;
+    public static final int SOCKET_TIMEOUT_MILLIS = 3000;
+    public static final int PING_PERIOD_MILLIS = 1000;
     public static final byte MIN_BOARD_SIZE = 3;
     public static final byte MAX_BOARD_SIZE = 12;
     public static final byte MIN_PLAYERS_SIZE = 2;

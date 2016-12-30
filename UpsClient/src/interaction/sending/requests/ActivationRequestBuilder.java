@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.Message;
+import communication.TcpMessage;
 import configuration.Config;
 import interaction.sending.ARequestBuilder;
 
@@ -15,7 +15,7 @@ public class ActivationRequestBuilder extends ARequestBuilder {
     public ActivationRequestBuilder(String nickname) {
         this.NICKNAME = nickname;
         
-        message = new Message(Config.MSG_ACTIVATE_CLIENT.KEYWORD, NICKNAME);
+        message = new TcpMessage(Config.MSG_ACTIVATE_CLIENT.KEYWORD, NICKNAME);
     }
 
     @Override

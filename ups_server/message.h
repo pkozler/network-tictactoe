@@ -17,12 +17,15 @@ typedef struct {
     char *type; // typ zprávy
     int32_t argc; // počet argumentů
     char **argv; // argumenty zprávy
+    int32_t counter; // čítač argumentů
 } message_t;
 
-char *byte_to_string(int8_t i);
-int8_t string_to_byte(char *str);
-char *int_to_string(int32_t i);
-int32_t string_to_int(char *str);
+bool put_str_arg(message_t *msg, char *arg);
+char *get_str_arg(message_t *msg);
+bool put_byte_arg(message_t *msg, int8_t arg);
+int8_t get_byte_arg(message_t *msg);
+bool put_int_arg(message_t *msg, int32_t arg);
+int32_t get_int_arg(message_t *msg);
 message_t *create_message(char *msg_type, int32_t msg_argc);
 message_t *receive_message(int sock);
 bool send_message(message_t *msg, int sock);

@@ -1,8 +1,8 @@
 package visualisation;
 
 import configuration.Config;
-import communication.ConnectionManager;
-import interaction.CmdArgHandler;
+import communication.TcpClient;
+import interaction.CmdArg;
 import interaction.MessageBackgroundReceiver;
 import interaction.MessageBackgroundSender;
 import java.awt.BorderLayout;
@@ -28,21 +28,21 @@ import visualisation.components.StatusBarPanel;
  */
 public class MainWindow extends JFrame {
     
-    private final ConnectionManager CONNECTION_MANAGER;
+    private final TcpClient CLIENT;
     private final StatusBarPanel STATUS_BAR_PANEL;
     private final PlayerListPanel PLAYER_LIST_PANEL;
     private final GameListPanel GAME_LIST_PANEL;
     private final CurrentGameWindow CURRENT_GAME_WINDOW;
     private final MessageBackgroundReceiver MESSAGE_RECEIVER;
     private final MessageBackgroundSender MESSAGE_SENDER;
-    private final CmdArgHandler CMD_ARG_HANDLER;
+    private final CmdArg CMD_ARG_HANDLER;
     
     private Timer connectTimer;
     private Timer pingTimer;
     private Thread receiveThread;
     private Thread sendThread;
     
-    public MainWindow(ConnectionManager connectionManager, CmdArgHandler cmdArgHandler) {
+    public MainWindow(TcpClient client, CmdArg cmdArgHandler) {
         setTitle("Piškvorky - klient");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(Config.DEFAULT_WINDOW_WIDTH, Config.DEFAULT_WINDOW_HEIGHT);
@@ -53,13 +53,13 @@ public class MainWindow extends JFrame {
         contentPane.setLayout(new BorderLayout(0, 0));
         
         CMD_ARG_HANDLER = cmdArgHandler;
-        CONNECTION_MANAGER = connectionManager;
+        CLIENT = client;
         STATUS_BAR_PANEL = new StatusBarPanel();
-        MESSAGE_SENDER = new MessageBackgroundSender(CONNECTION_MANAGER, STATUS_BAR_PANEL);
+        MESSAGE_SENDER = new MessageBackgroundSender(CLIENT, STATUS_BAR_PANEL);
         PLAYER_LIST_PANEL = new PlayerListPanel(MESSAGE_SENDER);
         GAME_LIST_PANEL = new GameListPanel(MESSAGE_SENDER);
         CURRENT_GAME_WINDOW = new CurrentGameWindow(MESSAGE_SENDER);
-        MESSAGE_RECEIVER = new MessageBackgroundReceiver(CONNECTION_MANAGER,
+        MESSAGE_RECEIVER = new MessageBackgroundReceiver(CLIENT,
                 STATUS_BAR_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW);
         
         contentPane.add(STATUS_BAR_PANEL, BorderLayout.CENTER);
@@ -79,7 +79,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 MESSAGE_SENDER.enqueueMessageBuilder(null);
                 
-                if (!CONNECTION_MANAGER.isConnected()) {
+                if (!CLIENT.isConnected()) {
                     startConnectionTimers();
                 }
             }
@@ -91,14 +91,14 @@ public class MainWindow extends JFrame {
             @Override
             public void run() {
                 try {
-                    CONNECTION_MANAGER.connect(
+                    CLIENT.connect(
                             CMD_ARG_HANDLER.getHost(),CMD_ARG_HANDLER.getPort());
                 }
                 catch (IOException e) {
                     // čekání na spojení
                 }
                 
-                if (CONNECTION_MANAGER.isConnected()) {
+                if (CLIENT.isConnected()) {
                     startCommunicationThreads();
                     pingTimer.schedule(pingTimerTask,
                             Config.SOCKET_TIMEOUT_MILLIS, Config.SOCKET_TIMEOUT_MILLIS);

@@ -1,7 +1,7 @@
 package interaction.receiving.responses;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
@@ -18,15 +18,15 @@ public class ActivationResponseParser extends AResponseParser {
     protected int id;
     protected String nick;
     
-    public ActivationResponseParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, Message message)
+    public ActivationResponseParser(TcpClient client,
+            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, gameListPanel, statusBarPanel, message);
+        super(client, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CONNECTION_MANAGER.logIn(MESSAGE.getNextIntArg(1));
-            id = CONNECTION_MANAGER.getPlayerId();
-            nick = CONNECTION_MANAGER.getPlayerNick();
+            CLIENT.logIn(MESSAGE.getNextIntArg(1));
+            id = CLIENT.getPlayerId();
+            nick = CLIENT.getPlayerNick();
             
             return;
         }

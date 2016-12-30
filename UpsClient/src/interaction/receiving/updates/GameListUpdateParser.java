@@ -1,7 +1,7 @@
 package interaction.receiving.updates;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.containers.GameInfo;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
@@ -20,10 +20,10 @@ public class GameListUpdateParser extends AUpdateParser {
     private final int ITEM_COUNT;
     private final ArrayList<GameInfo> GAME_LIST;
     
-    public GameListUpdateParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, Message message)
+    public GameListUpdateParser(TcpClient client,
+            GameListPanel gameListPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, message);
+        super(client, message);
         
         GAME_LIST_PANEL = gameListPanel;
         ITEM_COUNT = message.getNextIntArg(0);
@@ -36,7 +36,7 @@ public class GameListUpdateParser extends AUpdateParser {
     }
 
     @Override
-    public void parseNextItemMessage(Message itemMessage)
+    public void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         int id = itemMessage.getNextIntArg(1);
         String name = itemMessage.getNextArg();

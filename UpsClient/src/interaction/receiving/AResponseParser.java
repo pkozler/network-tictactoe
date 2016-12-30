@@ -1,7 +1,7 @@
 package interaction.receiving;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.ClientMessageErrorArg;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
@@ -16,9 +16,9 @@ public abstract class AResponseParser extends AParser {
     
     protected ClientMessageErrorArg messageError;
     
-    public AResponseParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, Message message) {
-        super(connectionManager, message);
+    public AResponseParser(TcpClient client,
+            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message) {
+        super(client, message);
         GAME_LIST_PANEL = gameListPanel;
         messageError = null;
     }

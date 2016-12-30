@@ -4,12 +4,13 @@
 
 #include "printer.h"
 #include "config.h"
-
 #include <error.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define LOG_LINE_LENGTH 65535 // velikost bufferu pro výpis hlášení
 
 /**
  * Vypíše na obrazovku zadanou hlášku a ukončí řádek.

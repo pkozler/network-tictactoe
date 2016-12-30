@@ -3,6 +3,7 @@ package visualisation.components;
 import communication.containers.PlayerInfo;
 import interaction.MessageBackgroundSender;
 import interaction.sending.requests.ActivationRequestBuilder;
+import interaction.sending.requests.DeactivationRequestBuilder;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -19,7 +20,6 @@ import visualisation.listmodels.PlayerListModel;
  */
 public class PlayerListPanel extends JPanel {
 
-    
     private final JList<PlayerInfo> PLAYER_LIST_VIEW;
     private final PlayerListModel PLAYER_LIST_MODEL;
     private final JButton LOGIN_BUTTON;
@@ -73,11 +73,15 @@ public class PlayerListPanel extends JPanel {
     }
     
     private void loginActionPerformed() {
+        String nickname = null;
         
+        // TODO vytvořit dialog a načíst hodnotu
+        
+        MESSAGE_SENDER.enqueueMessageBuilder(new ActivationRequestBuilder(nickname));
     }
 
     private void logoutActionPerformed() {
-        
+        MESSAGE_SENDER.enqueueMessageBuilder(new DeactivationRequestBuilder());
     }
 
 }

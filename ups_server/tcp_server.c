@@ -2,8 +2,8 @@
  * Author: Petr Kozler
  */
 
-#include "connection.h"
-#include "connection_stats.h"
+#include "tcp_server.h"
+#include "tcp_server_info.h"
 #include "config.h"
 #include "observed_list.h"
 #include "player.h"
@@ -23,7 +23,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-int create_serversocket(int32_t host, int32_t port) {
+int create_serversocket(int32_t host, int32_t port, int32_t queue_length) {
     int srv_sock;
     struct sockaddr_in srv_addr;
 
@@ -63,7 +63,7 @@ int create_serversocket(int32_t host, int32_t port) {
     }
 
     // nastavení režimu čekání na příchozí spojení
-    if (listen(srv_sock, QUEUE_LEN) < 0) {
+    if (listen(srv_sock, queue_length) < 0) {
         print_err("Chyba při spouštění naslouchání příchozím spojením");
     }
     else {
@@ -117,23 +117,14 @@ int accept_socket(int srv_sock) {
     return sock;
 }
 
-void clear_stats() {
-    g_stats.bytes_transferred = 0;
-    g_stats.connections_established = 0;
-    g_stats.messages_transferred = 0;
-    g_stats.transfers_failed = 0;
-    g_stats.start_time.tv_sec = 0;
-    g_stats.start_time.tv_usec = 0;
-}
-
-int setup_connection(int32_t host, int32_t port, char *log_file_name) {
+int setup_connection(int32_t host, int32_t port, char *log_file, int32_t queue_length) {
     clear_stats();
-    g_running = true;
+    start_server();
     
-    start_logging(log_file_name);
+    start_logging(log_file);
     start_prompt();
     
-    int srv_sock = create_serversocket(host, port);
+    int srv_sock = create_serversocket(host, port, queue_length);
     
     print_out("Server spuštěn");
     
@@ -141,10 +132,7 @@ int setup_connection(int32_t host, int32_t port, char *log_file_name) {
 }
 
 void run_connection(int srv_sock) {
-    // uložení času spuštění
-    gettimeofday(&(g_stats.start_time), NULL);
-    
-    while (g_running) {
+    while (is_server_running()) {
         int cli_sock = accept_socket(srv_sock);
         
         /*if (cli_sock < 0) {
@@ -157,25 +145,29 @@ void run_connection(int srv_sock) {
 
 void shutdown_connection(int srv_sock) {
     close(srv_sock);
-    shutdown_prompt();
     shutdown_logging();
     
     printf("Server ukončen.\n");
     print_stats();
 }
 
-void start_server(char *host_arg, char *port_arg, char *log_arg) {
-    int32_t host;
-    int32_t port;
-    char *log_file_name;
+void initialize(args_t args) {
+    g_tcp_server_info.args.host = args.host;
+    g_tcp_server_info.args.port = args.port;
+    g_tcp_server_info.args.log_file = args.log_file;
+    g_tcp_server_info.args.queue_length = args.queue_length;
     
     while (true) {
-        host = parse_host(host_arg);
-        port = parse_port(port_arg);
-        log_file_name = parse_log(log_arg);
-        
-        int srv_sock = setup_connection(host, port, log_file_name);
+        int srv_sock = setup_connection(g_tcp_server_info.args.host, g_tcp_server_info.args.port,
+                g_tcp_server_info.args.log_file, g_tcp_server_info.args.queue_length);
         run_connection(srv_sock);
         shutdown_connection(srv_sock);
+        
+        /*g_args.host = parse_host();
+        g_args.port = parse_port();
+        g_args.log_file = parse_log();
+        g_args.queue_length = parse_queue();*/
+        
+        // TODO implementovat načtení nových parametrů před restartem serveru
     }
 }

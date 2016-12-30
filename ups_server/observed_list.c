@@ -6,6 +6,7 @@
 #include "config.h"
 #include "broadcast.h"
 #include "printer.h"
+#include "tcp_server_info.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -216,7 +217,7 @@ void send_list_update(observed_list_t *list) {
 void *run_list_observer(void *arg) {
     observed_list_t *list = (observed_list_t *) arg;
     
-    while (true) {
+    while (is_server_running()) {
         if (list->changed) {
             lock_list(list);
             send_list_update(list);
@@ -255,7 +256,6 @@ observed_list_t *create_list(char *label,
 }
 
 void delete_list(observed_list_t *list) {
-    pthread_cancel(list->thread);
     pthread_mutex_destroy(&(list->lock));
     
     list_node_t *node = list->first;

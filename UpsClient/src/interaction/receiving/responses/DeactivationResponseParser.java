@@ -1,7 +1,7 @@
 package interaction.receiving.responses;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import interaction.receiving.AResponseParser;
@@ -14,13 +14,13 @@ import visualisation.components.StatusBarPanel;
  */
 public class DeactivationResponseParser extends AResponseParser {
 
-    public DeactivationResponseParser(ConnectionManager connectionManager,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, Message message)
+    public DeactivationResponseParser(TcpClient client,
+            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(connectionManager, gameListPanel, statusBarPanel, message);
+        super(client, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CONNECTION_MANAGER.logOut();
+            CLIENT.logOut();
         }
     }
 

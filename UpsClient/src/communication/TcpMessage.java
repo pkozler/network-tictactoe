@@ -16,18 +16,18 @@ import configuration.Config;
  * 
  * @author Petr Kozler
  */
-public class Message {
+public class TcpMessage {
     private String type;
     private String[] args;
     private int current;
     
-    public Message(String type, String... args) {
+    public TcpMessage(String type, String... args) {
         this.type = type;
         this.args = args;
         current = 0;
     }
     
-    public Message(String msgStr) {
+    public TcpMessage(String msgStr) {
         if (msgStr.isEmpty()) {
             type = null;
             
@@ -46,7 +46,7 @@ public class Message {
         args = msgStr.substring(firstDelimIndex + 1).split(Config.SEPARATOR);
     }
     
-    public Message() {
+    public TcpMessage() {
         this(null);
     }
     

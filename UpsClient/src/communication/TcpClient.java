@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author Petr Kozler
  */
-public class ConnectionManager {
+public class TcpClient {
 
     private Socket socket;
     private DataInputStream dis;
@@ -29,7 +29,7 @@ public class ConnectionManager {
     private String nick;
     private int playerId;
     private int currentGameId;
-    private int timeoutCounter;
+    //private int timeoutCounter;
     
     public synchronized void connect(InetAddress host, int port) throws IOException {
         this.host = host;
@@ -37,7 +37,7 @@ public class ConnectionManager {
         
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
-        resetTimeoutCounter();
+        //resetTimeoutCounter();
 
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
@@ -71,7 +71,7 @@ public class ConnectionManager {
         return playerId > 0;
     }
     
-    public synchronized void incTimeoutCounter() throws IOException {
+    /*public synchronized void incTimeoutCounter() throws IOException {
         timeoutCounter++;
         
         if (timeoutCounter > Config.MAX_TIMEOUTS) {
@@ -81,7 +81,7 @@ public class ConnectionManager {
     
     public synchronized void resetTimeoutCounter() {
         timeoutCounter = 0;
-    }
+    }*/
     
     public synchronized void joinGame(int id) {
         if (id > 0) {
@@ -105,7 +105,7 @@ public class ConnectionManager {
         return currentGameId;
     }
     
-    public synchronized void sendMessage(Message message) throws IOException, InvalidMessageArgsException {
+    public synchronized void sendMessage(TcpMessage message) throws IOException, InvalidMessageArgsException {
         String msgStr = message.toString();
         
         if (msgStr == null) {
@@ -115,10 +115,10 @@ public class ConnectionManager {
         writeToSocket(msgStr);
     }
     
-    public synchronized Message receiveMessage() throws IOException, InvalidMessageStringLengthException {
+    public synchronized TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
         
-        return new Message(msgStr);
+        return new TcpMessage(msgStr);
     }
     
     private void writeToSocket(String message) throws IOException {
@@ -139,7 +139,7 @@ public class ConnectionManager {
             length = dis.readInt();
         }
         catch (SocketTimeoutException ex) {
-            incTimeoutCounter();
+            // incTimeoutCounter();
             
             throw ex;
         }
@@ -158,12 +158,12 @@ public class ConnectionManager {
             dis.read(bytes);
         }
         catch (SocketTimeoutException ex) {
-            incTimeoutCounter();
+            // incTimeoutCounter();
             
             throw ex;
         }
         
-        resetTimeoutCounter();
+        // resetTimeoutCounter();
         
         return new String(bytes, StandardCharsets.US_ASCII);
     }

@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+observed_list_t *g_player_list;
+
 /*
  * Pomocné funkce pro operace s hráči:
  */
@@ -28,15 +30,15 @@ void unlock_player(player_t *player) {
 
 message_t *create_ack_message(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
-    new_message->argv[0] = MSG_TRUE;
+    put_str_arg(new_message, MSG_TRUE);
     
     return new_message;
 }
 
 message_t *create_err_message(message_t *message, char *err_msg, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ERR_ARGC);
-    new_message->argv[0] = MSG_FALSE;
-    new_message->argv[1] = err_msg;
+    put_str_arg(new_message, MSG_FALSE);
+    put_str_arg(new_message, err_msg);
     
     return new_message;
 }
@@ -52,7 +54,7 @@ message_t *handle_activation_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
-    char *nick = message->argv[0];
+    char *nick = get_str_arg(message);
 
     // neplatný nick
     if (!is_item_name_valid(nick)) {
@@ -74,8 +76,8 @@ message_t *handle_activation_request(message_t *message, player_t *player) {
     unlock_list(g_player_list, true);
 
     message_t *new_message = create_message(message->type, MSG_ACTIVATE_CLIENT_ID_ARGC);
-    new_message->argv[0] = MSG_TRUE;
-    new_message->argv[1] = int_to_string(player->id);
+    put_str_arg(new_message, MSG_TRUE);
+    put_int_arg(new_message, player->id);
     
     return new_message;
 }
@@ -98,10 +100,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
-    char *name = message->argv[0];
-    int8_t board_size = string_to_byte(message->argv[1]);
-    int8_t player_count = string_to_byte(message->argv[2]);
-    int8_t cell_count = string_to_byte(message->argv[3]);
+    char *name = get_str_arg(message);
+    int8_t board_size = get_byte_arg(message);
+    int8_t player_count = get_byte_arg(message);
+    int8_t cell_count = get_byte_arg(message);
     message_t *new_message;
 
     // neplatné jméno
@@ -121,10 +123,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_board_size_valid(board_size)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_BOARD_SIZE_ARGC);
-        new_message->argv[0] = MSG_FALSE;
-        new_message->argv[1] = MSG_ERR_INVALID_BOARD_SIZE;
-        new_message->argv[2] = byte_to_string(MIN_BOARD_SIZE);
-        new_message->argv[3] = byte_to_string(MAX_BOARD_SIZE);
+        put_str_arg(new_message, MSG_FALSE);
+        put_str_arg(new_message, MSG_ERR_INVALID_BOARD_SIZE);
+        put_byte_arg(new_message, MIN_BOARD_SIZE);
+        put_byte_arg(new_message, MAX_BOARD_SIZE);
         
         return new_message;
     }
@@ -132,10 +134,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_player_count_valid(player_count)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_PLAYER_COUNT_ARGC);
-        new_message->argv[0] = MSG_FALSE;
-        new_message->argv[1] = MSG_ERR_INVALID_PLAYER_COUNT;
-        new_message->argv[2] = byte_to_string(MIN_PLAYERS_SIZE);
-        new_message->argv[3] = byte_to_string(MAX_PLAYERS_SIZE);
+        put_str_arg(new_message, MSG_FALSE);
+        put_str_arg(new_message, MSG_ERR_INVALID_PLAYER_COUNT);
+        put_byte_arg(new_message, MIN_PLAYERS_SIZE);
+        put_byte_arg(new_message, MAX_PLAYERS_SIZE);
         
         return new_message;
     }
@@ -143,10 +145,10 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (!is_game_cell_count_valid(cell_count)) {
         unlock_list(g_game_list, false);
         new_message = create_message(message->type, MSG_ERR_INVALID_CELL_COUNT_ARGC);
-        new_message->argv[0] = MSG_FALSE;
-        new_message->argv[1] = MSG_ERR_INVALID_CELL_COUNT;
-        new_message->argv[2] = byte_to_string(MIN_CELL_COUNT);
-        new_message->argv[3] = byte_to_string(MAX_CELL_COUNT);
+        put_str_arg(new_message, MSG_FALSE);
+        put_str_arg(new_message, MSG_ERR_INVALID_CELL_COUNT);
+        put_byte_arg(new_message, MIN_CELL_COUNT);
+        put_byte_arg(new_message, MAX_CELL_COUNT);
         
         return new_message;
     }
@@ -156,8 +158,8 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     unlock_list(g_game_list, true);
 
     new_message = create_message(message->type, MSG_CREATE_GAME_ID_ARGC);
-    new_message->argv[0] = MSG_TRUE;
-    new_message->argv[1] = int_to_string(player->current_game->id);
+    put_str_arg(new_message, MSG_TRUE);
+    put_int_arg(new_message, player->current_game->id);
     
     return new_message;
 }
@@ -167,7 +169,7 @@ message_t *handle_join_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
-    int32_t game_id = message->argv[0];
+    int32_t game_id = get_int_arg(message);
     
     if (!is_item_id_valid(game_id)) {
         return create_err_message(message, MSG_ERR_INVALID_ID, player);
@@ -231,8 +233,8 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
-    int8_t x = string_to_byte(message->argv[0]);
-    int8_t y = string_to_byte(message->argv[1]);
+    int8_t x = get_byte_arg(message);
+    int8_t y = get_byte_arg(message);
     
     lock_list(g_game_list);
     
@@ -295,7 +297,7 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
 
 message_t *handle_unknown_request(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
-    new_message->argv[0] = MSG_FALSE;
+    put_str_arg(new_message, MSG_FALSE);
     
     return new_message;
 }
@@ -454,16 +456,16 @@ char *get_player_name(void *item) {
 message_t *player_to_msg(void *item) {
     player_t *player = (player_t *) item;
     message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
-    message->argv[0] = int_to_string(player->id);
-    message->argv[1] = player->nick;
-    message->argv[2] = int_to_string(player->total_score);
+    put_int_arg(message, player->id);
+    put_str_arg(message, player->nick);
+    put_int_arg(message, player->total_score);
     
     return message;
 }
 
 message_t *player_list_to_msg()  {
     message_t *message = create_message(MSG_PLAYER_LIST, MSG_PLAYER_LIST_ARGC);
-    message->argv[0] = int_to_string(g_player_list->count);
+    put_int_arg(message, g_player_list->count);
     
     return message;
 }

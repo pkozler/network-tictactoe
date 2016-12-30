@@ -100,7 +100,7 @@ server_t parse_args(int argc, char** argv) {
             }
         }
         else {
-            printf("TcpClient: neplatný argument %s", arg);
+            printf("tcp_server: neplatný argument %s", arg);
         }
     }
     

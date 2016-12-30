@@ -1,7 +1,7 @@
 package interaction;
 
-import communication.ConnectionManager;
-import communication.Message;
+import communication.TcpClient;
+import communication.TcpMessage;
 import interaction.sending.ARequestBuilder;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,11 +15,11 @@ import visualisation.components.StatusBarPanel;
 public class MessageBackgroundSender implements Runnable {
 
     private final Queue<ARequestBuilder> requestQueue = new LinkedList<>();
-    private final ConnectionManager CONNECTION_MANAGER;
+    private final TcpClient CLIENT;
     private final StatusBarPanel STATUS_BAR_PANEL;
     
-    public MessageBackgroundSender(ConnectionManager connectionManager, StatusBarPanel statusBarPanel) {
-        CONNECTION_MANAGER = connectionManager;
+    public MessageBackgroundSender(TcpClient client, StatusBarPanel statusBarPanel) {
+        CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
     }
     
@@ -29,7 +29,7 @@ public class MessageBackgroundSender implements Runnable {
     
     @Override
     public void run() {
-        while (CONNECTION_MANAGER.isConnected()) {
+        while (CLIENT.isConnected()) {
             handleMessageToSend();
         }
         
@@ -43,12 +43,12 @@ public class MessageBackgroundSender implements Runnable {
 
         ARequestBuilder builder = requestQueue.poll();
 
-        Message message;
+        TcpMessage message;
         String status;
         Runnable runnable;
         
         if (builder == null || builder.getMessage() == null) {
-            message = new Message();
+            message = new TcpMessage();
             status = null;
         }
         else {
@@ -57,7 +57,7 @@ public class MessageBackgroundSender implements Runnable {
         }
         
         try {
-            CONNECTION_MANAGER.sendMessage(message);
+            CLIENT.sendMessage(message);
 
             runnable = new Runnable() {
 
