@@ -5,6 +5,7 @@
 #include "message.h"
 #include "config.h"
 #include "protocol.h"
+#include "string_utils.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -125,29 +126,7 @@ bool write_to_socket(char *msg_str, int sock) {
     return true;
 }
 
-char *byte_to_string(int8_t i) {
-    char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
-    snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
-    
-    return str;
-}
-
-int8_t string_to_byte(char *str) {
-    return (int8_t) strtol(str, NULL, 10);
-}
-
-char *int_to_string(int32_t i) {
-    char *str = (char *) malloc(sizeof(char) * (INT_BUF_LEN + 1));
-    snprintf(str, INT_BUF_LEN + 1, "%d", i);
-    
-    return str;
-}
-
-int32_t string_to_int(char *str) {
-    return (int32_t) strtol(str, NULL, 10);
-}
-
-bool put_str_arg(message_t *msg, char *arg) {
+bool put_string_arg(message_t *msg, char *arg) {
     if (msg->counter == msg->argc) {
         return false;
     }
@@ -157,7 +136,7 @@ bool put_str_arg(message_t *msg, char *arg) {
     return true;
 }
 
-char *get_str_arg(message_t *msg) {
+char *get_string_arg(message_t *msg) {
     char *arg = msg->argv[msg->argc - msg->counter];
     msg->counter--;
     

@@ -9,10 +9,10 @@
  * Dostupné požadavky klienta a počty argumentů:
  */
 
-#define MSG_ACTIVATE_CLIENT "activate-client" // typ zprávy: aktivace připojeného klienta
+#define MSG_ACTIVATE_CLIENT "activate-client" // typ zprávy: aktivace (přihlášení) připojeného klienta
 #define MSG_ACTIVATE_CLIENT_ARGC 1 // počet argumentů: aktivace připojeného klienta
 #define MSG_ACTIVATE_CLIENT_ID_ARGC 2 // počet argumentů: odpověď serveru pro aktivaci (obsahuje ID)
-#define MSG_DEACTIVATE_CLIENT "deactivate-client" // typ zprávy: deaktivace odpojeného klienta
+#define MSG_DEACTIVATE_CLIENT "deactivate-client" // typ zprávy: deaktivace (odhlášení) připojeného klienta
 #define MSG_DEACTIVATE_CLIENT_ARGC 0 // počet argumentů: deaktivace odpojeného klienta
 #define MSG_CREATE_GAME "create-game" // typ zprávy: vytvoření hry klientem
 #define MSG_CREATE_GAME_ARGC 4 // počet argumentů: vytvoření hry klientem

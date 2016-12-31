@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef void (*foreach_func_t)(void *e, void *foreach_arg);
 typedef void (*dispose_func_t)(void *e);
 
 typedef struct {
@@ -28,9 +27,9 @@ void remove_node(linked_list_t *list, linked_list_node_t *node);
 int32_t count_elements(linked_list_t *list);
 bool is_linked_list_empty(linked_list_t *list);
 void add_element(linked_list_t *list, void *e);
+void remove_element(linked_list_t *list, void *e);
 void enqueue_element(linked_list_t *list, void *e);
 void *dequeue_element(linked_list_t *list);
-void do_foreach_element(linked_list_t *list, foreach_func_t foreach_func, void *foreach_arg)
 
 #endif /* LINKED_LIST_H */
 

@@ -103,6 +103,7 @@ game_t *remove_game_by_id(int32_t id) {
 
         if (current_game->id == id) {
             remove_last_element(iterator);
+            current_game->id = 0;
             
             return current_game;
         }
@@ -114,7 +115,7 @@ game_t *remove_game_by_id(int32_t id) {
 message_t *game_to_msg(game_t *game) {
     message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
     put_int_arg(message, game->id);
-    put_str_arg(message, game->name);
+    put_string_arg(message, game->name);
     put_byte_arg(message, game->player_count);
     put_byte_arg(message, game->board_size);
     put_byte_arg(message, game->cell_count);

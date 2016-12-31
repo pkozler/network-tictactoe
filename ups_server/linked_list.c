@@ -142,6 +142,21 @@ void add_element(linked_list_t *list, void *e) {
     list->count++;
 }
 
+void remove_element(linked_list_t *list, void *e) {
+    if (list == NULL) {
+        return;
+    }
+    
+    linked_list_node_t *node;
+
+    for (node = list->first; node != NULL; node = node->next) {
+        if (node->value == e) {
+            remove_node(list, node);
+            break;
+        }
+    }
+}
+
 void enqueue_element(linked_list_t *list, void *e) {
     if (list == NULL) {
         return;
@@ -164,16 +179,4 @@ void *dequeue_element(linked_list_t *list) {
     list->count--;
     
     return e;
-}
-
-void do_foreach_element(linked_list_t *list, foreach_func_t foreach_func, void *foreach_arg) {
-    if (list == NULL || foreach_func == NULL) {
-        return;
-    }
-    
-    linked_list_node_t *node;
-
-    for (node = list->first; node != NULL; node = node->next) {
-        foreach_func(node->value, foreach_arg);
-    }
 }

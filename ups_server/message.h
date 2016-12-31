@@ -20,8 +20,8 @@ typedef struct {
     int32_t counter; // čítač argumentů
 } message_t;
 
-bool put_str_arg(message_t *msg, char *arg);
-char *get_str_arg(message_t *msg);
+bool put_string_arg(message_t *msg, char *arg);
+char *get_string_arg(message_t *msg);
 bool put_byte_arg(message_t *msg, int8_t arg);
 int8_t get_byte_arg(message_t *msg);
 bool put_int_arg(message_t *msg, int32_t arg);
@@ -32,4 +32,3 @@ bool send_message(message_t *msg, int sock);
 void delete_message(message_t *msg);
 
 #endif /* MESSAGE_H */
-

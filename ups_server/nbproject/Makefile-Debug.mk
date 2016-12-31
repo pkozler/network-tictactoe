@@ -36,21 +36,25 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/broadcaster.o \
+	${OBJECTDIR}/checker.o \
 	${OBJECTDIR}/cmd_arg.o \
 	${OBJECTDIR}/com_stats.o \
 	${OBJECTDIR}/console.o \
 	${OBJECTDIR}/game.o \
 	${OBJECTDIR}/game_list.o \
+	${OBJECTDIR}/game_logic.o \
+	${OBJECTDIR}/game_status_sender.o \
 	${OBJECTDIR}/linked_list.o \
 	${OBJECTDIR}/linked_list_iterator.o \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/message.o \
-	${OBJECTDIR}/observable_list.o \
 	${OBJECTDIR}/player.o \
 	${OBJECTDIR}/player_list.o \
 	${OBJECTDIR}/printer.o \
+	${OBJECTDIR}/request_parser.o \
 	${OBJECTDIR}/string_builder.o \
+	${OBJECTDIR}/string_utils.o \
 	${OBJECTDIR}/tcp_server.o \
 	${OBJECTDIR}/tcp_server_control.o
 
@@ -84,6 +88,11 @@ ${OBJECTDIR}/broadcaster.o: broadcaster.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcaster.o broadcaster.c
 
+${OBJECTDIR}/checker.o: checker.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/checker.o checker.c
+
 ${OBJECTDIR}/cmd_arg.o: cmd_arg.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -108,6 +117,16 @@ ${OBJECTDIR}/game_list.o: game_list.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_list.o game_list.c
+
+${OBJECTDIR}/game_logic.o: game_logic.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_logic.o game_logic.c
+
+${OBJECTDIR}/game_status_sender.o: game_status_sender.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_status_sender.o game_status_sender.c
 
 ${OBJECTDIR}/linked_list.o: linked_list.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -134,11 +153,6 @@ ${OBJECTDIR}/message.o: message.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/message.o message.c
 
-${OBJECTDIR}/observable_list.o: observable_list.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/observable_list.o observable_list.c
-
 ${OBJECTDIR}/player.o: player.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -154,10 +168,20 @@ ${OBJECTDIR}/printer.o: printer.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printer.o printer.c
 
+${OBJECTDIR}/request_parser.o: request_parser.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/request_parser.o request_parser.c
+
 ${OBJECTDIR}/string_builder.o: string_builder.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_builder.o string_builder.c
+
+${OBJECTDIR}/string_utils.o: string_utils.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_utils.o string_utils.c
 
 ${OBJECTDIR}/tcp_server.o: tcp_server.c 
 	${MKDIR} -p ${OBJECTDIR}

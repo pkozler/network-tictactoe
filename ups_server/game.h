@@ -5,7 +5,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "observed_list.h"
 #include "message.h"
 #include "player.h"
 #include <pthread.h>
@@ -40,13 +39,10 @@ typedef struct GAME {
     game_cell_t **board;
 } game_t;
 
-void create_game(struct PLAYER *player, char *name,
+game_t *create_game(struct PLAYER *player, char *name,
         int8_t board_size, int8_t player_count, int8_t cell_count);
 void delete_game(game_t *);
-void restart_game(game_t *);
-void add_player(game_t *, struct PLAYER *);
-void remove_player(game_t *, struct PLAYER *);
-void play(game_t *, int8_t, int8_t, int8_t);
+void lock_game(game_t *game);
+void unlock_game(game_t *game, bool changed);
 
 #endif /* GAME_H */
-

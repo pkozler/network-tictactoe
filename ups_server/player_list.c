@@ -103,6 +103,7 @@ player_t *remove_player_by_id(int32_t id) {
 
         if (current_player->id == id) {
             remove_last_element(iterator);
+            current_player->id = 0;
             
             return current_player;
         }
@@ -121,7 +122,7 @@ message_t *player_list_to_msg() {
 message_t *player_to_msg(player_t *player) {
     message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
     put_int_arg(message, player->id);
-    put_str_arg(message, player->nick);
+    put_string_arg(message, player->nick);
     put_int_arg(message, player->total_score);
     
     return message;

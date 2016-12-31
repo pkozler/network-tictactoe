@@ -138,11 +138,12 @@ void run_connection(int srv_sock) {
     while (is_server_running()) {
         int cli_sock = accept_socket(srv_sock);
         
-        /*if (cli_sock < 0) {
+        if (cli_sock < 0) {
             continue;
-        }*/
+        }
         
-        create_player(cli_sock);
+        player_t *player = create_player(cli_sock);
+        add_element(g_client_list, player);
     }
 }
 

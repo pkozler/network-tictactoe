@@ -6,49 +6,13 @@
 
 #include "cmd_arg.h"
 #include "config.h"
-
+#include "string_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <netinet/in.h>
-
-/**
- * Určí, zda předaný řetězec představuje platnou celočíselnou hodnotu.
- * 
- * @param str řetězec
- * 
- * @return true, pokud je řetězec celé číslo, jinak false
- */
-bool is_integer(const char *str) {
-    int i = 0;
-    
-    while (str[i] != '\0') {
-        if (!isdigit(str[i])) {
-            return false;
-        }
-        
-        i++;
-    }
-    
-    return true;
-}
-
-/**
- * Určí, zda předaný řetězec začíná předaným prefixem.
- * 
- * @param str řetězec
- * @param pre prefix
- * 
- * @return true, pokud řetězec začíná prefixem, jinak false
- */
-bool starts_with(const char *str, const char *pre) {
-    size_t lenpre = strlen(pre);
-    size_t lenstr = strlen(str);
-    
-    return (lenstr < lenpre) ? false : (strncmp(pre, str, lenpre) == 0);
-}
 
 /**
  * Zpracuje předané argumenty příkazové řádky.
