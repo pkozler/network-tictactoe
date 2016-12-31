@@ -25,7 +25,22 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-int create_serversocket(int32_t host, int32_t port, int32_t queue_length) {
+in_addr_t parse_ip(char *ip) {
+    struct in_addr ipvalue;
+    
+    if (inet_pton(AF_INET, ip, &ipvalue) == 1) {
+        print_err("Chyba při parsování IP adresy");
+        
+        return 0;
+    }
+    else {
+        print_out("Parsování IP adresy proběhlo úspěšně");
+        
+        return ipvalue.s_addr;
+    }
+}
+
+int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     int srv_sock;
     struct sockaddr_in srv_addr;
 
@@ -49,12 +64,12 @@ int create_serversocket(int32_t host, int32_t port, int32_t queue_length) {
     else {
         print_out("Znovupoužití adresy bylo úspěšně nastaveno");
     }
-
+    
     // naplnění struktury adresy
     memset(&srv_addr, 0, sizeof(srv_addr));
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_port = htons(port);
-    srv_addr.sin_addr.s_addr = htonl(host);
+    srv_addr.sin_addr.s_addr = htonl(parse_ip(host));
 
     // provázání socketu s adresou
     if (bind(srv_sock, (struct sockaddr*) &srv_addr, sizeof(srv_addr)) < 0) {
@@ -119,7 +134,7 @@ int accept_socket(int srv_sock) {
     return sock;
 }
 
-int setup_connection(int32_t host, int32_t port, char *log_file, int32_t queue_length) {
+int setup_connection(char *host, int32_t port, char *log_file, int32_t queue_length) {
     clear_stats();
     start_server();
     
@@ -130,7 +145,9 @@ int setup_connection(int32_t host, int32_t port, char *log_file, int32_t queue_l
     int srv_sock = create_serversocket(host, port, queue_length);
     start_prompt();
     
+    log("Start serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
     print_out("Server spuštěn");
+    
     return srv_sock;
 }
 
@@ -142,6 +159,7 @@ void run_connection(int srv_sock) {
             continue;
         }
         
+        log("Připojen klient s číslem socketu %d", cli_sock);
         player_t *player = create_player(cli_sock);
         add_element(g_client_list, player);
     }
@@ -152,9 +170,10 @@ void shutdown_connection(int srv_sock) {
     delete_game_list();
     delete_player_list();
     delete_linked_list(g_client_list, delete_player);
+    log("Ukončení serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
     shutdown_logging();
     
-    printf("Server ukončen.\n");
+    print_out("Server ukončen");
     print_stats();
 }
 

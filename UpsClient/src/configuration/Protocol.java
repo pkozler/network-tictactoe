@@ -14,13 +14,13 @@ public class Protocol {
      * Dostupné požadavky klienta a počty argumentů:
      */
 
-    public static final ClientMessageType MSG_ACTIVATE_CLIENT = new ClientMessageType("activate-client", 1);
-    public static final ClientMessageType MSG_DEACTIVATE_CLIENT = new ClientMessageType("deactivate-client");
+    public static final ClientMessageType MSG_LOGIN_CLIENT = new ClientMessageType("login-client", 1);
+    public static final ClientMessageType MSG_LOGOUT_CLIENT = new ClientMessageType("logout-client");
     public static final ClientMessageType MSG_CREATE_GAME = new ClientMessageType("create-game", 4);
     public static final ClientMessageType MSG_JOIN_GAME = new ClientMessageType("join-game", 1);
     public static final ClientMessageType MSG_LEAVE_GAME = new ClientMessageType("leave-game");
     public static final ClientMessageType MSG_PLAY_GAME = new ClientMessageType("play-game", 2);
-    public static final int MSG_ACTIVATE_CLIENT_ID_ARGC = 2;
+    public static final int MSG_LOGIN_CLIENT_ID_ARGC = 2;
     public static final int MSG_CREATE_GAME_ID_ARGC = 2;
 
     /*
@@ -28,10 +28,10 @@ public class Protocol {
      */
 
     public static final ClientMessageErrorArg MSG_ERR_INVALID_ARG_COUNT = new ClientMessageErrorArg("invalid-arg-count");
-    public static final ClientMessageErrorArg MSG_ERR_ALREADY_ACTIVE = new ClientMessageErrorArg("already-active");
+    public static final ClientMessageErrorArg MSG_ERR_ALREADY_LOGGED = new ClientMessageErrorArg("already-logged");
     public static final ClientMessageErrorArg MSG_ERR_INVALID_NAME = new ClientMessageErrorArg("invalid-name");
     public static final ClientMessageErrorArg MSG_ERR_EXISTING_NAME = new ClientMessageErrorArg("existing-name");
-    public static final ClientMessageErrorArg MSG_ERR_NOT_ACTIVE = new ClientMessageErrorArg("not-active");
+    public static final ClientMessageErrorArg MSG_ERR_NOT_LOGGED = new ClientMessageErrorArg("not-logged");
     public static final ClientMessageErrorArg MSG_ERR_INVALID_PLAYER_COUNT = new ClientMessageErrorArg("invalid-player-count", 4);
     public static final ClientMessageErrorArg MSG_ERR_INVALID_BOARD_SIZE = new ClientMessageErrorArg("invalid-board-size", 4);
     public static final ClientMessageErrorArg MSG_ERR_INVALID_CELL_COUNT = new ClientMessageErrorArg("invalid-cell-count", 4);

@@ -5,6 +5,8 @@
 #include "game_status_sender.h"
 #include "protocol.h"
 #include "broadcaster.h"
+#include "message.h"
+#include "message_list.h"
 
 message_t *game_board_to_message(game_t *game) {
     message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);

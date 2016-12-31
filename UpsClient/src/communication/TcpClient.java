@@ -29,7 +29,6 @@ public class TcpClient {
     private String nick;
     private int playerId;
     private int currentGameId;
-    //private int timeoutCounter;
     
     public synchronized void connect(InetAddress host, int port) throws IOException {
         this.host = host;
@@ -37,7 +36,6 @@ public class TcpClient {
         
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
-        //resetTimeoutCounter();
 
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
@@ -70,18 +68,6 @@ public class TcpClient {
     public synchronized boolean isLoggedIn() {
         return playerId > 0;
     }
-    
-    /*public synchronized void incTimeoutCounter() throws IOException {
-        timeoutCounter++;
-        
-        if (timeoutCounter > Config.MAX_TIMEOUTS) {
-            disconnect();
-        }
-    }
-    
-    public synchronized void resetTimeoutCounter() {
-        timeoutCounter = 0;
-    }*/
     
     public synchronized void joinGame(int id) {
         if (id > 0) {
@@ -139,8 +125,6 @@ public class TcpClient {
             length = dis.readInt();
         }
         catch (SocketTimeoutException ex) {
-            // incTimeoutCounter();
-            
             throw ex;
         }
         
@@ -158,12 +142,8 @@ public class TcpClient {
             dis.read(bytes);
         }
         catch (SocketTimeoutException ex) {
-            // incTimeoutCounter();
-            
             throw ex;
         }
-        
-        // resetTimeoutCounter();
         
         return new String(bytes, StandardCharsets.US_ASCII);
     }

@@ -27,8 +27,6 @@ int8_t get_byte_arg(message_t *msg);
 bool put_int_arg(message_t *msg, int32_t arg);
 int32_t get_int_arg(message_t *msg);
 message_t *create_message(char *msg_type, int32_t msg_argc);
-message_t *receive_message(int sock);
-bool send_message(message_t *msg, int sock);
 void delete_message(message_t *msg);
 
 #endif /* MESSAGE_H */

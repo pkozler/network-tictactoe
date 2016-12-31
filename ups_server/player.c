@@ -6,6 +6,7 @@
 #include "global.h"
 #include "protocol.h"
 #include "printer.h"
+#include "logger.h"
 #include "config.h"
 #include "broadcaster.h"
 #include "request_parser.h"
@@ -56,6 +57,8 @@ void *run_player(void *arg) {
         parse_received_message(player);
         unlock_player(player);
     }
+    
+    log("Odpojen klient s číslem socketu %d", player->sock);
     
     if (is_player_logged(player)) {
         remove_player_from_game(player);

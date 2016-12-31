@@ -49,12 +49,14 @@ OBJECTFILES= \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/message.o \
+	${OBJECTDIR}/message_list.o \
 	${OBJECTDIR}/player.o \
 	${OBJECTDIR}/player_list.o \
 	${OBJECTDIR}/printer.o \
 	${OBJECTDIR}/request_parser.o \
 	${OBJECTDIR}/string_builder.o \
 	${OBJECTDIR}/string_utils.o \
+	${OBJECTDIR}/tcp_communicator.o \
 	${OBJECTDIR}/tcp_server.o \
 	${OBJECTDIR}/tcp_server_control.o
 
@@ -153,6 +155,11 @@ ${OBJECTDIR}/message.o: message.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/message.o message.c
 
+${OBJECTDIR}/message_list.o: message_list.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/message_list.o message_list.c
+
 ${OBJECTDIR}/player.o: player.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -182,6 +189,11 @@ ${OBJECTDIR}/string_utils.o: string_utils.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_utils.o string_utils.c
+
+${OBJECTDIR}/tcp_communicator.o: tcp_communicator.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_communicator.o tcp_communicator.c
 
 ${OBJECTDIR}/tcp_server.o: tcp_server.c 
 	${MKDIR} -p ${OBJECTDIR}

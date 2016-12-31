@@ -1,7 +1,7 @@
 /* 
  * Author: Petr Kozler
  * 
- * Hlavičkový soubor arg_parser.h obsahuje deklaraci funkce pro zpracování
+ * Soubor obsahuje deklaraci funkce pro zpracování
  * parametrů programu a definuje strukturu pro jejich uchování.
  */
 

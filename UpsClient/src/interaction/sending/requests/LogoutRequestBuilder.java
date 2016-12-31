@@ -8,10 +8,10 @@ import interaction.sending.ARequestBuilder;
  *
  * @author Petr Kozler
  */
-public class DeactivationRequestBuilder extends ARequestBuilder {
+public class LogoutRequestBuilder extends ARequestBuilder {
 
-    public DeactivationRequestBuilder() {
-        message = new TcpMessage(Protocol.MSG_DEACTIVATE_CLIENT.KEYWORD);
+    public LogoutRequestBuilder() {
+        message = new TcpMessage(Protocol.MSG_LOGOUT_CLIENT.KEYWORD);
     }
     
     @Override

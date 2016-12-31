@@ -8,14 +8,14 @@ import interaction.sending.ARequestBuilder;
  *
  * @author Petr Kozler
  */
-public class ActivationRequestBuilder extends ARequestBuilder {
+public class LoginRequestBuilder extends ARequestBuilder {
     
     private final String NICKNAME;
 
-    public ActivationRequestBuilder(String nickname) {
+    public LoginRequestBuilder(String nickname) {
         this.NICKNAME = nickname;
         
-        message = new TcpMessage(Protocol.MSG_ACTIVATE_CLIENT.KEYWORD, NICKNAME);
+        message = new TcpMessage(Protocol.MSG_LOGIN_CLIENT.KEYWORD, NICKNAME);
     }
 
     @Override

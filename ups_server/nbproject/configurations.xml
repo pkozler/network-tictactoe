@@ -40,6 +40,8 @@
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcaster.h</itemPath>
           <itemPath>message.h</itemPath>
+          <itemPath>message_list.h</itemPath>
+          <itemPath>tcp_communicator.h</itemPath>
         </logicalFolder>
         <itemPath>com_stats.h</itemPath>
       </logicalFolder>
@@ -70,9 +72,9 @@
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.c</itemPath>
           <itemPath>player_list.c</itemPath>
-          <itemPath>request_parser.c</itemPath>
         </logicalFolder>
         <itemPath>checker.c</itemPath>
+        <itemPath>request_parser.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
         <itemPath>cmd_arg.c</itemPath>
@@ -88,6 +90,8 @@
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcaster.c</itemPath>
           <itemPath>message.c</itemPath>
+          <itemPath>message_list.c</itemPath>
+          <itemPath>tcp_communicator.c</itemPath>
         </logicalFolder>
         <itemPath>com_stats.c</itemPath>
       </logicalFolder>
@@ -183,6 +187,10 @@
       </item>
       <item path="message.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="message_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="message_list.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="observable_list.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="player.c" ex="false" tool="0" flavor2="0">
@@ -210,6 +218,10 @@
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="string_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_communicator.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_communicator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -301,6 +313,10 @@
       </item>
       <item path="message.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="message_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="message_list.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="observable_list.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="player.c" ex="false" tool="0" flavor2="0">
@@ -328,6 +344,10 @@
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="string_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="tcp_communicator.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tcp_communicator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
       </item>

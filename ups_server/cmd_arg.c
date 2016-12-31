@@ -1,7 +1,7 @@
 /* 
  * Author: Petr Kozler
  * 
- * Modul arg_parser.c definuje funkce pro zpracování argumentů programu.
+ * Modul definuje funkce pro zpracování argumentů programu.
  */
 
 #include "cmd_arg.h"
@@ -40,8 +40,7 @@ args_t parse_args(int argc, char** argv) {
             if (i < argc) {
                 args.host = argv[i++];
             } else {
-                printf("%s vyžaduje hostname nebo IP adresu serveru",
-                        HOST_OPTION);
+                printf("%s vyžaduje IP adresu serveru", HOST_OPTION);
             }
         }
         else if (!strcmp(PORT_OPTION, arg)) {
@@ -95,6 +94,7 @@ args_t parse_args(int argc, char** argv) {
                 printf("%s vyžaduje délku fronty (%d - %d)", QUEUE_OPTION, MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
             }
         }
+        
         else {
             printf("server: neplatný argument %s", arg);
         }

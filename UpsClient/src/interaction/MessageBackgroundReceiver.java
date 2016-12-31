@@ -2,8 +2,8 @@ package interaction;
 
 import communication.TcpClient;
 import communication.TcpMessage;
-import communication.ClientNotActivatedException;
-import communication.ClientAlreadyActiveException;
+import communication.ClientNotLoggedException;
+import communication.ClientAlreadyLoggedException;
 import communication.containers.InvalidListItemException;
 import communication.tokens.InvalidMessageArgsException;
 import communication.containers.MissingListHeaderException;
@@ -12,9 +12,9 @@ import communication.tokens.UnknownMessageTypeException;
 import configuration.Protocol;
 import interaction.receiving.AParser;
 import interaction.receiving.AUpdateParser;
-import interaction.receiving.responses.ActivationResponseParser;
+import interaction.receiving.responses.LoginResponseParser;
 import interaction.receiving.responses.CreateGameResponseParser;
-import interaction.receiving.responses.DeactivationResponseParser;
+import interaction.receiving.responses.LogoutResponseParser;
 import interaction.receiving.responses.JoinGameResponseParser;
 import interaction.receiving.responses.LeaveGameResponseParser;
 import interaction.receiving.responses.PlayGameResponseParser;
@@ -122,8 +122,8 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     private void executeParserOnBackground(TcpMessage message) throws MissingListHeaderException,
-            UnknownMessageTypeException, ClientAlreadyActiveException,
-            InvalidMessageArgsException, MissingMessageArgsException, InvalidListItemException, ClientNotActivatedException {
+            UnknownMessageTypeException, ClientAlreadyLoggedException,
+            InvalidMessageArgsException, MissingMessageArgsException, InvalidListItemException, ClientNotLoggedException {
         // přijatá zpráva je testování odezvy
         if (message.isPing()) {
             return;
@@ -164,23 +164,23 @@ public class MessageBackgroundReceiver implements Runnable {
         throw new UnknownMessageTypeException();
     }
     
-    private AParser handleResponse(TcpMessage message, boolean active)
-            throws UnknownMessageTypeException, ClientAlreadyActiveException,
+    private AParser handleResponse(TcpMessage message, boolean logged)
+            throws UnknownMessageTypeException, ClientAlreadyLoggedException,
             MissingListHeaderException, InvalidMessageArgsException,
-            MissingMessageArgsException, ClientNotActivatedException {
-        if (!active) {
-            if (message.isTypeOf(Protocol.MSG_ACTIVATE_CLIENT)) {
-                return new ActivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            MissingMessageArgsException, ClientNotLoggedException {
+        if (!logged) {
+            if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
+                return new LoginResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
             }
             
-            throw new ClientNotActivatedException();
+            throw new ClientNotLoggedException();
         }
         
-        if (message.isTypeOf(Protocol.MSG_ACTIVATE_CLIENT)) {
-            throw new ClientAlreadyActiveException();
+        if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
+            throw new ClientAlreadyLoggedException();
         }
-        else if (message.isTypeOf(Protocol.MSG_DEACTIVATE_CLIENT)) {
-            return new DeactivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+        else if (message.isTypeOf(Protocol.MSG_LOGOUT_CLIENT)) {
+            return new LogoutResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Protocol.MSG_CREATE_GAME)) {
             return new CreateGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);

@@ -13,12 +13,12 @@ import visualisation.components.StatusBarPanel;
  *
  * @author Petr Kozler
  */
-public class ActivationResponseParser extends AResponseParser {
+public class LoginResponseParser extends AResponseParser {
 
     protected int id;
     protected String nick;
     
-    public ActivationResponseParser(TcpClient client,
+    public LoginResponseParser(TcpClient client,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, gameListPanel, statusBarPanel, message);
@@ -31,7 +31,7 @@ public class ActivationResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Protocol.MSG_ACTIVATE_CLIENT.getErrorType(MESSAGE.getNextArg());
+        messageError = Protocol.MSG_LOGIN_CLIENT.getErrorType(MESSAGE.getNextArg());
     }
     
     @Override

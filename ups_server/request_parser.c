@@ -31,8 +31,8 @@ message_t *handle_ping(player_t *player) {
     return new_message;
 }
 
-message_t *handle_activation_request(message_t *message, player_t *player) {
-    if (message->argc != MSG_ACTIVATE_CLIENT_ARGC) {
+message_t *handle_login_request(message_t *message, player_t *player) {
+    if (message->argc != MSG_LOGIN_CLIENT_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
@@ -56,15 +56,15 @@ message_t *handle_activation_request(message_t *message, player_t *player) {
     add_player_to_list(player);
     unlock_player_list(true);
 
-    message_t *new_message = create_message(message->type, MSG_ACTIVATE_CLIENT_ID_ARGC);
+    message_t *new_message = create_message(message->type, MSG_LOGIN_CLIENT_ID_ARGC);
     put_string_arg(new_message, MSG_TRUE);
     put_int_arg(new_message, player->id);
     
     return new_message;
 }
 
-message_t *handle_deactivation_request(message_t *message, player_t *player) {
-    if (message->argc != MSG_DEACTIVATE_CLIENT_ARGC) {
+message_t *handle_logout_request(message_t *message, player_t *player) {
+    if (message->argc != MSG_LOGOUT_CLIENT_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
@@ -283,27 +283,27 @@ message_t *handle_unknown_request(message_t *message, player_t *player) {
     return new_message;
 }
 
-message_t *try_handle_activation_request(message_t *message, player_t *player) {
+message_t *try_handle_login_request(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud je klient již aktivní
     if (is_player_logged()) {
-        return create_err_message(message, MSG_ERR_ALREADY_ACTIVE, player);
+        return create_err_message(message, MSG_ERR_ALREADY_LOGGED, player);
     }
     // aktivace klienta, pokud není aktivní
     else {
-        return handle_activation_request(message, player);
+        return handle_login_request(message, player);
     }
 }
 
 message_t *try_handle_client_request(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud klient není aktivní
     if (!is_player_logged()) {
-        return create_err_message(message, MSG_ERR_NOT_ACTIVE, player);
+        return create_err_message(message, MSG_ERR_NOT_LOGGED, player);
     }
     // zpracování požadavku, pokud je klient aktivní
     else {
         // požadavek na deaktivaci klienta
-        if (!strcmp(message->type, MSG_DEACTIVATE_CLIENT)) {
-            return handle_deactivation_request(message, player);
+        if (!strcmp(message->type, MSG_LOGOUT_CLIENT)) {
+            return handle_logout_request(message, player);
         }
         // požadavek na založení herní místnosti
         else if (!strcmp(message->type, MSG_CREATE_GAME)) {
@@ -344,8 +344,8 @@ void parse_received_message(player_t *player) {
     // příchozí zpráva je požadavek
     else {
         // požadavek na aktivaci klienta
-        if (!strcmp(request->type, MSG_ACTIVATE_CLIENT)) {
-            response = try_handle_activation_request(request, player);
+        if (!strcmp(request->type, MSG_LOGIN_CLIENT)) {
+            response = try_handle_login_request(request, player);
         }
         // jiný požadavek
         else {

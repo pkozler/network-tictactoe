@@ -12,9 +12,9 @@ import visualisation.components.StatusBarPanel;
  *
  * @author Petr Kozler
  */
-public class DeactivationResponseParser extends AResponseParser {
+public class LogoutResponseParser extends AResponseParser {
 
-    public DeactivationResponseParser(TcpClient client,
+    public LogoutResponseParser(TcpClient client,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, gameListPanel, statusBarPanel, message);

@@ -4,6 +4,6 @@ package communication;
  *
  * @author Petr Kozler
  */
-public class ClientAlreadyActiveException extends Exception {
+public class ClientAlreadyLoggedException extends Exception {
     
 }

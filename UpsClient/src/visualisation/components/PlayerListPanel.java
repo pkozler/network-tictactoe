@@ -2,8 +2,8 @@ package visualisation.components;
 
 import communication.containers.PlayerInfo;
 import interaction.MessageBackgroundSender;
-import interaction.sending.requests.ActivationRequestBuilder;
-import interaction.sending.requests.DeactivationRequestBuilder;
+import interaction.sending.requests.LoginRequestBuilder;
+import interaction.sending.requests.LogoutRequestBuilder;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -77,11 +77,11 @@ public class PlayerListPanel extends JPanel {
         
         // TODO vytvořit dialog a načíst hodnotu
         
-        MESSAGE_SENDER.enqueueMessageBuilder(new ActivationRequestBuilder(nickname));
+        MESSAGE_SENDER.enqueueMessageBuilder(new LoginRequestBuilder(nickname));
     }
 
     private void logoutActionPerformed() {
-        MESSAGE_SENDER.enqueueMessageBuilder(new DeactivationRequestBuilder());
+        MESSAGE_SENDER.enqueueMessageBuilder(new LogoutRequestBuilder());
     }
 
 }

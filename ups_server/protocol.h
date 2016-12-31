@@ -9,11 +9,11 @@
  * Dostupné požadavky klienta a počty argumentů:
  */
 
-#define MSG_ACTIVATE_CLIENT "activate-client" // typ zprávy: aktivace (přihlášení) připojeného klienta
-#define MSG_ACTIVATE_CLIENT_ARGC 1 // počet argumentů: aktivace připojeného klienta
-#define MSG_ACTIVATE_CLIENT_ID_ARGC 2 // počet argumentů: odpověď serveru pro aktivaci (obsahuje ID)
-#define MSG_DEACTIVATE_CLIENT "deactivate-client" // typ zprávy: deaktivace (odhlášení) připojeného klienta
-#define MSG_DEACTIVATE_CLIENT_ARGC 0 // počet argumentů: deaktivace odpojeného klienta
+#define MSG_LOGIN_CLIENT "login-client" // typ zprávy: přihlášení připojeného klienta
+#define MSG_LOGIN_CLIENT_ARGC 1 // počet argumentů: přihlášení připojeného klienta
+#define MSG_LOGIN_CLIENT_ID_ARGC 2 // počet argumentů: odpověď serveru pro přihlášení (obsahuje ID)
+#define MSG_LOGOUT_CLIENT "logout-client" // typ zprávy: odhlášení připojeného klienta
+#define MSG_LOGOUT_CLIENT_ARGC 0 // počet argumentů: odhlášení odpojeného klienta
 #define MSG_CREATE_GAME "create-game" // typ zprávy: vytvoření hry klientem
 #define MSG_CREATE_GAME_ARGC 4 // počet argumentů: vytvoření hry klientem
 #define MSG_CREATE_GAME_ID_ARGC 2 // počet argumentů: odpověď serveru pro vytvoření hry (obsahuje ID)
@@ -29,10 +29,10 @@
  */
 
 #define MSG_ERR_INVALID_ARG_COUNT "invalid-arg-count" // typ chyby: nesprávný počet argumentů zprávy
-#define MSG_ERR_ALREADY_ACTIVE "already-active" // typ chyby: uživatel byl již aktivován
+#define MSG_ERR_ALREADY_LOGGED "already-logged" // typ chyby: uživatel byl již přihlášen
 #define MSG_ERR_INVALID_NAME "invalid-name" // typ chyby: neplatné jméno
 #define MSG_ERR_EXISTING_NAME "existing-name" // typ chyby: existující jméno
-#define MSG_ERR_NOT_ACTIVE "not-active" // typ chyby: uživatel nebyl dosud aktivován
+#define MSG_ERR_NOT_LOGGED "not-logged" // typ chyby: uživatel nebyl dosud přihlášen
 #define MSG_ERR_INVALID_PLAYER_COUNT "invalid-player-count" // typ chyby: neplatný počet hráčů hry
 #define MSG_ERR_INVALID_PLAYER_COUNT_ARGC 4 // počet argumentů: neplatný počet hráčů hry
 #define MSG_ERR_INVALID_BOARD_SIZE "invalid-board-size" // typ chyby: neplatný rozměr pole hry
