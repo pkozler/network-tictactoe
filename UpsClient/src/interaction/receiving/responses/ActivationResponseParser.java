@@ -4,7 +4,7 @@ import communication.TcpClient;
 import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
@@ -31,7 +31,7 @@ public class ActivationResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Config.MSG_ACTIVATE_CLIENT.getErrorType(MESSAGE.getNextArg());
+        messageError = Protocol.MSG_ACTIVATE_CLIENT.getErrorType(MESSAGE.getNextArg());
     }
     
     @Override
@@ -42,11 +42,11 @@ public class ActivationResponseParser extends AResponseParser {
             return String.format("Hráč byl přihlášen k serveru pod ID %d s přezdívkou: %s", id, nick);
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_NAME)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_NAME)) {
             return "Zadaná přezdívka hráče je neplatná";
         }
         
-        if (messageError.equals(Config.MSG_ERR_EXISTING_NAME)) {
+        if (messageError.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
             return "Hráč se zadanou přezdívkou již existuje";
         }
         

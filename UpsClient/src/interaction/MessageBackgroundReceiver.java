@@ -9,7 +9,7 @@ import communication.tokens.InvalidMessageArgsException;
 import communication.containers.MissingListHeaderException;
 import communication.tokens.MissingMessageArgsException;
 import communication.tokens.UnknownMessageTypeException;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AParser;
 import interaction.receiving.AUpdateParser;
 import interaction.receiving.responses.ActivationResponseParser;
@@ -169,29 +169,29 @@ public class MessageBackgroundReceiver implements Runnable {
             MissingListHeaderException, InvalidMessageArgsException,
             MissingMessageArgsException, ClientNotActivatedException {
         if (!active) {
-            if (message.isTypeOf(Config.MSG_ACTIVATE_CLIENT)) {
+            if (message.isTypeOf(Protocol.MSG_ACTIVATE_CLIENT)) {
                 return new ActivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
             }
             
             throw new ClientNotActivatedException();
         }
         
-        if (message.isTypeOf(Config.MSG_ACTIVATE_CLIENT)) {
+        if (message.isTypeOf(Protocol.MSG_ACTIVATE_CLIENT)) {
             throw new ClientAlreadyActiveException();
         }
-        else if (message.isTypeOf(Config.MSG_DEACTIVATE_CLIENT)) {
+        else if (message.isTypeOf(Protocol.MSG_DEACTIVATE_CLIENT)) {
             return new DeactivationResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_CREATE_GAME)) {
+        else if (message.isTypeOf(Protocol.MSG_CREATE_GAME)) {
             return new CreateGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_JOIN_GAME)) {
+        else if (message.isTypeOf(Protocol.MSG_JOIN_GAME)) {
             return new JoinGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_LEAVE_GAME)) {
+        else if (message.isTypeOf(Protocol.MSG_LEAVE_GAME)) {
             return new LeaveGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_PLAY_GAME)) {
+        else if (message.isTypeOf(Protocol.MSG_PLAY_GAME)) {
             return new PlayGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
@@ -200,21 +200,21 @@ public class MessageBackgroundReceiver implements Runnable {
     
     private AParser handleUpdate(TcpMessage message)
             throws MissingListHeaderException, InvalidMessageArgsException, MissingMessageArgsException {
-        if (message.isTypeOf(Config.MSG_PLAYER_LIST)) {
+        if (message.isTypeOf(Protocol.MSG_PLAYER_LIST)) {
             return new PlayerListUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_GAME_LIST)) {
+        else if (message.isTypeOf(Protocol.MSG_GAME_LIST)) {
             return new GameListUpdateParser(CLIENT,
                     GAME_LIST_PANEL, message);
         }
-        else if (message.isTypeOf(Config.MSG_GAME_DETAIL)) {
+        else if (message.isTypeOf(Protocol.MSG_GAME_DETAIL)) {
             return new CurrentGameDetailUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW, message);
         }
-        else if (message.isTypeOf(Config.MSG_PLAYER_LIST_ITEM)
-                || message.isTypeOf(Config.MSG_GAME_LIST_ITEM)
-                || message.isTypeOf(Config.MSG_GAME_PLAYER)) {
+        else if (message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)
+                || message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM)
+                || message.isTypeOf(Protocol.MSG_GAME_PLAYER)) {
             throw new MissingListHeaderException();
         }
         
@@ -223,9 +223,9 @@ public class MessageBackgroundReceiver implements Runnable {
     
     private void parseListItemMessage(AUpdateParser currentListReceiver, TcpMessage message)
             throws InvalidListItemException, InvalidMessageArgsException, MissingMessageArgsException {
-        if ((message.isTypeOf(Config.MSG_PLAYER_LIST_ITEM) && currentListReceiver instanceof PlayerListUpdateParser)
-         || (message.isTypeOf(Config.MSG_GAME_LIST_ITEM) && currentListReceiver instanceof GameListUpdateParser)
-         || (message.isTypeOf(Config.MSG_GAME_PLAYER) && currentListReceiver instanceof CurrentGameDetailUpdateParser)) {
+        if ((message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM) && currentListReceiver instanceof PlayerListUpdateParser)
+         || (message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM) && currentListReceiver instanceof GameListUpdateParser)
+         || (message.isTypeOf(Protocol.MSG_GAME_PLAYER) && currentListReceiver instanceof CurrentGameDetailUpdateParser)) {
             currentListReceiver.parseNextItemMessage(message);
         }
         else {

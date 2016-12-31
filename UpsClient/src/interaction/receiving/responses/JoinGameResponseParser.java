@@ -4,7 +4,7 @@ import communication.TcpClient;
 import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
@@ -29,7 +29,7 @@ public class JoinGameResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Config.MSG_JOIN_GAME.getErrorType(MESSAGE.getNextArg());
+        messageError = Protocol.MSG_JOIN_GAME.getErrorType(MESSAGE.getNextArg());
     }
 
     @Override
@@ -38,19 +38,19 @@ public class JoinGameResponseParser extends AResponseParser {
             return String.format("Hráč vstoupil do herní místnosti s ID %d", gameId);
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_ID)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_ID)) {
             return "Zadané ID herní místnosti je neplatné";
         }
         
-        if (messageError.equals(Config.MSG_ERR_ID_NOT_FOUND)) {
+        if (messageError.equals(Protocol.MSG_ERR_ID_NOT_FOUND)) {
             return "Herní místnost se zadaným ID neexistuje";
         }
         
-        if (messageError.equals(Config.MSG_ERR_ALREADY_IN_ROOM)) {
+        if (messageError.equals(Protocol.MSG_ERR_ALREADY_IN_ROOM)) {
             return "Hráč se již nachází v herní místnosti se zadaným ID";
         }
         
-        if (messageError.equals(Config.MSG_ERR_ROOM_FULL)) {
+        if (messageError.equals(Protocol.MSG_ERR_ROOM_FULL)) {
             return "Herní místnost je již plně obsazena";
         }
         

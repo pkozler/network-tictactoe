@@ -3,7 +3,7 @@ package communication;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import communication.tokens.AMessageType;
-import configuration.Config;
+import configuration.Protocol;
 
 /**
  * Třída sloužící jako přepravka pro uchovávání zpráv vyměňovaných mezi serverem
@@ -34,7 +34,7 @@ public class TcpMessage {
             return;
         }
         
-        int firstDelimIndex = msgStr.indexOf(Config.SEPARATOR);
+        int firstDelimIndex = msgStr.indexOf(Protocol.SEPARATOR);
         
         if (firstDelimIndex < 0) {
             type = msgStr;
@@ -43,7 +43,7 @@ public class TcpMessage {
         }
         
         type = msgStr.substring(0, firstDelimIndex);
-        args = msgStr.substring(firstDelimIndex + 1).split(Config.SEPARATOR);
+        args = msgStr.substring(firstDelimIndex + 1).split(Protocol.SEPARATOR);
     }
     
     public TcpMessage() {
@@ -139,11 +139,11 @@ public class TcpMessage {
     public boolean getNextBoolArg() throws InvalidMessageArgsException, MissingMessageArgsException {
         String arg = getNextArg();
         
-        if (Config.MSG_TRUE.equals(arg)) {
+        if (Protocol.MSG_TRUE.equals(arg)) {
             return true;
         }
         
-        if (Config.MSG_FALSE.equals(arg)) {
+        if (Protocol.MSG_FALSE.equals(arg)) {
             return false;
         }
         
@@ -156,7 +156,7 @@ public class TcpMessage {
             String msgStr = type;
 
             if (!hasTypeToken()) {
-                msgStr += Config.SEPARATOR + String.join(Config.SEPARATOR, args);
+                msgStr += Protocol.SEPARATOR + String.join(Protocol.SEPARATOR, args);
             }
             
             return msgStr;

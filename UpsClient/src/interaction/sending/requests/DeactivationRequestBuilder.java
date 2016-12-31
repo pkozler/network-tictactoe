@@ -1,7 +1,7 @@
 package interaction.sending.requests;
 
 import communication.TcpMessage;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
@@ -11,7 +11,7 @@ import interaction.sending.ARequestBuilder;
 public class DeactivationRequestBuilder extends ARequestBuilder {
 
     public DeactivationRequestBuilder() {
-        message = new TcpMessage(Config.MSG_DEACTIVATE_CLIENT.KEYWORD);
+        message = new TcpMessage(Protocol.MSG_DEACTIVATE_CLIENT.KEYWORD);
     }
     
     @Override

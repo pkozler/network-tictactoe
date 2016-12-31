@@ -4,16 +4,12 @@
 
 #include "message.h"
 #include "config.h"
-
+#include "protocol.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
-#define BYTE_BUF_LEN 4
-#define INT_BUF_LEN 11
 
 /**
  * Provádí postupné čtení ze socketu, dokud nejsou načteny všechny bajty
@@ -152,7 +148,13 @@ int32_t string_to_int(char *str) {
 }
 
 bool put_str_arg(message_t *msg, char *arg) {
+    if (msg->counter == msg->argc) {
+        return false;
+    }
+    
     msg->argv[msg->counter++] = arg;
+    
+    return true;
 }
 
 char *get_str_arg(message_t *msg) {
@@ -163,7 +165,13 @@ char *get_str_arg(message_t *msg) {
 }
 
 bool put_byte_arg(message_t *msg, int8_t arg) {
+    if (msg->counter == msg->argc) {
+        return false;
+    }
+    
     msg->argv[msg->counter++] = byte_to_string(arg);
+    
+    return true;
 }
 
 int8_t get_byte_arg(message_t *msg) {
@@ -174,7 +182,13 @@ int8_t get_byte_arg(message_t *msg) {
 }
 
 bool put_int_arg(message_t *msg, int32_t arg) {
+    if (msg->counter == msg->argc) {
+        return false;
+    }
+    
     msg->argv[msg->counter++] = int_to_string(arg);
+    
+    return true;
 }
 
 int32_t get_int_arg(message_t *msg) {

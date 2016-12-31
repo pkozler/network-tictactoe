@@ -35,19 +35,24 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/broadcast.o \
+	${OBJECTDIR}/broadcaster.o \
 	${OBJECTDIR}/cmd_arg.o \
+	${OBJECTDIR}/com_stats.o \
 	${OBJECTDIR}/console.o \
 	${OBJECTDIR}/game.o \
+	${OBJECTDIR}/game_list.o \
+	${OBJECTDIR}/linked_list.o \
+	${OBJECTDIR}/linked_list_iterator.o \
 	${OBJECTDIR}/logger.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/message.o \
-	${OBJECTDIR}/observed_list.o \
+	${OBJECTDIR}/observable_list.o \
 	${OBJECTDIR}/player.o \
+	${OBJECTDIR}/player_list.o \
 	${OBJECTDIR}/printer.o \
 	${OBJECTDIR}/string_builder.o \
 	${OBJECTDIR}/tcp_server.o \
-	${OBJECTDIR}/tcp_server_info.o
+	${OBJECTDIR}/tcp_server_control.o
 
 
 # C Compiler Flags
@@ -74,15 +79,20 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ups_server: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ups_server ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/broadcast.o: broadcast.c 
+${OBJECTDIR}/broadcaster.o: broadcaster.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcast.o broadcast.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcaster.o broadcaster.c
 
 ${OBJECTDIR}/cmd_arg.o: cmd_arg.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/cmd_arg.o cmd_arg.c
+
+${OBJECTDIR}/com_stats.o: com_stats.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/com_stats.o com_stats.c
 
 ${OBJECTDIR}/console.o: console.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -93,6 +103,21 @@ ${OBJECTDIR}/game.o: game.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game.o game.c
+
+${OBJECTDIR}/game_list.o: game_list.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_list.o game_list.c
+
+${OBJECTDIR}/linked_list.o: linked_list.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/linked_list.o linked_list.c
+
+${OBJECTDIR}/linked_list_iterator.o: linked_list_iterator.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/linked_list_iterator.o linked_list_iterator.c
 
 ${OBJECTDIR}/logger.o: logger.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -109,15 +134,20 @@ ${OBJECTDIR}/message.o: message.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/message.o message.c
 
-${OBJECTDIR}/observed_list.o: observed_list.c 
+${OBJECTDIR}/observable_list.o: observable_list.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/observed_list.o observed_list.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/observable_list.o observable_list.c
 
 ${OBJECTDIR}/player.o: player.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player.o player.c
+
+${OBJECTDIR}/player_list.o: player_list.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list.o player_list.c
 
 ${OBJECTDIR}/printer.o: printer.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -134,10 +164,10 @@ ${OBJECTDIR}/tcp_server.o: tcp_server.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server.o tcp_server.c
 
-${OBJECTDIR}/tcp_server_info.o: tcp_server_info.c 
+${OBJECTDIR}/tcp_server_control.o: tcp_server_control.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server_info.o tcp_server_info.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server_control.o tcp_server_control.c
 
 # Subprojects
 .build-subprojects:

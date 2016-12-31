@@ -11,6 +11,7 @@ import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AUpdateParser;
 import java.util.ArrayList;
 import javax.swing.JList;
@@ -86,8 +87,8 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
     
     private Cell getCellFromSubstring(String cellSubstr) throws InvalidMessageArgsException {
-        String cellSeedSubstr = cellSubstr.substring(0, Config.BOARD_CELL_SEED_SIZE);
-        String cellWinFlagSubstr = cellSubstr.substring(Config.BOARD_CELL_SEED_SIZE);
+        String cellSeedSubstr = cellSubstr.substring(0, Protocol.BOARD_CELL_SEED_SIZE);
+        String cellWinFlagSubstr = cellSubstr.substring(Protocol.BOARD_CELL_SEED_SIZE);
 
         byte playerIndex;
 
@@ -101,11 +102,11 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         boolean winning;
 
         switch (cellWinFlagSubstr) {
-            case Config.WINNING_CELL_SYMBOL: {
+            case Protocol.WINNING_CELL_SYMBOL: {
                 winning = true;
                 break;
             }
-            case Config.NORMAL_CELL_SYMBOL: {
+            case Protocol.NORMAL_CELL_SYMBOL: {
                 winning = false;
                 break;
             }
@@ -119,7 +120,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     
     private Cell[][] getCellsFromString(String boardString, int boardSize) throws InvalidMessageArgsException {
         String[] cellSubstrings = boardString.split(
-                "(?=\\b[" + Config.NORMAL_CELL_SYMBOL + Config.WINNING_CELL_SYMBOL + "])");
+                "(?=\\b[" + Protocol.NORMAL_CELL_SYMBOL + Protocol.WINNING_CELL_SYMBOL + "])");
         
         if (boardSize * boardSize != cellSubstrings.length) {
             throw new InvalidMessageArgsException();

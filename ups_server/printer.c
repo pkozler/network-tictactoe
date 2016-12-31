@@ -4,13 +4,12 @@
 
 #include "printer.h"
 #include "config.h"
+#include "string_builder.h"
 #include <error.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define LOG_LINE_LENGTH 65535 // velikost bufferu pro výpis hlášení
 
 /**
  * Vypíše na obrazovku zadanou hlášku a ukončí řádek.
@@ -19,11 +18,11 @@
  * @param ... argumenty řetězce hlášky
  */
 void print_out(const char *format, ...) {
-    char buf[LOG_LINE_LENGTH];
+    char buf[MAX_STR_LENGHT];
     
     va_list vargs;
     va_start(vargs, format);
-    vsnprintf(buf, sizeof(buf), format, vargs);
+    create_string(0, buf, format, vargs);
     va_end(vargs);
     
     printf("%s.\n", buf);
@@ -37,11 +36,11 @@ void print_out(const char *format, ...) {
  * @param ... argumenty řetězce chybové hlášky
  */
 void print_err(const char *format, ...) {
-    char buf[LOG_LINE_LENGTH];
+    char buf[MAX_STR_LENGHT];
     
     va_list vargs;
     va_start(vargs, format);
-    vsnprintf(buf, sizeof(buf), format, vargs);
+    create_string(0, buf, format, vargs);
     va_end(vargs);
     
     printf("%s: %s\n", buf, strerror(errno));

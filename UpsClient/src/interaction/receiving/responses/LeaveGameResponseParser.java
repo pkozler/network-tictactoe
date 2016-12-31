@@ -4,7 +4,7 @@ import communication.TcpClient;
 import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
@@ -28,7 +28,7 @@ public class LeaveGameResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Config.MSG_LEAVE_GAME.getErrorType(MESSAGE.getNextArg());
+        messageError = Protocol.MSG_LEAVE_GAME.getErrorType(MESSAGE.getNextArg());
     }
 
     @Override
@@ -37,7 +37,7 @@ public class LeaveGameResponseParser extends AResponseParser {
             return String.format("Hráč opustil herní místnost s ID %d", gameId);
         }
         
-        if (messageError.equals(Config.MSG_ERR_NOT_IN_ROOM)) {
+        if (messageError.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
             return "Hráč se nenachází v herní místnosti se zadaným ID";
         }
         

@@ -3,7 +3,8 @@
  */
 
 #include "game.h"
-#include "observed_list.h"
+#include "global.h"
+#include "protocol.h"
 #include "printer.h"
 #include "message.h"
 #include "config.h"
@@ -11,7 +12,48 @@
 #include <stdio.h>
 #include <string.h>
 
-observed_list_t *g_game_list;
+void create_game(player_t *player, char *name,
+        int8_t board_size, int8_t player_count, int8_t cell_count) {
+    game_t *game = calloc(sizeof(game_t), 1);
+    pthread_mutex_init(&(game->lock), NULL);
+
+    game->player_count = player_count;
+    game->board_size = board_size;
+    game->cell_count = cell_count;
+
+    game->players = calloc(sizeof(player_t *), player_count);
+    game->board = calloc(sizeof(game_cell_t *), board_size);
+
+    int8_t i = 0;
+    for (i = 0; i < game->board_size; i++) {
+        game->board[i] = calloc(sizeof(game_cell_t), board_size);
+    }
+
+    game->current_player = 1;
+    game->player_counter = 0;
+    game->occupied_cell_counter = 0;
+    game->winner = 0;
+    game->active = false;
+    game->changed = true;
+    add_player(game, player);
+    
+    if (pthread_create(&(game->thread), NULL, run_game, game) < 0) {
+        print_err("Chyba při spouštění vlákna pro rozesílání stavu hry");
+    }
+}
+
+void delete_game(game_t *game) {
+    int8_t i = 0;
+    for (i = 0; i < game->board_size; i++) {
+        free(game->board[i]);
+    }
+
+    free(game->board);
+    pthread_cancel(game->thread);
+    pthread_mutex_destroy(&(game->lock));
+    
+    free(game);
+}
 
 /*
  * Pomocné funkce pro operace s hrami:
@@ -148,49 +190,6 @@ void *run_game(void *arg) {
     }
     
     return NULL;
-}
-
-void create_game(player_t *player, char *name,
-        int8_t board_size, int8_t player_count, int8_t cell_count) {
-    game_t *game = calloc(sizeof(game_t), 1);
-    pthread_mutex_init(&(game->lock), NULL);
-
-    game->player_count = player_count;
-    game->board_size = board_size;
-    game->cell_count = cell_count;
-
-    game->players = calloc(sizeof(player_t *), player_count);
-    game->board = calloc(sizeof(game_cell_t *), board_size);
-
-    int8_t i = 0;
-    for (i = 0; i < game->board_size; i++) {
-        game->board[i] = calloc(sizeof(game_cell_t), board_size);
-    }
-
-    game->current_player = 1;
-    game->player_counter = 0;
-    game->occupied_cell_counter = 0;
-    game->winner = 0;
-    game->active = false;
-    game->changed = true;
-    add_player(game, player);
-    
-    if (pthread_create(&(game->thread), NULL, run_game, game) < 0) {
-        print_err("Chyba při spouštění vlákna pro rozesílání stavu hry");
-    }
-}
-
-void delete_game(game_t *game) {
-    int8_t i = 0;
-    for (i = 0; i < game->board_size; i++) {
-        free(game->board[i]);
-    }
-
-    free(game->board);
-    pthread_cancel(game->thread);
-    pthread_mutex_destroy(&(game->lock));
-    
-    free(game);
 }
 
 /*
@@ -428,71 +427,4 @@ void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
 
     game->winner = get_winner(game, player_pos, x, y);
     game->active = game->winner == 0 && !is_draw(game);
-}
-
-/*
- * Funkce pro použití ve funkcích spojového seznamu her:
- */
-
-int32_t get_game_key(void *item) {
-    game_t *game = (game_t *) item;
-    
-    return game->id;
-}
-
-void set_game_key(void *item, int32_t id) {
-    game_t *game = (game_t *) item;
-    game->id = id;
-}
-
-char *get_game_name(void *item) {
-    game_t *game = (game_t *) item;
-    
-    return game->name;
-}
-
-message_t *game_to_msg(void *item) {
-    game_t *game = (game_t *) item;
-    message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
-    put_int_arg(message, game->id);
-    put_str_arg(message, game->name);
-    put_byte_arg(message, game->player_count);
-    put_byte_arg(message, game->board_size);
-    put_byte_arg(message, game->cell_count);
-    put_byte_arg(message, game->player_counter);
-    put_int_arg(message, game->round_counter);
-    put_int_arg(message, (game->active ? 1 : 0));
-    
-    return message;
-}
-
-message_t *game_list_to_msg() {
-    message_t *message = create_message(MSG_GAME_LIST, MSG_GAME_LIST_ARGC);
-    put_int_arg(message, g_player_list->count);
-    
-    return message;
-}
-
-/*
- * Funkce pro vytvoření a odstranění seznamu her:
- */
-
-void create_game_list() {
-    g_game_list = create_list("seznam her", get_game_key, set_game_key,
-            get_game_name, game_to_msg, game_list_to_msg);
-}
-
-void delete_game_list() {
-    lock_list(g_game_list);
-    list_iterator_t *iterator = create_list_iterator(g_game_list);
-    game_t *game = (game_t *) get_next_item(iterator);
-    
-    while (game != NULL) {
-        delete_game(game);
-        game = (game_t *) get_next_item(iterator);
-    }
-    
-    free(iterator);
-    unlock_list(g_game_list, false);
-    delete_list(g_game_list);
 }

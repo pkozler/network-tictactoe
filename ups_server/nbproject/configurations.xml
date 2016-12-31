@@ -7,30 +7,38 @@
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.h</itemPath>
+          <itemPath>game_list.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.h</itemPath>
+          <itemPath>player_list.h</itemPath>
         </logicalFolder>
-        <itemPath>observed_list.h</itemPath>
+        <itemPath>observable_list.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
         <itemPath>cmd_arg.h</itemPath>
         <itemPath>console.h</itemPath>
         <itemPath>logger.h</itemPath>
         <itemPath>printer.h</itemPath>
-        <itemPath>string_builder.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
           <itemPath>tcp_server.h</itemPath>
-          <itemPath>tcp_server_info.h</itemPath>
+          <itemPath>tcp_server_control.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
-          <itemPath>broadcast.h</itemPath>
+          <itemPath>broadcaster.h</itemPath>
           <itemPath>message.h</itemPath>
         </logicalFolder>
+        <itemPath>com_stats.h</itemPath>
       </logicalFolder>
       <itemPath>config.h</itemPath>
+      <itemPath>global.h</itemPath>
+      <itemPath>linked_list.h</itemPath>
+      <itemPath>linked_list_iterator.h</itemPath>
+      <itemPath>linked_list_node.h</itemPath>
+      <itemPath>protocol.h</itemPath>
+      <itemPath>string_builder.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -42,30 +50,35 @@
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.c</itemPath>
+          <itemPath>game_list.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.c</itemPath>
+          <itemPath>player_list.c</itemPath>
         </logicalFolder>
-        <itemPath>observed_list.c</itemPath>
+        <itemPath>observable_list.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
         <itemPath>cmd_arg.c</itemPath>
         <itemPath>console.c</itemPath>
         <itemPath>logger.c</itemPath>
         <itemPath>printer.c</itemPath>
-        <itemPath>string_builder.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
           <itemPath>tcp_server.c</itemPath>
-          <itemPath>tcp_server_info.c</itemPath>
+          <itemPath>tcp_server_control.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
-          <itemPath>broadcast.c</itemPath>
+          <itemPath>broadcaster.c</itemPath>
           <itemPath>message.c</itemPath>
         </logicalFolder>
+        <itemPath>com_stats.c</itemPath>
       </logicalFolder>
+      <itemPath>linked_list.c</itemPath>
+      <itemPath>linked_list_iterator.c</itemPath>
       <itemPath>main.c</itemPath>
+      <itemPath>string_builder.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -97,13 +110,17 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="broadcast.c" ex="false" tool="0" flavor2="0">
+      <item path="broadcaster.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="broadcast.h" ex="false" tool="3" flavor2="0">
+      <item path="broadcaster.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="com_stats.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="com_stats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -115,6 +132,22 @@
       </item>
       <item path="game.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="game_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="game_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="global.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="linked_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list_iterator.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="linked_list_iterator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list_node.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="logger.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="logger.h" ex="false" tool="3" flavor2="0">
@@ -125,17 +158,23 @@
       </item>
       <item path="message.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="observed_list.c" ex="false" tool="0" flavor2="0">
+      <item path="observable_list.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="observed_list.h" ex="false" tool="3" flavor2="0">
+      <item path="observable_list.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="player.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="player.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="player_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="player_list.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="protocol.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="string_builder.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -145,9 +184,9 @@
       </item>
       <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="tcp_server_info.c" ex="false" tool="0" flavor2="0">
+      <item path="tcp_server_control.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="tcp_server_info.h" ex="false" tool="3" flavor2="0">
+      <item path="tcp_server_control.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -171,13 +210,17 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="broadcast.c" ex="false" tool="0" flavor2="0">
+      <item path="broadcaster.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="broadcast.h" ex="false" tool="3" flavor2="0">
+      <item path="broadcaster.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="com_stats.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="com_stats.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -189,6 +232,22 @@
       </item>
       <item path="game.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="game_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="game_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="global.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="linked_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list_iterator.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="linked_list_iterator.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="linked_list_node.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="logger.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="logger.h" ex="false" tool="3" flavor2="0">
@@ -199,17 +258,23 @@
       </item>
       <item path="message.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="observed_list.c" ex="false" tool="0" flavor2="0">
+      <item path="observable_list.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="observed_list.h" ex="false" tool="3" flavor2="0">
+      <item path="observable_list.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="player.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="player.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="player_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="player_list.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="protocol.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="string_builder.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -219,9 +284,9 @@
       </item>
       <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="tcp_server_info.c" ex="false" tool="0" flavor2="0">
+      <item path="tcp_server_control.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="tcp_server_info.h" ex="false" tool="3" flavor2="0">
+      <item path="tcp_server_control.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

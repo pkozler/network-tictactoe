@@ -8,7 +8,6 @@
 #include <stdarg.h>
 
 void print_out(const char *format, ...);
-
 void print_err(const char *format, ...);
 
 #endif /* PRINTER_H */

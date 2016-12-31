@@ -5,7 +5,7 @@ import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.ClientMessageErrorArg;
 import communication.tokens.MissingMessageArgsException;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
@@ -30,11 +30,11 @@ public class CreateGameResponseParser extends AResponseParser {
             return;
         }
         
-        ClientMessageErrorArg error = Config.MSG_CREATE_GAME.getErrorType(MESSAGE.getNextArg());
+        ClientMessageErrorArg error = Protocol.MSG_CREATE_GAME.getErrorType(MESSAGE.getNextArg());
 
-        if (!(Config.MSG_ERR_INVALID_PLAYER_COUNT.equals(messageError)
-                || Config.MSG_ERR_INVALID_BOARD_SIZE.equals(messageError)
-                || Config.MSG_ERR_INVALID_CELL_COUNT.equals(messageError))) {
+        if (!(Protocol.MSG_ERR_INVALID_PLAYER_COUNT.equals(messageError)
+                || Protocol.MSG_ERR_INVALID_BOARD_SIZE.equals(messageError)
+                || Protocol.MSG_ERR_INVALID_CELL_COUNT.equals(messageError))) {
             messageError = error;
             
             return;
@@ -57,23 +57,23 @@ public class CreateGameResponseParser extends AResponseParser {
             return String.format("Hráč vytvořil herní místnost ID %d", gameId);
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_NAME)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_NAME)) {
             return "Zadaný název herní místnosti je neplatný";
         }
         
-        if (messageError.equals(Config.MSG_ERR_EXISTING_NAME)) {
+        if (messageError.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
             return "Herní místnost se zadaným názvem již existuje";
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_BOARD_SIZE)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_BOARD_SIZE)) {
             return "Zadaný rozměr hracího pole je neplatný";
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_PLAYER_COUNT)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_PLAYER_COUNT)) {
             return "Zadaný počet hráčů je neplatný";
         }
         
-        if (messageError.equals(Config.MSG_ERR_INVALID_CELL_COUNT)) {
+        if (messageError.equals(Protocol.MSG_ERR_INVALID_CELL_COUNT)) {
             return "Zadaný počet políček potřebných k obsazení je neplatný";
         }
         

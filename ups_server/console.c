@@ -3,9 +3,10 @@
  */
 
 #include "tcp_server.h"
+#include "global.h"
 #include "config.h"
 #include "console.h"
-#include "tcp_server_info.h"
+#include "tcp_server_control.h"
 #include "message.h"
 #include "printer.h"
 #include "logger.h"
@@ -17,16 +18,6 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <arpa/inet.h>
-
-#define CMD_MAX_LEN 10 // maximální délka řetězce příkazu uživatele
-#define ARGS_CMD "args" // příkaz pro výpis parametrů serveru
-#define STATS_CMD "stats" // příkaz pro výpis statistik serveru
-#define RESET_CMD "reset" // příkaz pro restart serveru s novými parametry
-#define HELP_CMD "help" // příkaz pro výpis všech dostupných příkazů
-#define EXIT_CMD "exit" // příkaz pro zastavení komunikace a ukončení programu
-
-// vlákno pro načítání příkazů uživatele z konzole při probíhající komunikaci
-pthread_t g_cmd_thread;
 
 /**
  * Vypíše seznam dostupných příkazů se stručným popisem jejich činnosti.
@@ -48,8 +39,8 @@ void print_commands() {
  */
 void *run_prompt(void *arg) {
     while (is_server_running()) {
-        char buf[CMD_MAX_LEN];
-        fgets(buf, CMD_MAX_LEN, stdin);
+        char buf[CMD_MAX_LENGTH];
+        fgets(buf, CMD_MAX_LENGTH, stdin);
 
         if (!strcmp(ARGS_CMD, buf)) {
             print_args();

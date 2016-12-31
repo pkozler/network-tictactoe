@@ -3,14 +3,42 @@
  */
 
 #include "player.h"
-#include "observed_list.h"
+#include "global.h"
+#include "protocol.h"
 #include "printer.h"
 #include "config.h"
-
+#include "broadcaster.h"
 #include <stdlib.h>
 #include <string.h>
 
-observed_list_t *g_player_list;
+void create_player(int sock) {
+    player_t *player = (player_t *) malloc(sizeof(player_t));
+    pthread_mutex_init(&player->lock, NULL);
+    player->sock = sock;
+    player->id = 0;
+    player->nick = NULL;
+    player->current_game = NULL;
+    player->current_game_index = 0;
+    player->current_game_score = 0;
+    player->total_score = 0;
+    player->active = false;
+    player->timeout_counter = 0;
+    player->valid_transfers_count = 0;
+    player->invalid_transfers_count = 0;
+    player->update_nack_count = 0;
+    player->high_frequency_message_count = 0;
+    
+    if (pthread_create(&player->thread, NULL, run_player, (void *) player) < 0) {
+        print_err("Chyba při spouštění vlákna pro příjem zpráv klienta");
+    }
+}
+
+void delete_player(player_t *player) {
+    pthread_cancel(player->thread);
+    pthread_mutex_destroy(&(player->lock));
+    close(player->sock);
+    free(player);
+}
 
 /*
  * Pomocné funkce pro operace s hráči:
@@ -71,7 +99,7 @@ message_t *handle_activation_request(message_t *message, player_t *player) {
     }
     
     player->nick = nick;
-    add_to_list(g_player_list, (void *) player);
+    add_to_observed_list(g_player_list, (void *) player);
     player->active = true;
     unlock_list(g_player_list, true);
 
@@ -154,7 +182,7 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     }
     
     create_game(player, name, board_size, player_count, cell_count);
-    add_to_list(g_game_list, player->current_game);
+    add_to_observed_list(g_game_list, player->current_game);
     unlock_list(g_game_list, true);
 
     new_message = create_message(message->type, MSG_CREATE_GAME_ID_ARGC);
@@ -401,95 +429,4 @@ void *run_player(void *arg) {
     }
     
     return NULL;
-}
-
-void create_player(int sock) {
-    player_t *player = (player_t *) malloc(sizeof(player_t));
-    pthread_mutex_init(&player->lock, NULL);
-    player->sock = sock;
-    player->id = 0;
-    player->nick = NULL;
-    player->current_game = NULL;
-    player->current_game_index = 0;
-    player->current_game_score = 0;
-    player->total_score = 0;
-    player->active = false;
-    player->timeout_counter = 0;
-    player->valid_transfers_count = 0;
-    player->invalid_transfers_count = 0;
-    player->update_nack_count = 0;
-    player->high_frequency_message_count = 0;
-    
-    if (pthread_create(&player->thread, NULL, run_player, (void *) player) < 0) {
-        print_err("Chyba při spouštění vlákna pro příjem zpráv klienta");
-    }
-}
-
-void delete_player(player_t *player) {
-    pthread_cancel(player->thread);
-    pthread_mutex_destroy(&(player->lock));
-    close(player->sock);
-    free(player);
-}
-
-/*
- * Funkce pro použití ve funkcích spojového seznamu hráčů:
- */
-
-int32_t get_player_key(void *item) {
-    player_t *player = (player_t *) item;
-    
-    return player->id;
-}
-
-void set_player_key(void *item, int32_t id) {
-    player_t *player = (player_t *) item;
-    player->id = id;
-}
-
-char *get_player_name(void *item) {
-    player_t *player = (player_t *) item;
-    
-    return player->nick;
-}
-
-message_t *player_to_msg(void *item) {
-    player_t *player = (player_t *) item;
-    message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
-    put_int_arg(message, player->id);
-    put_str_arg(message, player->nick);
-    put_int_arg(message, player->total_score);
-    
-    return message;
-}
-
-message_t *player_list_to_msg()  {
-    message_t *message = create_message(MSG_PLAYER_LIST, MSG_PLAYER_LIST_ARGC);
-    put_int_arg(message, g_player_list->count);
-    
-    return message;
-}
-
-/*
- * Funkce pro vytvoření a odstranění seznamu hráčů:
- */
-
-void create_player_list() {
-    g_player_list = create_list("seznam hráčů", get_player_key, set_player_key,
-            get_player_name, player_to_msg, player_list_to_msg);
-}
-
-void delete_player_list() {
-    lock_list(g_player_list);
-    list_iterator_t *iterator = create_list_iterator(g_player_list);
-    player_t *player = (player_t *) get_next_item(iterator);
-    
-    while (player != NULL) {
-        delete_player(player);
-        player = (player_t *) get_next_item(iterator);
-    }
-    
-    free(iterator);
-    unlock_list(g_player_list, false);
-    delete_list(g_player_list);
 }

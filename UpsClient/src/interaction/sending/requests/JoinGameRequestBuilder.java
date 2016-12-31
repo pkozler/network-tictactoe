@@ -1,7 +1,7 @@
 package interaction.sending.requests;
 
 import communication.TcpMessage;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
@@ -15,7 +15,7 @@ public class JoinGameRequestBuilder extends ARequestBuilder {
     public JoinGameRequestBuilder(int gameId) {
         GAME_ID = gameId;
         
-        message = new TcpMessage(Config.MSG_JOIN_GAME.KEYWORD, Integer.toString(GAME_ID));
+        message = new TcpMessage(Protocol.MSG_JOIN_GAME.KEYWORD, Integer.toString(GAME_ID));
     }
     
     @Override

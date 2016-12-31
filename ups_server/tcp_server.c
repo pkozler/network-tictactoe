@@ -3,15 +3,17 @@
  */
 
 #include "tcp_server.h"
-#include "tcp_server_info.h"
+#include "tcp_server_control.h"
 #include "config.h"
-#include "observed_list.h"
 #include "player.h"
 #include "game.h"
 #include "console.h"
 #include "logger.h"
 #include "printer.h"
-#include "broadcast.h"
+#include "broadcaster.h"
+#include "game_list.h"
+#include "player_list.h"
+#include "global.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -122,12 +124,13 @@ int setup_connection(int32_t host, int32_t port, char *log_file, int32_t queue_l
     start_server();
     
     start_logging(log_file);
+    g_client_list = create_linked_list();
+    create_player_list();
+    create_game_list();
+    int srv_sock = create_serversocket(host, port, queue_length);
     start_prompt();
     
-    int srv_sock = create_serversocket(host, port, queue_length);
-    
     print_out("Server spuštěn");
-    
     return srv_sock;
 }
 
@@ -145,6 +148,9 @@ void run_connection(int srv_sock) {
 
 void shutdown_connection(int srv_sock) {
     close(srv_sock);
+    delete_game_list();
+    delete_player_list();
+    delete_linked_list(g_client_list, delete_player);
     shutdown_logging();
     
     printf("Server ukončen.\n");
@@ -152,22 +158,15 @@ void shutdown_connection(int srv_sock) {
 }
 
 void initialize(args_t args) {
-    g_tcp_server_info.args.host = args.host;
-    g_tcp_server_info.args.port = args.port;
-    g_tcp_server_info.args.log_file = args.log_file;
-    g_tcp_server_info.args.queue_length = args.queue_length;
+    g_server_info.args.host = args.host;
+    g_server_info.args.port = args.port;
+    g_server_info.args.log_file = args.log_file;
+    g_server_info.args.queue_length = args.queue_length;
     
     while (true) {
-        int srv_sock = setup_connection(g_tcp_server_info.args.host, g_tcp_server_info.args.port,
-                g_tcp_server_info.args.log_file, g_tcp_server_info.args.queue_length);
+        int srv_sock = setup_connection(g_server_info.args.host, g_server_info.args.port,
+                g_server_info.args.log_file, g_server_info.args.queue_length);
         run_connection(srv_sock);
         shutdown_connection(srv_sock);
-        
-        /*g_args.host = parse_host();
-        g_args.port = parse_port();
-        g_args.log_file = parse_log();
-        g_args.queue_length = parse_queue();*/
-        
-        // TODO implementovat načtení nových parametrů před restartem serveru
     }
 }

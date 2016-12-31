@@ -1,7 +1,7 @@
 package interaction.sending.requests;
 
 import communication.TcpMessage;
-import configuration.Config;
+import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
@@ -11,7 +11,7 @@ import interaction.sending.ARequestBuilder;
 public class LeaveGameRequestBuilder extends ARequestBuilder {
 
     public LeaveGameRequestBuilder() {
-        message = new TcpMessage(Config.MSG_LEAVE_GAME.KEYWORD);
+        message = new TcpMessage(Protocol.MSG_LEAVE_GAME.KEYWORD);
     }
     
     @Override
