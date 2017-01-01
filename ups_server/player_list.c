@@ -123,7 +123,6 @@ message_t *player_to_msg(player_t *player) {
     message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
     put_int_arg(message, player->id);
     put_string_arg(message, player->nick);
-    put_int_arg(message, player->total_score);
     
     return message;
 }

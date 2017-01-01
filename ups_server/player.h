@@ -25,6 +25,7 @@ typedef struct PLAYER {
     struct GAME *current_game;
     int8_t current_game_index;
     int32_t current_game_score;
+    int32_t total_score;
 } player_t;
 
 player_t *create_player(int sock);

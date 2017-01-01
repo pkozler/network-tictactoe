@@ -15,13 +15,9 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
         NICK = nick;
         this.totalScore = totalScore;
     }
-
+    
     public int getTotalScore() {
         return totalScore;
-    }
-
-    public void setTotalScore(int totalScore) {
-        this.totalScore = totalScore;
     }
 
     @Override
@@ -51,16 +47,11 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     
     @Override
     public String toString() {
-            return String.format("<html>%d: %s<br/>skóre: %d</html>", 
-                            ID, NICK, totalScore);
+        return String.format("<html>%d: %s</html>", ID, NICK);
     }
 
     @Override
     public int compareTo(PlayerInfo o) {
-        if (totalScore != o.totalScore) {
-            return o.totalScore - totalScore;
-        }
-        
         return ID - o.ID;
     }
     

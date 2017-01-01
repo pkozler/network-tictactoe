@@ -11,13 +11,15 @@
 message_t *game_board_to_message(game_t *game) {
     message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);
     
-    put_byte_arg(new_message, game->winner);
-    put_byte_arg(new_message, game->current_player);
+    put_byte_arg(new_message, game->current_winner);
+    put_byte_arg(new_message, game->current_playing);
     
     char *board_str = (char *) malloc(sizeof(char) *
         (game->board_size * game->board_size * (BOARD_CELL_SEED_SIZE + 1) + 1));
     board_str[0] = '\0';
     char buf[BOARD_CELL_SEED_SIZE + 1];
+    
+    // TODO předělat
     
     int32_t i, j;
     for (j = 0; j < game->board_size; j++) {

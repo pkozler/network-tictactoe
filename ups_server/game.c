@@ -22,19 +22,23 @@ game_t *create_game(player_t *player, char *name,
     game->cell_count = cell_count;
 
     game->players = calloc(sizeof(player_t *), player_count);
-    game->board = calloc(sizeof(game_cell_t *), board_size);
+    game->winner_cells_x = calloc(sizeof(int8_t) * game->cell_count);
+    game->winner_cells_y = calloc(sizeof(int8_t) * game->cell_count);
+    game->board = calloc(sizeof(int8_t), board_size);
 
     int8_t i = 0;
     for (i = 0; i < game->board_size; i++) {
-        game->board[i] = calloc(sizeof(game_cell_t), board_size);
+        game->board[i] = calloc(sizeof(int8_t), board_size);
     }
-
-    game->current_player = 1;
+    
+    // TODO dokončit
+    
+    game->current_playing = 1;
     game->player_counter = 0;
-    game->round_counter = 1;
+    game->current_round = 0;
     game->occupied_cell_counter = 0;
-    game->winner = 0;
-    game->active = false;
+    game->current_winner = 0;
+    game->round_finished = true;
     game->changed = true;
     add_player_to_game(game, player);
     

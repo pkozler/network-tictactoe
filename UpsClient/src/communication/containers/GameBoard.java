@@ -22,24 +22,12 @@ public class GameBoard {
         return winnerIndex;
     }
 
-    public void setWinnerIndex(byte winnerIndex) {
-        this.winnerIndex = winnerIndex;
-    }
-
     public byte getCurrentIndex() {
         return currentIndex;
     }
 
-    public void setCurrentIndex(byte currentIndex) {
-        this.currentIndex = currentIndex;
-    }
-
     public Cell[][] getCells() {
         return cells;
-    }
-
-    public void setCells(Cell[][] cells) {
-        this.cells = cells;
     }
 
 }

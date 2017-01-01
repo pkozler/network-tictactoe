@@ -354,8 +354,6 @@ void parse_received_message(player_t *player) {
     }
     
     send_message(response, player->sock);
-    unlock_player(player);
-    
     delete_message(request);
     
     if (response != NULL) {

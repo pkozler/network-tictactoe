@@ -44,9 +44,7 @@ public class GameListUpdateParser extends AUpdateParser {
         byte playerCount = itemMessage.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
         byte cellCount = itemMessage.getNextByteArg(Config.MIN_CELL_COUNT, Config.MAX_CELL_COUNT);
         byte playerCounter = itemMessage.getNextByteArg((byte) 1, playerCount);
-        int roundCounter = itemMessage.getNextIntArg(0);
-        boolean active = itemMessage.getNextBoolArg();
-        GAME_LIST.add(new GameInfo(id, name, boardSize, playerCount, cellCount, playerCounter, roundCounter, active));
+        GAME_LIST.add(new GameInfo(id, name, boardSize, playerCount, cellCount, playerCounter));
     }
 
     @Override

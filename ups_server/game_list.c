@@ -120,8 +120,6 @@ message_t *game_to_msg(game_t *game) {
     put_byte_arg(message, game->board_size);
     put_byte_arg(message, game->cell_count);
     put_byte_arg(message, game->player_counter);
-    put_int_arg(message, game->round_counter);
-    put_int_arg(message, (game->active ? 1 : 0));
     
     return message;
 }

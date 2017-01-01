@@ -20,16 +20,8 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
         return currentGameIndex;
     }
 
-    public void setCurrentGameIndex(byte currentGameIndex) {
-        this.currentGameIndex = currentGameIndex;
-    }
-
     public int getCurrentGameScore() {
         return currentGameScore;
-    }
-
-    public void setCurrentGameScore(int currentGameScore) {
-        this.currentGameScore = currentGameScore;
     }
 
     @Override

@@ -6,11 +6,10 @@
 #include "global.h"
 #include "linked_list.h"
 #include "linked_list_iterator.h"
-#include "player.h"
 #include "tcp_communicator.h"
 #include <stdlib.h>
 
-void send_messages_to_client(message_list_t *messages, player_t *client) {
+void send_to_single_client(message_list_t *messages, player_t *client) {
     lock_player(client);
     send_message(messages->head, client->sock);
 
@@ -27,7 +26,7 @@ void send_to_all_clients(message_list_t *messages) {
     
     while (has_next_element(iterator)) {
         player_t *client = (player_t *) get_next_element(iterator);
-        send_messages_to_client(messages, client);
+        send_to_single_client(messages, client);
     }
     
     delete_message_list(messages);
@@ -38,7 +37,7 @@ void send_to_selected_clients(message_list_t *messages,
     int32_t i;
     for (i = 0; i < client_count; i++) {
         if (clients[i] != NULL) {
-            send_messages_to_client(messages, clients[i]);
+            send_to_single_client(messages, clients[i]);
         }
     }
     

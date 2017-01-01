@@ -18,16 +18,8 @@ public class Cell {
         return playerIndex;
     }
 
-    public void setPlayerIndex(byte playerIndex) {
-        this.playerIndex = playerIndex;
-    }
-
     public boolean isWinning() {
         return winning;
     }
 
-    public void setWinning(boolean winning) {
-        this.winning = winning;
-    }
-    
 }

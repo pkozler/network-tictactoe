@@ -51,7 +51,7 @@ bool is_game_cell_count_valid(int8_t cell_count) {
 }
 
 bool is_current_player(game_t *game, player_t *player) {
-    return player->current_game_index == game->current_player;
+    return player->current_game_index == game->current_playing;
 }
 
 bool is_cell_in_board(game_t *game, int8_t x, int8_t y) {

@@ -19,6 +19,7 @@ public class Protocol {
     public static final ClientMessageType MSG_CREATE_GAME = new ClientMessageType("create-game", 4);
     public static final ClientMessageType MSG_JOIN_GAME = new ClientMessageType("join-game", 1);
     public static final ClientMessageType MSG_LEAVE_GAME = new ClientMessageType("leave-game");
+    public static final ClientMessageType MSG_START_GAME = new ClientMessageType("start-game");
     public static final ClientMessageType MSG_PLAY_GAME = new ClientMessageType("play-game", 2);
     public static final int MSG_LOGIN_CLIENT_ID_ARGC = 2;
     public static final int MSG_CREATE_GAME_ID_ARGC = 2;
@@ -41,6 +42,8 @@ public class Protocol {
     public static final ClientMessageErrorArg MSG_ERR_ROOM_FULL = new ClientMessageErrorArg("room-full");
     public static final ClientMessageErrorArg MSG_ERR_ALREADY_IN_ROOM = new ClientMessageErrorArg("already-in-room");
     public static final ClientMessageErrorArg MSG_ERR_NOT_IN_ROOM = new ClientMessageErrorArg("not-in-room");
+    public static final ClientMessageErrorArg MSG_ERR_NOT_ENOUGH_PLAYERS = new ClientMessageErrorArg("not-enough-players");
+    public static final ClientMessageErrorArg MSG_ERR_ROUND_ALREADY_STARTED = new ClientMessageErrorArg("round-already-started");
     public static final ClientMessageErrorArg MSG_ERR_ROUND_NOT_STARTED = new ClientMessageErrorArg("round-not-started");
     public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_IN_ROUND = new ClientMessageErrorArg("cannot-play-in-round");
     public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_NOW = new ClientMessageErrorArg("cannot-play-now");
@@ -55,7 +58,7 @@ public class Protocol {
     public static final ServerMessageType MSG_PLAYER_LIST = new ServerMessageType("player-list", 1, true);
     public static final ServerMessageType MSG_PLAYER_LIST_ITEM = new ServerMessageType("player-item", 3, false);
     public static final ServerMessageType MSG_GAME_LIST = new ServerMessageType("game-list", 1, true);
-    public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType("game-item", 8, false);
+    public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType("game-item", 6, false);
     public static final ServerMessageType MSG_GAME_DETAIL = new ServerMessageType("game-detail", 3, true);
     public static final ServerMessageType MSG_GAME_PLAYER = new ServerMessageType("game-player", 3, false);
 
@@ -66,10 +69,9 @@ public class Protocol {
     public static final int MSG_ACK_ARGC = 1;
     public static final int MSG_ERR_ARGC = 2;
     public static final int BOARD_CELL_SEED_SIZE = 1;
-    public static final String NORMAL_CELL_SYMBOL = "_";
-    public static final String WINNING_CELL_SYMBOL = "W";
     public static final String MSG_TRUE = "true";
     public static final String MSG_FALSE = "false";
-    public static final String SEPARATOR = "/";
+    public static final String SEPARATOR = ";";
     
+    // TODO PROPOJIT TYPY S CHYBAMI
 }

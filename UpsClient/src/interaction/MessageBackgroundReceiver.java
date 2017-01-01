@@ -18,6 +18,7 @@ import interaction.receiving.responses.LogoutResponseParser;
 import interaction.receiving.responses.JoinGameResponseParser;
 import interaction.receiving.responses.LeaveGameResponseParser;
 import interaction.receiving.responses.PlayGameResponseParser;
+import interaction.receiving.responses.StartGameResponseParser;
 import interaction.receiving.updates.CurrentGameDetailUpdateParser;
 import interaction.receiving.updates.GameListUpdateParser;
 import interaction.receiving.updates.PlayerListUpdateParser;
@@ -190,6 +191,9 @@ public class MessageBackgroundReceiver implements Runnable {
         }
         else if (message.isTypeOf(Protocol.MSG_LEAVE_GAME)) {
             return new LeaveGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+        }
+        else if (message.isTypeOf(Protocol.MSG_START_GAME)) {
+            return new StartGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         else if (message.isTypeOf(Protocol.MSG_PLAY_GAME)) {
             return new PlayGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);

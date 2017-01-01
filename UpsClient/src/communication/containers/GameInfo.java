@@ -12,43 +12,19 @@ public class GameInfo implements Comparable<GameInfo> {
     public final byte BOARD_SIZE;
     public final byte CELL_COUNT;
     private byte playerCounter;
-    private int roundCounter;
-    private boolean active;
     
     public GameInfo(int id, String name, byte boardSize, byte playerCount, byte cellCount,
-            byte playerCounter, int roundCounter, boolean active) {
+            byte playerCounter) {
         ID = id;
         NAME = name;
         BOARD_SIZE = boardSize;
         CELL_COUNT = cellCount;
         PLAYER_COUNT = playerCount;
         this.playerCounter = playerCounter;
-        this.roundCounter = roundCounter;
-        this.active = active;
     }
 
     public byte getPlayerCounter() {
         return playerCounter;
-    }
-
-    public void setPlayerCounter(byte playerCounter) {
-        this.playerCounter = playerCounter;
-    }
-
-    public int getRoundCounter() {
-        return roundCounter;
-    }
-
-    public void setRoundCounter(int roundCounter) {
-        this.roundCounter = roundCounter;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @Override
@@ -78,9 +54,8 @@ public class GameInfo implements Comparable<GameInfo> {
     
     @Override
     public String toString() {
-            return String.format("<html>%d: %s<br/>pole %d*%d - hraje se na %d<br/>připojeno hráčů %d/%d - %s</html>", 
-                            ID, NAME, BOARD_SIZE, BOARD_SIZE, CELL_COUNT, playerCounter, PLAYER_COUNT,
-                            active ? "hraje se" : "čeká se");
+            return String.format("<html>%d: %s<br/>pole %d*%d - hraje se na %d<br/>hráčů v místnosti: %d/%d</html>", 
+                            ID, NAME, BOARD_SIZE, BOARD_SIZE, CELL_COUNT, playerCounter, PLAYER_COUNT);
     }
 
     @Override

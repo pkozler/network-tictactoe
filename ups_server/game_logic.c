@@ -7,21 +7,14 @@
 #include <stdbool.h>
 
 void start_next_round(game_t *game) {
-    int8_t i;
-    for (i = 0; i < game->board_size; i++) {
-        free(game->board[i]);
-        game->board[i] = calloc(sizeof(game_cell_t), game->board_size);
-    }
+    // TODO dokončit
 
-    game->round_counter++;
-    game->current_player = 1;
-    game->occupied_cell_counter = 0;
-    game->winner = 0;
-    game->active = (game->player_counter > 1);
+    game->current_round++;
+    game->round_finished = false;
 }
 
 void set_next_player(game_t *game) {
-    int8_t i = game->current_player - 1;
+    int8_t i = game->current_playing - 1;
 
     do {
         i++;
@@ -29,7 +22,7 @@ void set_next_player(game_t *game) {
     }
     while(game->players[i] == 0);
 
-    game->current_player = i + 1;
+    game->current_playing = i + 1;
 }
 
 void add_player_to_game(game_t *game, player_t *player) {
@@ -58,12 +51,17 @@ void remove_player_from_game(player_t *player) {
             continue;
         }
         
-        if (game->current_player == player->current_game_index) {
+        if (game->current_playing == player->current_game_index) {
             set_next_player(game);
         }
 
         player->current_game_index = 0;
         player->current_game = NULL;
+        
+        // TODO notifikovat seznam hráčů
+        
+        player->total_score += player->current_game_score;
+        player->current_game_score = 0;
         game->players[i] = NULL;
         game->player_counter--;
     }
@@ -83,8 +81,9 @@ int8_t check_horizontal(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[y][j].index == player_pos) {
-            game->board[y][j].win = true;
+        if (game->board[y][j] == player_pos) {
+            game->winner_cells_x[counter] = j;
+            game->winner_cells_y[counter] = y;
             counter++;
         }
         else {
@@ -109,8 +108,9 @@ int8_t check_vertical(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][x].index == player_pos) {
-            game->board[i][x].win = true;
+        if (game->board[i][x] == player_pos) {
+            game->winner_cells_x[counter] = x;
+            game->winner_cells_y[counter] = i;
             counter++;
         }
         else {
@@ -139,8 +139,9 @@ int8_t check_diag_right(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][j].index == game->player_count) {
-            game->board[i][j].win = true;
+        if (game->board[i][j] == game->player_count) {
+            game->winner_cells_x[counter] = i;
+            game->winner_cells_y[counter] = j;
             counter++;
         }
         else {
@@ -171,8 +172,9 @@ int8_t check_diag_left(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
             continue;
         }
 
-        if (game->board[i][j].index == player_pos) {
-            game->board[i][j].win = true;
+        if (game->board[i][j] == player_pos) {
+            game->winner_cells_x[counter] = i;
+            game->winner_cells_y[counter] = j;
             counter++;
         }
         else {
@@ -222,10 +224,15 @@ bool is_draw(game_t *game) {
 }
 
 void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
-    game->board[y][x].index = player_pos;
+    game->board[y][x] = player_pos;
     game->occupied_cell_counter++;
     set_next_player(game);
 
-    game->winner = get_winner(game, player_pos, x, y);
-    game->active = game->winner == 0 && !is_draw(game);
+    game->current_winner = get_winner(game, player_pos, x, y);
+    
+    if (game->current_winner > 0) {
+        game->players[game->current_winner - 1]->current_game_score++;
+    }
+    
+    game->round_finished = game->current_winner > 0 || is_draw(game);
 }

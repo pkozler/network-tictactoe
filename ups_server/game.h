@@ -13,11 +13,6 @@
 
 struct PLAYER;
 
-typedef struct {
-    int8_t index;
-    bool win;
-} game_cell_t;
-
 typedef struct GAME {
     pthread_t thread;
     pthread_mutex_t lock;
@@ -29,14 +24,22 @@ typedef struct GAME {
     int8_t cell_count;
     int8_t player_count;
     int8_t player_counter;
-    int32_t round_counter;
-    bool active;
     // detailní informace odesílané pouze hráčům v dané herní místnosti:
     struct PLAYER **players;
-    int8_t current_player;
-    int8_t winner;
+    int32_t current_round;
+    bool round_finished;
+    int8_t current_playing;
+    int8_t last_playing;
+    int8_t last_cell_x;
+    int8_t last_cell_y;
+    int8_t last_outgoing;
+    int8_t last_disconnected;
+    int8_t current_winner;
+    int8_t *winner_cells_x;
+    int8_t *winner_cells_y;
+    int8_t **board;
+    // neodesílané informace o herní místnosti:
     int16_t occupied_cell_counter;
-    game_cell_t **board;
 } game_t;
 
 game_t *create_game(struct PLAYER *player, char *name,
