@@ -3,6 +3,8 @@
  */
 
 #include "game_logic.h"
+#include "player_list.h"
+#include "game_list.h"
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -57,9 +59,6 @@ void remove_player_from_game(player_t *player) {
 
         player->current_game_index = 0;
         player->current_game = NULL;
-        
-        // TODO notifikovat seznam hráčů
-        
         player->total_score += player->current_game_score;
         player->current_game_score = 0;
         game->players[i] = NULL;
@@ -225,6 +224,8 @@ bool is_draw(game_t *game) {
 
 void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     game->board[y][x] = player_pos;
+    game->last_cell_x = x;
+    game->last_cell_y = y;
     game->occupied_cell_counter++;
     set_next_player(game);
 

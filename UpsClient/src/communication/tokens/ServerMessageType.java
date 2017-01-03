@@ -4,22 +4,21 @@ package communication.tokens;
  *
  * @author Petr Kozler
  */
-public class ServerMessageType extends AMessageType {
+public class ServerMessageType extends AMessageStringToken {
     
-    private boolean list;
+    public final boolean IS_LIST;
     
-    public ServerMessageType(String keyword, int argCount, boolean list) {
+    public ServerMessageType(String keyword, int argCount, boolean isList) {
         super(keyword, argCount);
-        this.list = list;
+        IS_LIST = isList;
     }
     
-    public ServerMessageType(String keyword, boolean list) {
-        super(keyword);
-        this.list = list;
+    public ServerMessageType(String keyword, int argCount) {
+        this(keyword, argCount, false);
     }
 
-    public boolean isList() {
-        return list;
+    public ServerMessageType(String keyword, boolean isList) {
+        this(keyword, 1, isList);
     }
 
 }

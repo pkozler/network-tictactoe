@@ -9,7 +9,6 @@ import java.util.Objects;
 public abstract class AMessageStringToken {
     
     public final String KEYWORD;
-
     public final int ARG_COUNT;
     
     public AMessageStringToken(String keyword, int argCount) {
@@ -21,10 +20,6 @@ public abstract class AMessageStringToken {
         this.ARG_COUNT = argCount;
     }
     
-    public AMessageStringToken(String keyword) {
-        this(keyword, 0);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

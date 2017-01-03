@@ -45,9 +45,14 @@ public class PlayerListUpdateParser extends AUpdateParser {
 
     @Override
     public String getStatusAndUpdateGUI() {
+        if (hasNextItemMessage()) {
+            return String.format("Probíhá aktualizace seznamu přihlášených klientů (zbývá %d položek)",
+                    ITEM_COUNT - PLAYER_LIST.size());
+        }
+        
         PLAYER_LIST_PANEL.setPlayerList(PLAYER_LIST);
         
-        return "Byl aktualizován seznam přihlášených klientů.";
+        return "Aktualizace seznamu přihlášených klientů byla dokončena";
     }
     
 }

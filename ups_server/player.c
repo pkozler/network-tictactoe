@@ -8,10 +8,12 @@
 #include "printer.h"
 #include "logger.h"
 #include "config.h"
-#include "broadcaster.h"
-#include "request_parser.h"
 #include "checker.h"
 #include "player_list.h"
+#include "broadcaster.h"
+#include "request_parser.h"
+#include "player_list_sender.h"
+#include "game_list_sender.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,6 +54,9 @@ void unlock_player(player_t *player) {
 void *run_player(void *arg) {
     player_t *player = (player_t *) arg;
 
+    send_message_list(player_list_to_message_list, player);
+    send_message_list(game_list_to_message_list, player);
+    
     while (player->connected) {
         lock_player(player);
         parse_received_message(player);

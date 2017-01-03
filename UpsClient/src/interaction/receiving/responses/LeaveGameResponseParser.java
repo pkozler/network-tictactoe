@@ -28,16 +28,16 @@ public class LeaveGameResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Protocol.MSG_LEAVE_GAME.getErrorType(MESSAGE.getNextArg());
+        messageErrorKeyword = MESSAGE.getNextArg();
     }
 
     @Override
     public String getStatusAndUpdateGUI() {
-        if (messageError == null) {
+        if (messageErrorKeyword == null) {
             return String.format("Hráč opustil herní místnost s ID %d", gameId);
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
             return "Hráč se nenachází v herní místnosti se zadaným ID";
         }
         

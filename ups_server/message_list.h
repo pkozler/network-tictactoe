@@ -16,5 +16,6 @@ typedef struct {
 
 message_list_t *create_message_list(message_t *head, int32_t msgc);
 void delete_message_list(message_list_t *msg_list);
+void send_message_list(message_list_t *messages, player_t *client);
 
 #endif /* MESSAGE_LIST_H */

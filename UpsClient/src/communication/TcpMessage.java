@@ -2,7 +2,7 @@ package communication;
 
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
-import communication.tokens.AMessageType;
+import communication.tokens.AMessageStringToken;
 import configuration.Protocol;
 
 /**
@@ -54,7 +54,7 @@ public class TcpMessage {
         return type != null;
     }
     
-    public boolean isTypeOf(AMessageType messageType) {
+    public boolean isTypeOf(AMessageStringToken messageType) {
         return hasTypeToken() && type.equals(messageType.KEYWORD);
     }
     

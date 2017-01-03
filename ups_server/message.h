@@ -22,6 +22,8 @@ typedef struct {
 
 bool put_string_arg(message_t *msg, char *arg);
 char *get_string_arg(message_t *msg);
+bool put_bool_arg(message_t *msg, bool arg);
+bool get_bool_arg(message_t *msg);
 bool put_byte_arg(message_t *msg, int8_t arg);
 int8_t get_byte_arg(message_t *msg);
 bool put_int_arg(message_t *msg, int32_t arg);

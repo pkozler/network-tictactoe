@@ -32,8 +32,7 @@ typedef struct GAME {
     int8_t last_playing;
     int8_t last_cell_x;
     int8_t last_cell_y;
-    int8_t last_outgoing;
-    int8_t last_disconnected;
+    int8_t last_leaving;
     int8_t current_winner;
     int8_t *winner_cells_x;
     int8_t *winner_cells_y;

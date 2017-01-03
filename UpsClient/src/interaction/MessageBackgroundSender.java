@@ -64,7 +64,7 @@ public class MessageBackgroundSender implements Runnable {
                 @Override
                 public void run() {
                     if (status != null) {
-                        STATUS_BAR_PANEL.printStatus(builder.getStatus());
+                        STATUS_BAR_PANEL.printSendingStatus(builder.getStatus());
                     }
                 }
 
@@ -75,9 +75,8 @@ public class MessageBackgroundSender implements Runnable {
 
                 @Override
                 public void run() {
-                    STATUS_BAR_PANEL.printStatus(
-                            "Při odesílání zprávy na server se vyskytla výjimka typu: %s",
-                            e.getClass().getSimpleName());
+                    STATUS_BAR_PANEL.printErrorStatus(
+                            "Chyba odesílání zprávy: %s", e.getClass().getSimpleName());
                 }
 
             };

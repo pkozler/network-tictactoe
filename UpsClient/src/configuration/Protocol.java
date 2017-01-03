@@ -14,15 +14,13 @@ public class Protocol {
      * Dostupné požadavky klienta a počty argumentů:
      */
 
-    public static final ClientMessageType MSG_LOGIN_CLIENT = new ClientMessageType("login-client", 1);
+    public static final ClientMessageType MSG_LOGIN_CLIENT = new ClientMessageType("login-client", 1, 2);
     public static final ClientMessageType MSG_LOGOUT_CLIENT = new ClientMessageType("logout-client");
-    public static final ClientMessageType MSG_CREATE_GAME = new ClientMessageType("create-game", 4);
+    public static final ClientMessageType MSG_CREATE_GAME = new ClientMessageType("create-game", 4, 2);
     public static final ClientMessageType MSG_JOIN_GAME = new ClientMessageType("join-game", 1);
     public static final ClientMessageType MSG_LEAVE_GAME = new ClientMessageType("leave-game");
     public static final ClientMessageType MSG_START_GAME = new ClientMessageType("start-game");
     public static final ClientMessageType MSG_PLAY_GAME = new ClientMessageType("play-game", 2);
-    public static final int MSG_LOGIN_CLIENT_ID_ARGC = 2;
-    public static final int MSG_CREATE_GAME_ID_ARGC = 2;
 
     /*
      * Ošetřované chyby požadavků klienta:
@@ -55,23 +53,19 @@ public class Protocol {
      * Dostupné odpovědi serveru a počty argumentů:
      */
 
-    public static final ServerMessageType MSG_PLAYER_LIST = new ServerMessageType("player-list", 1, true);
-    public static final ServerMessageType MSG_PLAYER_LIST_ITEM = new ServerMessageType("player-item", 3, false);
-    public static final ServerMessageType MSG_GAME_LIST = new ServerMessageType("game-list", 1, true);
-    public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType("game-item", 6, false);
-    public static final ServerMessageType MSG_GAME_DETAIL = new ServerMessageType("game-detail", 3, true);
-    public static final ServerMessageType MSG_GAME_PLAYER = new ServerMessageType("game-player", 3, false);
+    public static final ServerMessageType MSG_PLAYER_LIST = new ServerMessageType("player-list", true);
+    public static final ServerMessageType MSG_PLAYER_LIST_ITEM = new ServerMessageType("player-item", 3);
+    public static final ServerMessageType MSG_GAME_LIST = new ServerMessageType("game-list", true);
+    public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType("game-item", 6);
+    public static final ServerMessageType MSG_GAME_DETAIL = new ServerMessageType("game-detail", 11, true);
+    public static final ServerMessageType MSG_GAME_PLAYER = new ServerMessageType("game-player", 3);
 
     /*
      * Ostatní konstanty aplikačního protokolu:
      */
 
-    public static final int MSG_ACK_ARGC = 1;
-    public static final int MSG_ERR_ARGC = 2;
     public static final int BOARD_CELL_SEED_SIZE = 1;
     public static final String MSG_TRUE = "true";
     public static final String MSG_FALSE = "false";
     public static final String SEPARATOR = ";";
-    
-    // TODO PROPOJIT TYPY S CHYBAMI
 }

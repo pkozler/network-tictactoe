@@ -29,28 +29,28 @@ public class JoinGameResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Protocol.MSG_JOIN_GAME.getErrorType(MESSAGE.getNextArg());
+        messageErrorKeyword = MESSAGE.getNextArg();
     }
 
     @Override
     public String getStatusAndUpdateGUI() {
-        if (messageError == null) {
+        if (messageErrorKeyword == null) {
             return String.format("Hráč vstoupil do herní místnosti s ID %d", gameId);
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_ID)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_ID)) {
             return "Zadané ID herní místnosti je neplatné";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_ID_NOT_FOUND)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ID_NOT_FOUND)) {
             return "Herní místnost se zadaným ID neexistuje";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_ALREADY_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_IN_ROOM)) {
             return "Hráč se již nachází v herní místnosti se zadaným ID";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_ROOM_FULL)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROOM_FULL)) {
             return "Herní místnost je již plně obsazena";
         }
         

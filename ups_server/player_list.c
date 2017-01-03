@@ -112,41 +112,11 @@ player_t *remove_player_by_id(int32_t id) {
     return NULL;
 }
 
-message_t *player_list_to_msg() {
-    message_t *message = create_message(MSG_PLAYER_LIST, MSG_PLAYER_LIST_ARGC);
-    put_int_arg(message, count_elements(g_player_list->list));
-    
-    return message;
-}
-
-message_t *player_to_msg(player_t *player) {
-    message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
-    put_int_arg(message, player->id);
-    put_string_arg(message, player->nick);
-    
-    return message;
-}
-
-void send_player_list_update() {
-    message_list_t message_list = create_message_list(
-            player_list_to_msg(), count_elements(g_player_list));
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
-    player_t *current_player;
-    
-    int32_t i = 0;
-    while (has_next_element(iterator)) {
-        current_player = get_next_element(iterator);
-        message_list->msgv[i++] = player_to_msg(current_player);
-    }
-    
-    send_to_all_clients(message_list);
-}
-
 void *run_player_list_observer(void *arg) {
     while (is_server_running()) {
         if (g_player_list->changed) {
             lock_player_list();
-            send_player_list_update();
+            broadcast_player_list();
             unlock_player_list(false);
         }
     }

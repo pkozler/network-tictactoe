@@ -21,7 +21,6 @@ typedef struct PLAYER {
     // základní informace o připojeném klientovi odesílané v položkách seznamu hráčů:
     int32_t id;
     char *nick;
-    int32_t total_score;
     struct GAME *current_game;
     int8_t current_game_index;
     int32_t current_game_score;

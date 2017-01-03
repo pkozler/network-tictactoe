@@ -15,12 +15,14 @@
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.h</itemPath>
           <itemPath>game_list.h</itemPath>
+          <itemPath>game_list_sender.h</itemPath>
           <itemPath>game_logic.h</itemPath>
           <itemPath>game_status_sender.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.h</itemPath>
           <itemPath>player_list.h</itemPath>
+          <itemPath>player_list_sender.h</itemPath>
         </logicalFolder>
         <itemPath>checker.h</itemPath>
         <itemPath>observable_list.h</itemPath>
@@ -66,12 +68,14 @@
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.c</itemPath>
           <itemPath>game_list.c</itemPath>
+          <itemPath>game_list_sender.c</itemPath>
           <itemPath>game_logic.c</itemPath>
           <itemPath>game_status_sender.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.c</itemPath>
           <itemPath>player_list.c</itemPath>
+          <itemPath>player_list_sender.c</itemPath>
         </logicalFolder>
         <itemPath>checker.c</itemPath>
         <itemPath>request_parser.c</itemPath>
@@ -157,6 +161,10 @@
       </item>
       <item path="game_list.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="game_list_sender.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="game_list_sender.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="game_logic.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="game_logic.h" ex="false" tool="3" flavor2="0">
@@ -200,6 +208,10 @@
       <item path="player_list.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="player_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="player_list_sender.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -283,6 +295,10 @@
       </item>
       <item path="game_list.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="game_list_sender.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="game_list_sender.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="game_logic.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="game_logic.h" ex="false" tool="3" flavor2="0">
@@ -326,6 +342,10 @@
       <item path="player_list.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="player_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="player_list_sender.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="printer.c" ex="false" tool="0" flavor2="0">
       </item>

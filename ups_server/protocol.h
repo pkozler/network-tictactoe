@@ -69,7 +69,7 @@
 #define MSG_GAME_LIST_ITEM "game-item" // typ zprávy: položka seznamu her
 #define MSG_GAME_LIST_ITEM_ARGC 6 // počet argumentů: položka seznamu her
 #define MSG_GAME_DETAIL "game-detail" // typ zprávy: změna ve stavu hry
-#define MSG_GAME_DETAIL_ARGC 3 // počet argumentů: změna ve stavu hry
+#define MSG_GAME_DETAIL_ARGC 11 // počet argumentů: změna ve stavu hry
 #define MSG_GAME_PLAYER "game-player" // typ zprávy: položka seznamu aktuálních hráčů hry
 #define MSG_GAME_PLAYER_ARGC 3 // počet argumentů: položka seznamu aktuálních hráčů hry
 
@@ -79,10 +79,9 @@
 
 #define MSG_ACK_ARGC 1 // počet argumentů běžné potvrzovací zprávy
 #define MSG_ERR_ARGC 2 // počet argumentů běžné chybové zprávy
-#define BOARD_CELL_SEED_SIZE 1 // délka řetězce představujícího označení hráče na daném políčku v bajtech
+#define BOARD_CELL_SEED_SIZE 1 // délka řetězce představujícího označení hráče na daném políčku ve znacích
 #define MSG_TRUE "true" // logická pravda, značí mj. pozitivní přijetí zprávy (požadavek klienta je v pořádku)
 #define MSG_FALSE "false" // logická nepravda, značí mj. negativní přijetí zprávy (v požadavku klienta je chyba)
 #define SEPARATOR ";" // 1znakový oddělovač tokenů (označení typu a argumentů) zprávy
 
 #endif /* PROTOCOL_H */
-

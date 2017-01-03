@@ -159,6 +159,7 @@ void run_connection(int srv_sock) {
             continue;
         }
         
+        inc_stats_connections_established();
         log("Připojen klient s číslem socketu %d", cli_sock);
         player_t *player = create_player(cli_sock);
         add_element(g_client_list, player);

@@ -42,6 +42,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/console.o \
 	${OBJECTDIR}/game.o \
 	${OBJECTDIR}/game_list.o \
+	${OBJECTDIR}/game_list_sender.o \
 	${OBJECTDIR}/game_logic.o \
 	${OBJECTDIR}/game_status_sender.o \
 	${OBJECTDIR}/linked_list.o \
@@ -52,6 +53,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/message_list.o \
 	${OBJECTDIR}/player.o \
 	${OBJECTDIR}/player_list.o \
+	${OBJECTDIR}/player_list_sender.o \
 	${OBJECTDIR}/printer.o \
 	${OBJECTDIR}/request_parser.o \
 	${OBJECTDIR}/string_builder.o \
@@ -120,6 +122,11 @@ ${OBJECTDIR}/game_list.o: game_list.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_list.o game_list.c
 
+${OBJECTDIR}/game_list_sender.o: game_list_sender.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/game_list_sender.o game_list_sender.c
+
 ${OBJECTDIR}/game_logic.o: game_logic.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -169,6 +176,11 @@ ${OBJECTDIR}/player_list.o: player_list.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list.o player_list.c
+
+${OBJECTDIR}/player_list_sender.o: player_list_sender.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list_sender.o player_list_sender.c
 
 ${OBJECTDIR}/printer.o: printer.c 
 	${MKDIR} -p ${OBJECTDIR}

@@ -2,7 +2,6 @@ package interaction.receiving.updates;
 
 import communication.TcpClient;
 import communication.TcpMessage;
-import communication.containers.Cell;
 import communication.containers.GameBoard;
 import communication.containers.GameInfo;
 import visualisation.CurrentGameDetail;
@@ -14,8 +13,9 @@ import configuration.Config;
 import configuration.Protocol;
 import interaction.receiving.AUpdateParser;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import javax.swing.JList;
-import visualisation.components.CurrentGameWindow;
+import visualisation.components.CurrentGamePanel;
 import visualisation.components.GameListPanel;
 import visualisation.components.PlayerListPanel;
 import visualisation.listmodels.GameListModel;
@@ -31,13 +31,13 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     private final JList<GameInfo> GAME_LIST;
     private final PlayerListModel PLAYER_LIST_MODEL;
     private final GameListModel GAME_LIST_MODEL;
-    private final CurrentGameWindow CURRENT_GAME_WINDOW;
+    private final CurrentGamePanel CURRENT_GAME_WINDOW;
     private final GameBoard CURRENT_GAME_BOARD;
     private final ArrayList<JoinedPlayer> JOINED_PLAYER_LIST;
     
     public CurrentGameDetailUpdateParser(TcpClient client,
             PlayerListPanel playerListPanel, GameListPanel gameListPanel,
-            CurrentGameWindow currentGameWindow, TcpMessage message)
+            CurrentGamePanel currentGameWindow, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, message);
         
@@ -49,16 +49,71 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         
         GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(client.getGameId());
         
-        byte winnerIndex;
-        byte currentIndex;
-        Cell[][] cells;
+        int currentRound = message.getNextIntArg(0);
+        boolean roundFinished = message.getNextBoolArg();
+        byte currentPlaying = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte lastPlaying = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte lastCellX = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
+        byte lastCellY = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
+        byte lastLeaving = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte currentWinner = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte[] winnerCellsX = parseWinnerCells(currentGameInfo, currentWinner, message.getNextArg());
+        byte[] winnerCellsY = parseWinnerCells(currentGameInfo, currentWinner, message.getNextArg());
+        byte[][] board = parseBoard(currentGameInfo, message.getNextArg());
         
-        winnerIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-        currentIndex = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-        cells = getCellsFromString(message.getNextArg(), currentGameInfo.BOARD_SIZE);
-
-        CURRENT_GAME_BOARD = new GameBoard(currentGameInfo, winnerIndex, currentIndex, cells);
+        CURRENT_GAME_BOARD = new GameBoard(currentGameInfo, currentRound, roundFinished,
+                currentPlaying, lastPlaying, lastCellX, lastCellY, lastLeaving, currentWinner,
+                winnerCellsX, winnerCellsY, board);
         JOINED_PLAYER_LIST = new ArrayList<>(CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter());
+    }
+    
+    private byte[] parseWinnerCells(GameInfo gameInfo, byte currentWinner, String str)
+            throws InvalidMessageArgsException, MissingMessageArgsException {
+        byte coords[] = new byte[gameInfo.CELL_COUNT];
+        
+        if (currentWinner < 1) {
+            return coords;
+        }
+        
+        String[] parts = str.split(",");
+        
+        if (parts.length != coords.length) {
+            throw new InvalidMessageArgsException();
+        }
+        
+        try {
+            for (int i = 0; i < coords.length; i++) {
+                coords[i] = Byte.parseByte(parts[i]);
+            }
+        }
+        catch (NumberFormatException e) {
+            throw new InvalidMessageArgsException();
+        }
+        
+        return coords;
+    }
+    
+    private byte[][] parseBoard(GameInfo gameInfo, String str)
+            throws InvalidMessageArgsException, MissingMessageArgsException {
+        byte[][] board = new byte[gameInfo.BOARD_SIZE][gameInfo.BOARD_SIZE];
+        
+        if (str.length() != gameInfo.BOARD_SIZE * gameInfo.BOARD_SIZE) {
+            throw new InvalidMessageArgsException();
+        }
+        
+        try {
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board.length; j++) {
+                    board[i][j] = (byte) Character.getNumericValue(
+                            str.charAt(i * board.length + j));
+                }
+            }
+        }
+        catch (NumberFormatException e) {
+            throw new InvalidMessageArgsException();
+        }
+        
+        return board;
     }
     
     @Override
@@ -79,62 +134,16 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
 
     @Override
     public String getStatusAndUpdateGUI() {
+        if (hasNextItemMessage()) {
+            return String.format("Probíhá aktualizace stavu herní místností (zbývá %d položek)",
+                    CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter() - JOINED_PLAYER_LIST.size());
+        }
+        
         CurrentGameDetail currentGameDetail = new CurrentGameDetail(
                 CURRENT_GAME_BOARD, JOINED_PLAYER_LIST);
         CURRENT_GAME_WINDOW.setGameDetail(currentGameDetail);
         
-        return "Byl aktualizován stav herní místnosti.";
+        return "Aktualizace stavu herní místností byla dokončena";
     }
     
-    private Cell getCellFromSubstring(String cellSubstr) throws InvalidMessageArgsException {
-        String cellSeedSubstr = cellSubstr.substring(0, Protocol.BOARD_CELL_SEED_SIZE);
-        String cellWinFlagSubstr = cellSubstr.substring(Protocol.BOARD_CELL_SEED_SIZE);
-
-        byte playerIndex;
-
-        try {
-            playerIndex = Byte.parseByte(cellSeedSubstr);
-        }
-        catch (NumberFormatException ex) {
-            throw new InvalidMessageArgsException();
-        }
-
-        boolean winning;
-
-        switch (cellWinFlagSubstr) {
-            case Protocol.WINNING_CELL_SYMBOL: {
-                winning = true;
-                break;
-            }
-            case Protocol.NORMAL_CELL_SYMBOL: {
-                winning = false;
-                break;
-            }
-            default: {
-                throw new InvalidMessageArgsException();
-            }
-        }
-
-        return new Cell(playerIndex, winning);
-    }
-    
-    private Cell[][] getCellsFromString(String boardString, int boardSize) throws InvalidMessageArgsException {
-        String[] cellSubstrings = boardString.split(
-                "(?=\\b[" + Protocol.NORMAL_CELL_SYMBOL + Protocol.WINNING_CELL_SYMBOL + "])");
-        
-        if (boardSize * boardSize != cellSubstrings.length) {
-            throw new InvalidMessageArgsException();
-        }
-        
-        Cell[][] cells = new Cell[boardSize][boardSize];
-        
-        for (int i = 0; i < boardSize; i++) {
-            for (int j = 0; j < boardSize; j++) {
-                cells[i][j] = getCellFromSubstring(cellSubstrings[i * boardSize + j]);
-            }
-        }
-        
-        return cells;
-    }
-
 }

@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import visualisation.components.GameListPanel;
-import visualisation.components.CurrentGameWindow;
+import visualisation.components.CurrentGamePanel;
 import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
@@ -32,7 +32,7 @@ public class MainWindow extends JFrame {
     private final StatusBarPanel STATUS_BAR_PANEL;
     private final PlayerListPanel PLAYER_LIST_PANEL;
     private final GameListPanel GAME_LIST_PANEL;
-    private final CurrentGameWindow CURRENT_GAME_WINDOW;
+    private final CurrentGamePanel CURRENT_GAME_WINDOW;
     private final MessageBackgroundReceiver MESSAGE_RECEIVER;
     private final MessageBackgroundSender MESSAGE_SENDER;
     private final CmdArg CMD_ARG_HANDLER;
@@ -58,7 +58,7 @@ public class MainWindow extends JFrame {
         MESSAGE_SENDER = new MessageBackgroundSender(CLIENT, STATUS_BAR_PANEL);
         PLAYER_LIST_PANEL = new PlayerListPanel(MESSAGE_SENDER);
         GAME_LIST_PANEL = new GameListPanel(MESSAGE_SENDER);
-        CURRENT_GAME_WINDOW = new CurrentGameWindow(MESSAGE_SENDER);
+        CURRENT_GAME_WINDOW = new CurrentGamePanel(MESSAGE_SENDER);
         MESSAGE_RECEIVER = new MessageBackgroundReceiver(CLIENT,
                 STATUS_BAR_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW);
         

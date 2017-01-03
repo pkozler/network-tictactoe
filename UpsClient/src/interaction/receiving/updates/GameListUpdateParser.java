@@ -49,9 +49,14 @@ public class GameListUpdateParser extends AUpdateParser {
 
     @Override
     public String getStatusAndUpdateGUI() {
+        if (hasNextItemMessage()) {
+            return String.format("Probíhá aktualizace seznamu herních místností (zbývá %d položek)",
+                    ITEM_COUNT - GAME_LIST.size());
+        }
+        
         GAME_LIST_PANEL.setGameList(GAME_LIST);
         
-        return "Byl aktualizován seznam herních místností.";
+        return "Aktualizace seznamu herních místností byla dokončena";
     }
     
 }

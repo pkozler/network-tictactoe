@@ -11,7 +11,7 @@ public class ClientMessageErrorArg extends AMessageStringToken {
     }
     
     public ClientMessageErrorArg(String keyword) {
-        super(keyword);
+        this(keyword, 0);
     }
     
 }

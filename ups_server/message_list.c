@@ -27,3 +27,15 @@ void delete_message_list(message_list_t *msg_list) {
     
     free(msg_list);
 }
+
+void send_message_list(message_list_t *messages, player_t *client) {
+    lock_player(client);
+    send_message(messages->head, client->sock);
+
+    int32_t i;
+    for (i = 0; i < messages->msgc; i++) {
+        send_message(messages->msgv[i], client->sock);
+    }
+
+    unlock_player(client);
+}

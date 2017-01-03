@@ -4,10 +4,11 @@
 
 #include "game.h"
 #include "global.h"
+#include "config.h"
 #include "protocol.h"
 #include "printer.h"
 #include "message.h"
-#include "config.h"
+#include "game_list.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +78,7 @@ void *run_game(void *arg) {
     while (game->player_counter > 0) {
         if (game->changed) {
             lock_game(game);
-            send_game_status(game);
+            broadcast_game_status(game);
             unlock_game(game, false);
         }
     }

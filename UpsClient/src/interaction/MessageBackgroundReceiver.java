@@ -4,14 +4,12 @@ import communication.TcpClient;
 import communication.TcpMessage;
 import communication.ClientNotLoggedException;
 import communication.ClientAlreadyLoggedException;
-import communication.containers.InvalidListItemException;
 import communication.tokens.InvalidMessageArgsException;
 import communication.containers.MissingListHeaderException;
 import communication.tokens.MissingMessageArgsException;
 import communication.tokens.UnknownMessageTypeException;
 import configuration.Protocol;
 import interaction.receiving.AParser;
-import interaction.receiving.AUpdateParser;
 import interaction.receiving.responses.LoginResponseParser;
 import interaction.receiving.responses.CreateGameResponseParser;
 import interaction.receiving.responses.LogoutResponseParser;
@@ -23,7 +21,7 @@ import interaction.receiving.updates.CurrentGameDetailUpdateParser;
 import interaction.receiving.updates.GameListUpdateParser;
 import interaction.receiving.updates.PlayerListUpdateParser;
 import javax.swing.SwingUtilities;
-import visualisation.components.CurrentGameWindow;
+import visualisation.components.CurrentGamePanel;
 import visualisation.components.GameListPanel;
 import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
@@ -38,19 +36,24 @@ public class MessageBackgroundReceiver implements Runnable {
     private final StatusBarPanel STATUS_BAR_PANEL;
     private final PlayerListPanel PLAYER_LIST_PANEL;
     private final GameListPanel GAME_LIST_PANEL;
-    private final CurrentGameWindow CURRENT_GAME_WINDOW;
+    private final CurrentGamePanel CURRENT_GAME_WINDOW;
     
+    private PlayerListUpdateParser playerListUpdateParser;
+    private GameListUpdateParser gameListUpdateParser;
+    private CurrentGameDetailUpdateParser currentGameDetailUpdateParser;
     private AParser currentParser;
     
     public MessageBackgroundReceiver(TcpClient client,
             StatusBarPanel statusBarPanel, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, CurrentGameWindow currentGameWindow) {
+            GameListPanel gameListPanel, CurrentGamePanel currentGameWindow) {
         CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
         PLAYER_LIST_PANEL = playerListPanel;
         GAME_LIST_PANEL = gameListPanel;
         CURRENT_GAME_WINDOW = currentGameWindow;
-        currentParser = null;
+        playerListUpdateParser = null;
+        gameListUpdateParser = null;
+        currentGameDetailUpdateParser = null;
     }
     
     @Override
@@ -69,7 +72,7 @@ public class MessageBackgroundReceiver implements Runnable {
 
             @Override
             public void run() {
-                STATUS_BAR_PANEL.printStatus("Spojení navázáno.");
+                STATUS_BAR_PANEL.printSendingStatus("Spojení navázáno.");
             }
 
         });
@@ -80,7 +83,7 @@ public class MessageBackgroundReceiver implements Runnable {
 
             @Override
             public void run() {
-                STATUS_BAR_PANEL.printStatus("Spojení ztraceno.");
+                STATUS_BAR_PANEL.printSendingStatus("Spojení ztraceno.");
             }
 
         });
@@ -100,7 +103,7 @@ public class MessageBackgroundReceiver implements Runnable {
                     String status = currentParser.getStatusAndUpdateGUI();
                     
                     if (status != null) {
-                        STATUS_BAR_PANEL.printStatus(status);
+                        STATUS_BAR_PANEL.printReceivingStatus(status);
                     }
                 }
 
@@ -111,9 +114,8 @@ public class MessageBackgroundReceiver implements Runnable {
 
                 @Override
                 public void run() {
-                    STATUS_BAR_PANEL.printStatus(
-                            "Při příjmu zprávy ze serveru se vyskytla výjimka typu: %s",
-                            e.getClass().getSimpleName());
+                    STATUS_BAR_PANEL.printErrorStatus(
+                            "Chyba příjmu zprávy: %s", e.getClass().getSimpleName());
                 }
 
             };
@@ -124,78 +126,57 @@ public class MessageBackgroundReceiver implements Runnable {
     
     private void executeParserOnBackground(TcpMessage message) throws MissingListHeaderException,
             UnknownMessageTypeException, ClientAlreadyLoggedException,
-            InvalidMessageArgsException, MissingMessageArgsException, InvalidListItemException, ClientNotLoggedException {
-        // přijatá zpráva je testování odezvy
+            InvalidMessageArgsException, MissingMessageArgsException, ClientNotLoggedException {
+        // přijatá zpráva je odpověď na testování odezvy
         if (message.isPing()) {
             return;
         }
-
-        // přijatá zpráva je potvrzení o přihlášení
-        if (!CLIENT.isLoggedIn()) {
-            currentParser = handleResponse(message, false);
-            
-            return;
+        
+        currentParser = handleResponse(message);
+        
+        // přijatá zpráva není odpověď na požadavek
+        if (currentParser == null) {
+            currentParser = handleUpdate(message);
         }
         
-        // přijatá zpráva je položka právě aktualizovaného seznamu
-        if (currentParser != null && currentParser instanceof AUpdateParser
-                && ((AUpdateParser) currentParser).hasNextItemMessage()) {
-            parseListItemMessage(((AUpdateParser) currentParser), message);
-            
-            return;
+        // přijatá zpráva není ani aktualizace stavu
+        if (currentParser == null) {
+            throw new UnknownMessageTypeException();
         }
         
-        // přijatá zpráva je jiného typu
-        AParser parser = handleResponse(message, true);
-        
-        if (parser != null) {
-            currentParser = parser;
-            
-            return;
-        }
-        
-        parser = handleUpdate(message);
-        
-        if (parser != null) {
-            currentParser = parser;
-            
-            return;
-        }
-        
-        throw new UnknownMessageTypeException();
+        // validace přijaté zprávy podle stavu přihlášení klienta
+        validateByLoginStatus(message, CLIENT.isLoggedIn());
     }
     
-    private AParser handleResponse(TcpMessage message, boolean logged)
+    private AParser handleResponse(TcpMessage message)
             throws UnknownMessageTypeException, ClientAlreadyLoggedException,
             MissingListHeaderException, InvalidMessageArgsException,
             MissingMessageArgsException, ClientNotLoggedException {
-        if (!logged) {
-            if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
-                return new LoginResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
-            }
-            
-            throw new ClientNotLoggedException();
+        if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
+            return new LoginResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
-        if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
-            throw new ClientAlreadyLoggedException();
-        }
-        else if (message.isTypeOf(Protocol.MSG_LOGOUT_CLIENT)) {
+        if (message.isTypeOf(Protocol.MSG_LOGOUT_CLIENT)) {
             return new LogoutResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_CREATE_GAME)) {
+        
+        if (message.isTypeOf(Protocol.MSG_CREATE_GAME)) {
             return new CreateGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_JOIN_GAME)) {
+        
+        if (message.isTypeOf(Protocol.MSG_JOIN_GAME)) {
             return new JoinGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_LEAVE_GAME)) {
+        
+        if (message.isTypeOf(Protocol.MSG_LEAVE_GAME)) {
             return new LeaveGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_START_GAME)) {
+        
+        if (message.isTypeOf(Protocol.MSG_START_GAME)) {
             return new StartGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_PLAY_GAME)) {
+        
+        if (message.isTypeOf(Protocol.MSG_PLAY_GAME)) {
             return new PlayGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
@@ -208,33 +189,82 @@ public class MessageBackgroundReceiver implements Runnable {
             return new PlayerListUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_GAME_LIST)) {
+        
+        if (message.isTypeOf(Protocol.MSG_GAME_LIST)) {
             return new GameListUpdateParser(CLIENT,
                     GAME_LIST_PANEL, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_GAME_DETAIL)) {
+        
+        if (message.isTypeOf(Protocol.MSG_GAME_DETAIL)) {
             return new CurrentGameDetailUpdateParser(CLIENT,
                     PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW, message);
         }
-        else if (message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)
-                || message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM)
-                || message.isTypeOf(Protocol.MSG_GAME_PLAYER)) {
-            throw new MissingListHeaderException();
+        
+        if (message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)) {
+            if (playerListUpdateParser == null) {
+                throw new MissingListHeaderException();
+            }
+            
+            playerListUpdateParser.parseNextItemMessage(message);
+            
+            if (!playerListUpdateParser.hasNextItemMessage()) {
+                playerListUpdateParser = null;
+            }
+            
+            return playerListUpdateParser;
+        }
+        
+        if (message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM)) {
+            if (gameListUpdateParser == null) {
+                throw new MissingListHeaderException();
+            }
+            
+            gameListUpdateParser.parseNextItemMessage(message);
+            
+            if (!gameListUpdateParser.hasNextItemMessage()) {
+                gameListUpdateParser = null;
+            }
+            
+            return gameListUpdateParser;
+        }
+        
+        if (message.isTypeOf(Protocol.MSG_GAME_PLAYER)) {
+            if (currentGameDetailUpdateParser == null) {
+                throw new MissingListHeaderException();
+            }
+            
+            currentGameDetailUpdateParser.parseNextItemMessage(message);
+            
+            if (!currentGameDetailUpdateParser.hasNextItemMessage()) {
+                currentGameDetailUpdateParser = null;
+            }
+            
+            return currentGameDetailUpdateParser;
         }
         
         return null;
     }
     
-    private void parseListItemMessage(AUpdateParser currentListReceiver, TcpMessage message)
-            throws InvalidListItemException, InvalidMessageArgsException, MissingMessageArgsException {
-        if ((message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM) && currentListReceiver instanceof PlayerListUpdateParser)
-         || (message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM) && currentListReceiver instanceof GameListUpdateParser)
-         || (message.isTypeOf(Protocol.MSG_GAME_PLAYER) && currentListReceiver instanceof CurrentGameDetailUpdateParser)) {
-            currentListReceiver.parseNextItemMessage(message);
+    private void validateByLoginStatus(TcpMessage message, boolean logged)
+            throws ClientAlreadyLoggedException, ClientNotLoggedException {
+        if (logged) {
+            if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
+                throw new ClientAlreadyLoggedException();
+                
+            }
+            
+            return;
         }
-        else {
-            throw new InvalidListItemException();
+        
+        if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)
+                || message.isTypeOf(Protocol.MSG_PLAYER_LIST)
+                || message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)
+                || message.isTypeOf(Protocol.MSG_GAME_LIST)
+                || message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM)) {
+            return;
         }
+        
+        throw new ClientNotLoggedException();
     }
     
 }

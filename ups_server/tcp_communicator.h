@@ -12,4 +12,3 @@ message_t *receive_message(int sock);
 bool send_message(message_t *msg, int sock);
 
 #endif /* TCP_COMMUNICATOR_H */
-

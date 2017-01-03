@@ -1,10 +1,10 @@
 package visualisation.components;
 
 import communication.containers.GameInfo;
+import configuration.Config;
 import interaction.MessageBackgroundSender;
 import interaction.sending.requests.CreateGameRequestBuilder;
 import interaction.sending.requests.JoinGameRequestBuilder;
-import interaction.sending.requests.LeaveGameRequestBuilder;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -12,8 +12,14 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import visualisation.listmodels.GameListModel;
 
 /**
@@ -26,7 +32,6 @@ public class GameListPanel extends JPanel {
     private final GameListModel GAME_LIST_MODEL;
     private final JButton CREATE_GAME_BUTTON;
     private final JButton JOIN_GAME_BUTTON;
-    private final JButton LEAVE_GAME_BUTTON;
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     public GameListPanel(MessageBackgroundSender messageBackgroundSender) {
@@ -39,13 +44,11 @@ public class GameListPanel extends JPanel {
         
         CREATE_GAME_BUTTON = new JButton("Vytvořit hru");
         JOIN_GAME_BUTTON = new JButton("Vstoupit do hry");
-        LEAVE_GAME_BUTTON = new JButton("Odejít ze hry");
         setButtons(false);
         
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(CREATE_GAME_BUTTON);
         buttonPanel.add(JOIN_GAME_BUTTON);
-        buttonPanel.add(LEAVE_GAME_BUTTON);
         add(buttonPanel, BorderLayout.SOUTH);
         
         setListeners();
@@ -77,27 +80,39 @@ public class GameListPanel extends JPanel {
             }
             
         });
-        
-        LEAVE_GAME_BUTTON.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                leaveGameActionPerformed();
-            }
-            
-        });
     }
     
     private void createGameActionPerformed() {
-        String name = null;
-        byte playerCount = 0;
-        byte boardSize = 0;
-        byte cellCount = 0;
+        JTextField nameTF = new JTextField("Nová místnost");
+        JSpinner playerCountSpinner = new JSpinner(new SpinnerNumberModel(
+                Config.MIN_PLAYERS_SIZE, Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE, 1));
+        JSpinner boardSizeSpinner = new JSpinner(new SpinnerNumberModel(
+                Config.MIN_BOARD_SIZE, Config.MIN_BOARD_SIZE, Config.MAX_BOARD_SIZE, 1));
+        JSpinner cellCountSpinner = new JSpinner(new SpinnerNumberModel(
+                Config.MIN_CELL_COUNT, Config.MIN_CELL_COUNT, Config.MAX_CELL_COUNT, 1));
         
-        // TODO vytvořit dialog a načíst hodnoty
+        final JComponent[] inputs = new JComponent[] {
+                new JLabel("Název herní místnosti:"),
+                nameTF,
+                new JLabel("Maximální počet hráčů:"),
+                playerCountSpinner,
+                new JLabel("Rozměr hracího pole:"),
+                boardSizeSpinner,
+                new JLabel("Na kolik políček se hraje:"),
+                cellCountSpinner
+        };
         
-        MESSAGE_SENDER.enqueueMessageBuilder(new CreateGameRequestBuilder(
+        int result = JOptionPane.showConfirmDialog(null, inputs, "Vytvoření hry", JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String name = nameTF.getText();
+            byte playerCount = (byte) playerCountSpinner.getValue();
+            byte boardSize = (byte) boardSizeSpinner.getValue();
+            byte cellCount = (byte) cellCountSpinner.getValue();
+            
+            MESSAGE_SENDER.enqueueMessageBuilder(new CreateGameRequestBuilder(
                 name, playerCount, boardSize, cellCount));
+        }
     }
     
     private void joinGameActionPerformed() {
@@ -105,14 +120,9 @@ public class GameListPanel extends JPanel {
         MESSAGE_SENDER.enqueueMessageBuilder(new JoinGameRequestBuilder(gameId));
     }
     
-    private void leaveGameActionPerformed() {
-        MESSAGE_SENDER.enqueueMessageBuilder(new LeaveGameRequestBuilder());
-    }
-    
     public void setButtons(boolean enabled) {
         CREATE_GAME_BUTTON.setEnabled(enabled);
         JOIN_GAME_BUTTON.setEnabled(enabled);
-        LEAVE_GAME_BUTTON.setEnabled(enabled);
     }
 
 }

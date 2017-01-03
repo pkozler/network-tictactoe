@@ -5,6 +5,7 @@
 #include "message.h"
 #include "string_utils.h"
 #include <stdlib.h>
+#include <string.h>
 
 bool put_string_arg(message_t *msg, char *arg) {
     if (msg->counter == msg->argc) {
@@ -18,6 +19,23 @@ bool put_string_arg(message_t *msg, char *arg) {
 
 char *get_string_arg(message_t *msg) {
     char *arg = msg->argv[msg->argc - msg->counter];
+    msg->counter--;
+    
+    return arg;
+}
+
+bool put_bool_arg(message_t *msg, bool arg) {
+    if (msg->counter == msg->argc) {
+        return false;
+    }
+    
+    msg->argv[msg->counter++] = bool_to_string(arg);
+    
+    return true;
+}
+
+bool get_bool_arg(message_t *msg) {
+    bool arg = string_to_bool(msg->argv[msg->argc - msg->counter]);
     msg->counter--;
     
     return arg;

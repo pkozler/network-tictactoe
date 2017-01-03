@@ -10,9 +10,11 @@
 #include "player.h"
 #include <stdint.h>
 
-void send_to_single_client(message_list_t *messages, player_t *client);
-void send_to_all_clients(message_list_t *messages);
-void send_to_selected_clients(message_list_t *messages,
+void send_message_to_all(message_t *message);
+void send_message_to_selected(message_t *message,
+        player_t **clients, int32_t client_count);
+void send_message_list_to_all(message_list_t *messages);
+void send_message_list_to_selected(message_list_t *messages,
         player_t **clients, int32_t client_count);
 
 #endif /* BROADCASTER_H */

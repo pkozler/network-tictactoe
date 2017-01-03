@@ -112,45 +112,11 @@ game_t *remove_game_by_id(int32_t id) {
     return NULL;
 }
 
-message_t *game_to_msg(game_t *game) {
-    message_t *message = create_message(MSG_GAME_LIST_ITEM, MSG_GAME_LIST_ITEM_ARGC);
-    put_int_arg(message, game->id);
-    put_string_arg(message, game->name);
-    put_byte_arg(message, game->player_count);
-    put_byte_arg(message, game->board_size);
-    put_byte_arg(message, game->cell_count);
-    put_byte_arg(message, game->player_counter);
-    
-    return message;
-}
-
-message_t *game_list_to_msg() {
-    message_t *message = create_message(MSG_GAME_LIST, MSG_GAME_LIST_ARGC);
-    put_int_arg(message, count_elements(g_game_list->list));
-    
-    return message;
-}
-
-void send_game_list_update() {
-    message_list_t message_list = create_message_list(
-            game_list_to_msg(), count_elements(g_game_list));
-    linked_list_iterator_t *iterator = create_iterator(g_game_list);
-    game_t *current_game;
-    
-    int32_t i = 0;
-    while (has_next_element(iterator)) {
-        current_game = get_next_element(iterator);
-        message_list->msgv[i++] = game_to_msg(current_game);
-    }
-    
-    send_to_all_clients(message_list);
-}
-
 void *run_game_list_observer(void *arg) {
     while (is_server_running()) {
         if (g_game_list->changed) {
             lock_game_list();
-            send_game_list_update();
+            broadcast_game_list();
             unlock_game_list(false);
         }
     }

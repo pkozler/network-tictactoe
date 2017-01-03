@@ -6,6 +6,7 @@
 #include "config.h"
 #include "protocol.h"
 #include "logger.h"
+#include "com_stats.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -81,19 +82,23 @@ int write_bytes(int sock, void *buf, unsigned int len) {
 char *read_from_socket(int sock) {
     int32_t str_len;
 
-    if (read_bytes(sock, &str_len, sizeof(int32_t)) < 0) {
+    int32_t n = read_bytes(sock, &str_len, sizeof(int32_t));
+    if (n < 0) {
         return NULL;
     }
     
+    inc_stats_bytes_transferred(n);
     // převod pořadí bajtů čísla délky
     str_len = ntohl(str_len);
     
     char *msg_str = (char *) malloc(sizeof(char) * str_len + 1);
     
-    if (read_bytes(sock, msg_str, str_len) < 0) {
+    n = read_bytes(sock, msg_str, str_len);
+    if (n < 0) {
         return NULL;
     }
     
+    inc_stats_bytes_transferred(n);
     msg_str[str_len] = '\0';
     
     return msg_str;
@@ -112,16 +117,23 @@ char *read_from_socket(int sock) {
 bool write_to_socket(char *msg_str, int sock) {
     int32_t str_len = (int32_t) strlen(msg_str); 
 
-    if (write_bytes(sock, &str_len, sizeof(int32_t)) < 0) {
+    int32_t n = write_bytes(sock, &str_len, sizeof(int32_t));
+    
+    if (n < 0) {
         return false;
     }
     
+    inc_stats_bytes_transferred(n);
     // převod pořadí bajtů čísla délky
     str_len = htonl(str_len);
     
-    if (write_bytes(sock, msg_str, str_len) < 0) {
+    n = write_bytes(sock, msg_str, str_len);
+    
+    if (n < 0) {
         return false;
     }
+    
+    inc_stats_bytes_transferred(n);
     
     return true;
 }
@@ -139,10 +151,14 @@ message_t *receive_message(int sock) {
     char *msg_str = read_from_socket(sock);
     
     if (msg_str == NULL) {
+        inc_stats_transfers_failed();
+        log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+        
         return NULL;
     }
     
-    log("Přijato od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+    inc_stats_messages_transferred();
+    log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
     
     if (strlen(msg_str) == 0) {
         free(msg_str);
@@ -220,7 +236,16 @@ bool send_message(message_t *msg, int sock) {
     }
     
     bool result = write_to_socket(msg_str, sock);
-    log("Odesláno klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+    
+    if (result) {
+        inc_stats_messages_transferred();
+        log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+    }
+    else {
+        inc_stats_transfers_failed();
+        log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+    }
+    
     free(msg_str);
     
     return result;

@@ -1,36 +1,24 @@
 package communication.tokens;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  *
  * @author Petr Kozler
  */
-public class ClientMessageType extends AMessageType {
+public class ClientMessageType extends AMessageStringToken {
     
-    protected Set<ClientMessageErrorArg> errorTypes = new HashSet<>();
-
-    public ClientMessageType(String keyword, int argCount) {
+    public final int RESPONSE_ARG_COUNT;
+    
+    public ClientMessageType(String keyword, int argCount, int responseArgCount) {
         super(keyword, argCount);
+        RESPONSE_ARG_COUNT = responseArgCount;
+    }
+    
+    public ClientMessageType(String keyword, int argCount) {
+        this(keyword, argCount, 1);
     }
     
     public ClientMessageType(String keyword) {
-        super(keyword);
-    }
-    
-    public void addErrorType(ClientMessageErrorArg errorType) {
-        errorTypes.add(errorType);
-    }
-    
-    public ClientMessageErrorArg getErrorType(String keyword) throws InvalidMessageArgsException {
-        for (ClientMessageErrorArg errorType : errorTypes) {
-            if (errorType.KEYWORD.equals(keyword)) {
-                return errorType;
-            }
-        }
-        
-        throw new InvalidMessageArgsException();
+        this(keyword, 0);
     }
     
 }

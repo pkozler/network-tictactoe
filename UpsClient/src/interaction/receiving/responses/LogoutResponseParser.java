@@ -26,7 +26,7 @@ public class LogoutResponseParser extends AResponseParser {
 
     @Override
     public String getStatusAndUpdateGUI() {
-        if (messageError != null) {
+        if (messageErrorKeyword != null) {
             return null;
         }
         

@@ -29,6 +29,7 @@
 #define MAX_PLAYERS_SIZE 4 // maximální povolený počet hráčů ve hře
 #define MIN_CELL_COUNT 2 // minimální povolený počet políček potřebných k obsazení
 #define MAX_CELL_COUNT 12 // maximální povolený počet políček potřebných k obsazení
+#define BOOL_STR_LEN 5 // maximální délka řetězce představujícího logickou hodnotu
 #define BYTE_BUF_LEN 4 // délka bufferu pro převod 8-bitového čísla na řetězec
 #define INT_BUF_LEN 11 // délka bufferu pro převod 32-bitového čísla na řetězec
 #define CMD_MAX_LENGTH 10 // maximální délka řetězce příkazu uživatele

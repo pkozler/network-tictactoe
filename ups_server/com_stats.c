@@ -7,20 +7,20 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-void add_stats_bytes_transferred(int32_t bytes_transferred) {
+void inc_stats_bytes_transferred(int32_t bytes_transferred) {
     g_server_info.stats.bytes_transferred += bytes_transferred;
 }
 
-void add_stats_connections_established(int32_t connections_established) {
-    g_server_info.stats.connections_established += connections_established;
+void inc_stats_connections_established() {
+    g_server_info.stats.connections_established++;
 }
 
-void add_stats_messages_transferred(int32_t messages_transferred) {
-    g_server_info.stats.messages_transferred += messages_transferred;
+void inc_stats_messages_transferred() {
+    g_server_info.stats.messages_transferred++;
 }
 
-void add_stats_transfers_failed(int32_t transfers_failed) {
-    g_server_info.stats.transfers_failed += transfers_failed;
+void inc_stats_transfers_failed() {
+    g_server_info.stats.transfers_failed++;
 }
 
 void clear_stats() {

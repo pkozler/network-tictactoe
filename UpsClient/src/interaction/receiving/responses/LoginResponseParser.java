@@ -31,22 +31,22 @@ public class LoginResponseParser extends AResponseParser {
             return;
         }
         
-        messageError = Protocol.MSG_LOGIN_CLIENT.getErrorType(MESSAGE.getNextArg());
+        messageErrorKeyword = MESSAGE.getNextArg();
     }
     
     @Override
     public String getStatusAndUpdateGUI() {
-        if (messageError == null) {
+        if (messageErrorKeyword == null) {
             GAME_LIST_PANEL.setButtons(true);
             
             return String.format("Hráč byl přihlášen k serveru pod ID %d s přezdívkou: %s", id, nick);
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME)) {
             return "Zadaná přezdívka hráče je neplatná";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
             return "Hráč se zadanou přezdívkou již existuje";
         }
         

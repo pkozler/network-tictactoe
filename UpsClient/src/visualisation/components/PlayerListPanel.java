@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import visualisation.listmodels.PlayerListModel;
 
@@ -73,15 +74,20 @@ public class PlayerListPanel extends JPanel {
     }
     
     private void loginActionPerformed() {
-        String nickname = null;
+        String nickname = JOptionPane.showInputDialog(null, "Zadejte přezdívku:", "Přihlášení");
         
-        // TODO vytvořit dialog a načíst hodnotu
-        
-        MESSAGE_SENDER.enqueueMessageBuilder(new LoginRequestBuilder(nickname));
+        if (nickname != null) {
+            MESSAGE_SENDER.enqueueMessageBuilder(new LoginRequestBuilder(nickname));
+        }
     }
 
     private void logoutActionPerformed() {
-        MESSAGE_SENDER.enqueueMessageBuilder(new LogoutRequestBuilder());
+        int result = JOptionPane.showConfirmDialog(null,
+                "Opravdu se chcete odhlásit ze serveru?", "Odhlášení", JOptionPane.YES_NO_OPTION);
+        
+        if (result == JOptionPane.YES_OPTION) {
+            MESSAGE_SENDER.enqueueMessageBuilder(new LogoutRequestBuilder());
+        }
     }
 
 }

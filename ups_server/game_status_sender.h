@@ -7,6 +7,6 @@
 
 #include "game.h"
 
-void send_game_status(game_t *game);
+void broadcast_game_status(game_t *game);
 
 #endif /* GAME_STATUS_SENDER_H */

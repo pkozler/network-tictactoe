@@ -3,7 +3,6 @@ package interaction.receiving.responses;
 import communication.TcpClient;
 import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
-import communication.tokens.ClientMessageErrorArg;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
@@ -30,12 +29,12 @@ public class CreateGameResponseParser extends AResponseParser {
             return;
         }
         
-        ClientMessageErrorArg error = Protocol.MSG_CREATE_GAME.getErrorType(MESSAGE.getNextArg());
+        String error = MESSAGE.getNextArg();
 
-        if (!(Protocol.MSG_ERR_INVALID_PLAYER_COUNT.equals(messageError)
-                || Protocol.MSG_ERR_INVALID_BOARD_SIZE.equals(messageError)
-                || Protocol.MSG_ERR_INVALID_CELL_COUNT.equals(messageError))) {
-            messageError = error;
+        if (!(Protocol.MSG_ERR_INVALID_PLAYER_COUNT.KEYWORD.equals(messageErrorKeyword)
+                || Protocol.MSG_ERR_INVALID_BOARD_SIZE.KEYWORD.equals(messageErrorKeyword)
+                || Protocol.MSG_ERR_INVALID_CELL_COUNT.KEYWORD.equals(messageErrorKeyword))) {
+            messageErrorKeyword = error;
             
             return;
         }
@@ -47,33 +46,32 @@ public class CreateGameResponseParser extends AResponseParser {
             throw new InvalidMessageArgsException();
         }
 
-        messageError = error;
+        messageErrorKeyword = error;
     }
 
     @Override
     public String getStatusAndUpdateGUI() {
-        if (messageError == null) {
-            
+        if (messageErrorKeyword == null) {
             return String.format("Hráč vytvořil herní místnost ID %d", gameId);
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME)) {
             return "Zadaný název herní místnosti je neplatný";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
             return "Herní místnost se zadaným názvem již existuje";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_BOARD_SIZE)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_BOARD_SIZE)) {
             return "Zadaný rozměr hracího pole je neplatný";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_PLAYER_COUNT)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_PLAYER_COUNT)) {
             return "Zadaný počet hráčů je neplatný";
         }
         
-        if (messageError.equals(Protocol.MSG_ERR_INVALID_CELL_COUNT)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_CELL_COUNT)) {
             return "Zadaný počet políček potřebných k obsazení je neplatný";
         }
         

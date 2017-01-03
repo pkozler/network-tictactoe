@@ -4,7 +4,9 @@
 
 #include "string_utils.h"
 #include "config.h"
+#include "protocol.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Určí, zda předaný řetězec představuje platnou celočíselnou hodnotu.
@@ -42,6 +44,16 @@ bool starts_with(const char *str, const char *pre) {
     return (lenstr < lenpre) ? false : (strncmp(pre, str, lenpre) == 0);
 }
 
+char *bool_to_string(bool i) {
+    char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
+    snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
+    
+    return i ? strdup(MSG_TRUE) : strdup(MSG_FALSE);
+}
+
+bool string_to_bool(char *str) {
+    return strncmp(MSG_TRUE, str, BOOL_STR_LEN);
+}
 
 char *byte_to_string(int8_t i) {
     char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
