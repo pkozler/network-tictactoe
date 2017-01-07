@@ -1,4 +1,7 @@
 /* 
+ * Modul request_parser definuje funkce pro příjem a zpracování požadavků
+ * klienta.
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,7 +12,17 @@
 #include "checker.h"
 #include "player_list.h"
 #include "game_list.h"
+#include "game_logic.h"
+#include "tcp_communicator.h"
+#include <string.h>
 
+/**
+ * Vytvoří zprávu s potvrzením požadavku.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *create_ack_message(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
     put_string_arg(new_message, MSG_TRUE);
@@ -17,6 +30,14 @@ message_t *create_ack_message(message_t *message, player_t *player) {
     return new_message;
 }
 
+/**
+ * Vytvoří zprávu s odmítnutím požadavku.
+ * 
+ * @param message požadavek
+ * @param err_msg typ chyby
+ * @param player klient
+ * @return odpověď
+ */
 message_t *create_err_message(message_t *message, char *err_msg, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ERR_ARGC);
     put_string_arg(new_message, MSG_FALSE);
@@ -25,12 +46,25 @@ message_t *create_err_message(message_t *message, char *err_msg, player_t *playe
     return new_message;
 }
 
+/**
+ * Zpracuje testování odezvy.
+ * 
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_ping(player_t *player) {
     message_t *new_message = create_message(NULL, 0);
     
     return new_message;
 }
 
+/**
+ * Zpracuje požadavek na přihlášení.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_login_request(message_t *message, player_t *player) {
     if (message->argc != MSG_LOGIN_CLIENT_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -46,7 +80,7 @@ message_t *handle_login_request(message_t *message, player_t *player) {
     // existující nick
     lock_player_list();
     
-    if (get_player_by_name(g_player_list, nick) != NULL) {
+    if (get_player_by_name(nick) != NULL) {
         unlock_player_list(false);
         
         return create_err_message(message, MSG_ERR_EXISTING_NAME, player);
@@ -63,6 +97,13 @@ message_t *handle_login_request(message_t *message, player_t *player) {
     return new_message;
 }
 
+/**
+ * Zpracuje požadavek na odhlášení.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_logout_request(message_t *message, player_t *player) {
     if (message->argc != MSG_LOGOUT_CLIENT_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -76,6 +117,13 @@ message_t *handle_logout_request(message_t *message, player_t *player) {
     return create_ack_message(message, player);
 }
 
+/**
+ * Zpracuje požadavek na vytvoření hry.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_create_game_request(message_t *message, player_t *player) {
     if (message->argc != MSG_CREATE_GAME_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -145,6 +193,13 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     return new_message;
 }
 
+/**
+ * Zpracuje požadavek na připojení ke hře.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_join_game_request(message_t *message, player_t *player) {
     if (message->argc != MSG_JOIN_GAME_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -188,6 +243,13 @@ message_t *handle_join_game_request(message_t *message, player_t *player) {
     return create_ack_message(message, player);
 }
 
+/**
+ * Zpracuje požadavek na opuštění hry.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_leave_game_request(message_t *message, player_t *player) {
     if (message->argc != MSG_LEAVE_GAME_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -202,13 +264,20 @@ message_t *handle_leave_game_request(message_t *message, player_t *player) {
     }
     
     lock_game(player->current_game);
-    remove_player_from_game(player->current_game, player);
+    remove_player_from_game(player);
     unlock_game(player->current_game, true);
     unlock_game_list(true);
     
     return create_ack_message(message, player);
 }
 
+/**
+ * Zpracuje požadavek na provedení tahu ve hře.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_play_game_request(message_t *message, player_t *player) {
     if (message->argc != MSG_PLAY_GAME_ARGC) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
@@ -227,14 +296,14 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
     
     lock_game(player->current_game);
     
-    if (!is_game_active(player->current_game)) {
+    if (!is_round_started(player->current_game)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
         return create_err_message(message, MSG_ERR_ROUND_NOT_STARTED, player);
     }
     
-    if (!is_player_logged()) {
+    if (!is_player_logged(player)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
@@ -276,6 +345,13 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
     return create_ack_message(message, player);
 }
 
+/**
+ * Zpracuje neznámý požadavek.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *handle_unknown_request(message_t *message, player_t *player) {
     message_t *new_message = create_message(message->type, MSG_ACK_ARGC);
     put_string_arg(new_message, MSG_FALSE);
@@ -283,9 +359,16 @@ message_t *handle_unknown_request(message_t *message, player_t *player) {
     return new_message;
 }
 
+/**
+ * Provede pokus o přihlášení klienta.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *try_handle_login_request(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud je klient již aktivní
-    if (is_player_logged()) {
+    if (is_player_logged(player)) {
         return create_err_message(message, MSG_ERR_ALREADY_LOGGED, player);
     }
     // aktivace klienta, pokud není aktivní
@@ -294,9 +377,16 @@ message_t *try_handle_login_request(message_t *message, player_t *player) {
     }
 }
 
+/**
+ * Provede pokus o zpracování požadavku přihlášeného klienta.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
 message_t *try_handle_client_request(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud klient není aktivní
-    if (!is_player_logged()) {
+    if (!is_player_logged(player)) {
         return create_err_message(message, MSG_ERR_NOT_LOGGED, player);
     }
     // zpracování požadavku, pokud je klient aktivní
@@ -328,6 +418,11 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
     }
 }
 
+/**
+ * Přijme a zpracuje požadavek klienta.
+ * 
+ * @param player klient
+ */
 void parse_received_message(player_t *player) {
     message_t *request = receive_message(player->sock);
     message_t *response = NULL;

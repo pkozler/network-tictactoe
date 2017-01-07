@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor tcp_server_control deklaruje funkce pro ovládání aktuální
+ * instance serveru a výpis informací.
+ * 
  * Author: Petr Kozler
  */
 

@@ -13,13 +13,21 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 /**
- *
+ * Třída StatusBarPanel 
+ * 
  * @author Petr Kozler
  */
 public class StatusBarPanel extends JPanel {
 
+    /**
+     * 
+     */
     private final JTextPane textPane;
 
+    /**
+     * 
+     * 
+     */
     public StatusBarPanel() {
         final int fontSize = 12;
         textPane = new JTextPane();
@@ -34,18 +42,43 @@ public class StatusBarPanel extends JPanel {
         );
     }
 
+    /**
+     * 
+     * 
+     * @param format
+     * @param args 
+     */
     public void printReceivingStatus(String format, Object... args) {
         appendToPane(Color.BLACK, format, args);
     }
 
+    /**
+     * 
+     * 
+     * @param format
+     * @param args 
+     */
     public void printSendingStatus(String format, Object... args) {
         appendToPane(Color.BLUE, format, args);
     }
 
+    /**
+     * 
+     * 
+     * @param format
+     * @param args 
+     */
     public void printErrorStatus(String format, Object... args) {
         appendToPane(Color.RED, format, args);
     }
 
+    /**
+     * 
+     * 
+     * @param c
+     * @param format
+     * @param args 
+     */
     private void appendToPane(Color c, String format, Object... args) {
         String msg = String.format(format, args);
 

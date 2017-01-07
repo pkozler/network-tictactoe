@@ -1,13 +1,22 @@
 /* 
+ * Modul player_list_sender definuje funkce pro odesílání seznamu hráčů.
+ * 
  * Author: Petr Kozler
  */
 
 #include "player_list_sender.h"
 #include "global.h"
 #include "protocol.h"
+#include "player.h"
+#include "broadcaster.h"
 #include "message_list.h"
 #include "linked_list_iterator.h"
 
+/**
+ * Sestaví zprávu představující hlavičku seznamu hráčů.
+ * 
+ * @return hlavička seznamu hráčů
+ */
 message_t *player_list_to_message() {
     message_t *message = create_message(MSG_PLAYER_LIST, MSG_PLAYER_LIST_ARGC);
     put_int_arg(message, count_elements(g_player_list->list));
@@ -15,6 +24,12 @@ message_t *player_list_to_message() {
     return message;
 }
 
+/**
+ * Sestaví zprávu představující položku seznamu hráčů.
+ * 
+ * @param player hráč
+ * @return položka seznamu hráčů
+ */
 message_t *player_to_message(player_t *player) {
     message_t *message = create_message(MSG_PLAYER_LIST_ITEM, MSG_PLAYER_LIST_ITEM_ARGC);
     put_int_arg(message, player->id);
@@ -23,10 +38,15 @@ message_t *player_to_message(player_t *player) {
     return message;
 }
 
+/**
+ * Vytvoří zprávy představující seznam hráčů.
+ * 
+ * @return seznam hráčů
+ */
 message_list_t *player_list_to_message_list() {
     message_list_t *message_list = create_message_list(
-            player_list_to_message(), count_elements(g_player_list));
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
+            player_list_to_message(), count_elements(g_player_list->list));
+    linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
     
     int32_t i = 0;
@@ -38,6 +58,9 @@ message_list_t *player_list_to_message_list() {
     return message_list;
 }
 
+/**
+ * Rozešle seznam hráčů.
+ */
 void broadcast_player_list() {
     send_message_list_to_all(player_list_to_message_list());
 }

@@ -1,9 +1,21 @@
 /* 
+ * Modul message_list definuje funkce pro vytvoření a odstranění seznamu zpráv
+ * a vkládání položek.
+ * 
  * Author: Petr Kozler
  */
 
 #include "message_list.h"
+#include "tcp_communicator.h"
+#include <stdlib.h>
 
+/**
+ * Vytvoří seznam zpráv.
+ * 
+ * @param head hlavička seznamu
+ * @param msgc počet položek
+ * @return seznam zpráv
+ */
 message_list_t *create_message_list(message_t *head, int32_t msgc) {
     message_list_t *msg_list = (message_list_t *) malloc(sizeof(message_list_t));
     msg_list->head = head;
@@ -13,6 +25,11 @@ message_list_t *create_message_list(message_t *head, int32_t msgc) {
     return msg_list;
 }
 
+/**
+ * Odstraní seznam zpráv.
+ * 
+ * @param msg_list seznam zpráv
+ */
 void delete_message_list(message_list_t *msg_list) {
     free(msg_list->head);
     
@@ -28,14 +45,17 @@ void delete_message_list(message_list_t *msg_list) {
     free(msg_list);
 }
 
-void send_message_list(message_list_t *messages, player_t *client) {
-    lock_player(client);
-    send_message(messages->head, client->sock);
+/**
+ * Odešle seznam zpráv klientovi.
+ * 
+ * @param messages seznam zpráv
+ * @param sock deskriptor socketu klienta
+ */
+void send_message_list(message_list_t *messages, int sock) {
+    send_message(messages->head, sock);
 
     int32_t i;
     for (i = 0; i < messages->msgc; i++) {
-        send_message(messages->msgv[i], client->sock);
+        send_message(messages->msgv[i], sock);
     }
-
-    unlock_player(client);
 }

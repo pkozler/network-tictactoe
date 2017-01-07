@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor game_status_sender deklaruje funkce pro odesílání
+ * stavu hry.
+ * 
  * Author: Petr Kozler
  */
 

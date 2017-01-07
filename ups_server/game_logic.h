@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor game_logic deklaruje funkce představující herní logiku.
+ * 
  * Author: Petr Kozler
  */
 

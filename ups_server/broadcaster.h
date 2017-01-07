@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor broadcaster obsahuje deklarace funkcí pro rozeslání
+ * zpráv většímu počtu klientů najednou.
+ * 
  * Author: Petr Kozler
  */
 

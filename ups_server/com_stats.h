@@ -1,9 +1,15 @@
 /* 
+ * Hlavičkový soubor com_stats deklaruje funkce pro počítání statistik
+ * běhu serveru.
+ * 
  * Author: Petr Kozler
  */
 
 #ifndef COM_STATS_H
 #define COM_STATS_H
+
+#include <stdint.h>
+#include <sys/time.h>
 
 /**
  * Struktura uchovávající statistiky běhu serveru.

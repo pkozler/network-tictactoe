@@ -1,12 +1,14 @@
 /* 
+ * Modul string_utils definuje pomocné funkce pro manipulaci s řetězci.
+ * 
  * Author: Petr Kozler
  */
 
 #include "string_utils.h"
 #include "config.h"
 #include "protocol.h"
-#include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /**
  * Určí, zda předaný řetězec představuje platnou celočíselnou hodnotu.
@@ -44,6 +46,12 @@ bool starts_with(const char *str, const char *pre) {
     return (lenstr < lenpre) ? false : (strncmp(pre, str, lenpre) == 0);
 }
 
+/**
+ * Převede logickou hodnotu na řetězec.
+ * 
+ * @param i logická hodnota
+ * @return řetězec
+ */
 char *bool_to_string(bool i) {
     char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
     snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
@@ -51,10 +59,22 @@ char *bool_to_string(bool i) {
     return i ? strdup(MSG_TRUE) : strdup(MSG_FALSE);
 }
 
+/**
+ * Převede řetězec na logickou hodnotu.
+ * 
+ * @param str řetězec
+ * @return logická hodnota
+ */
 bool string_to_bool(char *str) {
     return strncmp(MSG_TRUE, str, BOOL_STR_LEN);
 }
 
+/**
+ * Převede 8-bitové celé číslo hodnotu na řetězec.
+ * 
+ * @param i 8-bitové celé číslo
+ * @return řetězec
+ */
 char *byte_to_string(int8_t i) {
     char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
     snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
@@ -62,10 +82,22 @@ char *byte_to_string(int8_t i) {
     return str;
 }
 
+/**
+ * Převede řetězec na 8-bitové celé číslo.
+ * 
+ * @param str řetězec
+ * @return 8-bitové celé číslo
+ */
 int8_t string_to_byte(char *str) {
     return (int8_t) strtol(str, NULL, 10);
 }
 
+/**
+ * Převede 32-bitové celé číslo hodnotu na řetězec.
+ * 
+ * @param i 32-bitové celé číslo
+ * @return řetězec
+ */
 char *int_to_string(int32_t i) {
     char *str = (char *) malloc(sizeof(char) * (INT_BUF_LEN + 1));
     snprintf(str, INT_BUF_LEN + 1, "%d", i);
@@ -73,6 +105,12 @@ char *int_to_string(int32_t i) {
     return str;
 }
 
+/**
+ * Převede řetězec na 32-bitové celé číslo.
+ * 
+ * @param str řetězec
+ * @return 32-bitové celé číslo
+ */
 int32_t string_to_int(char *str) {
     return (int32_t) strtol(str, NULL, 10);
 }

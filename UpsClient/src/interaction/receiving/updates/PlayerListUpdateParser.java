@@ -10,15 +10,36 @@ import java.util.ArrayList;
 import visualisation.components.PlayerListPanel;
 
 /**
- *
+ * Třída PlayerListUpdateParser 
+ * 
  * @author Petr Kozler
  */
 public class PlayerListUpdateParser extends AUpdateParser {
 
+    /**
+     * 
+     */
     private final PlayerListPanel PLAYER_LIST_PANEL;
+    
+    /**
+     * 
+     */
     private final int ITEM_COUNT;
+    
+    /**
+     * 
+     */
     private final ArrayList<PlayerInfo> PLAYER_LIST;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param playerListPanel
+     * @param message
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public PlayerListUpdateParser(TcpClient client,
             PlayerListPanel playerListPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
@@ -29,11 +50,23 @@ public class PlayerListUpdateParser extends AUpdateParser {
         PLAYER_LIST = new ArrayList<>(ITEM_COUNT);
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public boolean hasNextItemMessage() {
         return PLAYER_LIST.size() < ITEM_COUNT;
     }
 
+    /**
+     * 
+     * 
+     * @param itemMessage
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     @Override
     public void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
@@ -43,6 +76,11 @@ public class PlayerListUpdateParser extends AUpdateParser {
         PLAYER_LIST.add(new PlayerInfo(id, nick, totalScore));
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatusAndUpdateGUI() {
         if (hasNextItemMessage()) {

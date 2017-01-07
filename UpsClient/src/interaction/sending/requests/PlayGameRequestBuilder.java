@@ -5,14 +5,28 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- *
+ * Třída PlayGameRequestBuilder 
+ * 
  * @author Petr Kozler
  */
 public class PlayGameRequestBuilder extends ARequestBuilder {
 
+    /**
+     * 
+     */
     private final byte X;
+    
+    /**
+     * 
+     */
     private final byte Y;
     
+    /**
+     * 
+     * 
+     * @param x
+     * @param y 
+     */
     public PlayGameRequestBuilder(byte x, byte y) {
         X = x;
         Y = y;
@@ -21,6 +35,11 @@ public class PlayGameRequestBuilder extends ARequestBuilder {
             Byte.toString(X), Byte.toString(Y));
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatus() {
         return String.format("Odeslán požadavek na herní tah na souřadnicích [%d; %d]", X, Y);

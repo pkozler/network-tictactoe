@@ -8,14 +8,29 @@ import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
+
 /**
- *
+ * Třída StartGameResponseParser 
+ * 
  * @author Petr Kozler
  */
 public class StartGameResponseParser extends AResponseParser {
 
+    /**
+     * 
+     */
     protected int gameId;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param gameListPanel
+     * @param statusBarPanel
+     * @param message
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public StartGameResponseParser(TcpClient client,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
@@ -30,6 +45,11 @@ public class StartGameResponseParser extends AResponseParser {
         messageErrorKeyword = MESSAGE.getNextArg();
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatusAndUpdateGUI() {
         if (messageErrorKeyword == null) {

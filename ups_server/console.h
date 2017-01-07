@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor console deklaruje funkce pro zpracování konzolových
+ * příkazů uživatele.
+ * 
  * Author: Petr Kozler
  */
 

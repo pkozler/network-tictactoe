@@ -1,4 +1,7 @@
 /*
+ * Hlavičkový soubor linked_list_iterator definuje strukturu iterátoru
+ * spojového seznamu.
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,9 +12,12 @@
 #include "linked_list_node.h"
 #include <stdbool.h>
 
+/**
+ * Struktura iterátoru obousměrně zřetězeného spojového seznamu.
+ */
 typedef struct {
-    linked_list_t *list;
-    linked_list_node_t *current;
+    linked_list_t *list; // iterovaný spojový seznam
+    linked_list_node_t *current; // aktuální prvek
 } linked_list_iterator_t;
 
 linked_list_iterator_t *create_iterator(linked_list_t *list);

@@ -1,10 +1,19 @@
 /*
+ * Modul linked_list_iterator definuje funkce pro vytvoření a odstranění
+ * iterátoru nad zadaným spojovým seznamem a pro iteraci přes jeho prvky.
+ * 
  * Author: Petr Kozler
  */
 
 #include "linked_list_iterator.h"
 #include <stdlib.h>
 
+/**
+ * Vytvoří iterátor.
+ * 
+ * @param list seznam
+ * @return iterátor
+ */
 linked_list_iterator_t *create_iterator(linked_list_t *list) {
     if (list == NULL) {
         return NULL;
@@ -18,6 +27,12 @@ linked_list_iterator_t *create_iterator(linked_list_t *list) {
     return iterator;
 }
 
+/**
+ * Získá další prvek seznamu.
+ * 
+ * @param iterator iterátor
+ * @return hodnota prvku
+ */
 void *get_next_element(linked_list_iterator_t *iterator) {
     if (iterator == NULL || iterator->current == NULL) {
         return NULL;
@@ -29,6 +44,12 @@ void *get_next_element(linked_list_iterator_t *iterator) {
     return e;
 }
 
+/**
+ * Odstraní předchozí prvek seznamu.
+ * 
+ * @param iterator iterátor
+ * @return hodnota prvku
+ */
 void *remove_last_element(linked_list_iterator_t *iterator) {
     if (iterator == NULL || iterator->current == NULL) {
         return NULL;
@@ -42,6 +63,12 @@ void *remove_last_element(linked_list_iterator_t *iterator) {
     return e;
 }
 
+/**
+ * Otestuje, zda seznam obsahuje další prvek.
+ * 
+ * @param iterator iterátor
+ * @return true, pokud obsahuje další prvek, jinak false
+ */
 bool has_next_element(linked_list_iterator_t *iterator) {
     if (iterator == NULL) {
         return false;

@@ -5,16 +5,40 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- *
+ * Třída CreateGameRequestBuilder 
+ * 
  * @author Petr Kozler
  */
 public class CreateGameRequestBuilder extends ARequestBuilder {
 
+    /**
+     * 
+     */
     private final String NAME;
+    
+    /**
+     * 
+     */
     private final byte PLAYER_COUNT;
+    
+    /**
+     * 
+     */
     private final byte BOARD_SIZE;
+    
+    /**
+     * 
+     */
     private final byte CELL_COUNT;
     
+    /**
+     * 
+     * 
+     * @param name
+     * @param playerCount
+     * @param boardSize
+     * @param cellCount 
+     */
     public CreateGameRequestBuilder(String name,
             byte playerCount, byte boardSize, byte cellCount) {
         NAME = name;
@@ -26,6 +50,11 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
                 Byte.toString(PLAYER_COUNT), Byte.toString(BOARD_SIZE), Byte.toString(CELL_COUNT));
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatus() {
         return String.format(

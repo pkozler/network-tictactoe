@@ -9,11 +9,22 @@ import visualisation.components.GameListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- *
+ * Třída LogoutResponseParser 
+ * 
  * @author Petr Kozler
  */
 public class LogoutResponseParser extends AResponseParser {
 
+    /**
+     * 
+     * 
+     * @param client
+     * @param gameListPanel
+     * @param statusBarPanel
+     * @param message
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public LogoutResponseParser(TcpClient client,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
@@ -24,6 +35,11 @@ public class LogoutResponseParser extends AResponseParser {
         }
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatusAndUpdateGUI() {
         if (messageErrorKeyword != null) {

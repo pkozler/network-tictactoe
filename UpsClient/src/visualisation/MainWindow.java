@@ -12,13 +12,14 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import visualisation.components.ConnectionBarPanel;
 import visualisation.components.GameListPanel;
 import visualisation.components.CurrentGamePanel;
 import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída představující hlavní okno GUI, které je základní součástí vizualizační
+ * Třída MainWindow představuje hlavní okno GUI, které je základní součástí vizualizační
  * vrstvy aplikace.
  * Okno obsahuje komponenty pro zobrazení seznamu připojených hráčů,
  * seznamu herních místností, a dále textová pole zobrazující hlášení
@@ -28,20 +29,77 @@ import visualisation.components.StatusBarPanel;
  */
 public class MainWindow extends JFrame {
     
+    /**
+     * 
+     */
     private final TcpClient CLIENT;
+    
+    /**
+     * 
+     */
     private final StatusBarPanel STATUS_BAR_PANEL;
+    
+    /**
+     * 
+     */
     private final PlayerListPanel PLAYER_LIST_PANEL;
+    
+    /**
+     * 
+     */
     private final GameListPanel GAME_LIST_PANEL;
-    private final CurrentGamePanel CURRENT_GAME_WINDOW;
+    
+    /**
+     * 
+     */
+    private final ConnectionBarPanel CONNECTION_PANEL;
+    
+    /**
+     * 
+     */
+    private final CurrentGamePanel CURRENT_GAME_PANEL;
+    
+    /**
+     * 
+     */
     private final MessageBackgroundReceiver MESSAGE_RECEIVER;
+    
+    /**
+     * 
+     */
     private final MessageBackgroundSender MESSAGE_SENDER;
+    
+    /**
+     * 
+     */
     private final CmdArg CMD_ARG_HANDLER;
     
+    /**
+     * 
+     */
     private Timer connectTimer;
+    
+    /**
+     * 
+     */
     private Timer pingTimer;
+    
+    /**
+     * 
+     */
     private Thread receiveThread;
+    
+    /**
+     * 
+     */
     private Thread sendThread;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param cmdArgHandler 
+     */
     public MainWindow(TcpClient client, CmdArg cmdArgHandler) {
         setTitle("Piškvorky - klient");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,21 +116,31 @@ public class MainWindow extends JFrame {
         MESSAGE_SENDER = new MessageBackgroundSender(CLIENT, STATUS_BAR_PANEL);
         PLAYER_LIST_PANEL = new PlayerListPanel(MESSAGE_SENDER);
         GAME_LIST_PANEL = new GameListPanel(MESSAGE_SENDER);
-        CURRENT_GAME_WINDOW = new CurrentGamePanel(MESSAGE_SENDER);
+        CURRENT_GAME_PANEL = new CurrentGamePanel(MESSAGE_SENDER);
         MESSAGE_RECEIVER = new MessageBackgroundReceiver(CLIENT,
-                STATUS_BAR_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW);
+                STATUS_BAR_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL);
         
-        contentPane.add(STATUS_BAR_PANEL, BorderLayout.CENTER);
+        contentPane.add(CURRENT_GAME_PANEL, BorderLayout.CENTER);
+        contentPane.add(STATUS_BAR_PANEL, BorderLayout.SOUTH);
         contentPane.add(PLAYER_LIST_PANEL, BorderLayout.WEST);
         contentPane.add(GAME_LIST_PANEL, BorderLayout.EAST);
+        
+        TimerTask connectTimerTask = createConnectionTimers();
+        CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, connectTimer, connectTimerTask, STATUS_BAR_PANEL);
+        contentPane.add(CONNECTION_PANEL, BorderLayout.NORTH);
         
         setContentPane(contentPane);
         setVisible(true);
         
-        startConnectionTimers();
+        connectTimer.schedule(connectTimerTask, Config.SOCKET_TIMEOUT_MILLIS, Config.SOCKET_TIMEOUT_MILLIS);
     }
     
-    private void startConnectionTimers() {
+    /**
+     * 
+     * 
+     * @return 
+     */
+    private TimerTask createConnectionTimers() {
         TimerTask pingTimerTask = new TimerTask() {
             
             @Override
@@ -80,7 +148,7 @@ public class MainWindow extends JFrame {
                 MESSAGE_SENDER.enqueueMessageBuilder(null);
                 
                 if (!CLIENT.isConnected()) {
-                    startConnectionTimers();
+                    createConnectionTimers();
                 }
             }
             
@@ -92,7 +160,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 try {
                     CLIENT.connect(
-                            CMD_ARG_HANDLER.getHost(),CMD_ARG_HANDLER.getPort());
+                            CMD_ARG_HANDLER.getHost(), CMD_ARG_HANDLER.getPort());
                 }
                 catch (IOException e) {
                     // čekání na spojení
@@ -107,9 +175,13 @@ public class MainWindow extends JFrame {
             
         };
         
-        connectTimer.schedule(connectTimerTask, Config.SOCKET_TIMEOUT_MILLIS, Config.SOCKET_TIMEOUT_MILLIS);
+        return connectTimerTask;
     }
     
+    /**
+     * 
+     * 
+     */
     private void startCommunicationThreads() {
         receiveThread = new Thread(MESSAGE_RECEIVER);
         sendThread = new Thread(MESSAGE_SENDER);

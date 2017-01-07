@@ -6,7 +6,7 @@ import communication.tokens.AMessageStringToken;
 import configuration.Protocol;
 
 /**
- * Třída sloužící jako přepravka pro uchovávání zpráv vyměňovaných mezi serverem
+ * Třída TcpMessage slouží jako přepravka pro uchovávání zpráv vyměňovaných mezi serverem
  * a klientem v rámci textového aplikačního protokolu postaveného nad transportním
  * protokolem TCP, a pro usnadnění manipulace s těmito zprávami.
  * Kromě atributů představujících jednotlivé části zprávy (typ zprávy a seznam argumentů)
@@ -17,16 +17,39 @@ import configuration.Protocol;
  * @author Petr Kozler
  */
 public class TcpMessage {
+    
+    /**
+     * 
+     */
     private String type;
+    
+    /**
+     * 
+     */
     private String[] args;
+    
+    /**
+     * 
+     */
     private int current;
     
+    /**
+     * 
+     * 
+     * @param type
+     * @param args 
+     */
     public TcpMessage(String type, String... args) {
         this.type = type;
         this.args = args;
         current = 0;
     }
     
+    /**
+     * 
+     * 
+     * @param msgStr 
+     */
     public TcpMessage(String msgStr) {
         if (msgStr.isEmpty()) {
             type = null;
@@ -46,30 +69,66 @@ public class TcpMessage {
         args = msgStr.substring(firstDelimIndex + 1).split(Protocol.SEPARATOR);
     }
     
+    /**
+     * 
+     * 
+     */
     public TcpMessage() {
         this(null);
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public boolean hasTypeToken() {
         return type != null;
     }
     
+    /**
+     * 
+     * 
+     * @param messageType
+     * @return 
+     */
     public boolean isTypeOf(AMessageStringToken messageType) {
         return hasTypeToken() && type.equals(messageType.KEYWORD);
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public boolean hasArgs() {
         return args != null && args.length > 0;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public boolean isPing() {
         return !hasTypeToken() && !hasArgs();
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public boolean hasNextArg() {
         return current < args.length;
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws MissingMessageArgsException 
+     */
     public String getNextArg() throws MissingMessageArgsException {
         if (!hasNextArg()) {
             throw new MissingMessageArgsException();
@@ -78,6 +137,13 @@ public class TcpMessage {
         return args[current++];
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public int getNextIntArg() throws InvalidMessageArgsException, MissingMessageArgsException {
         try {
             return Integer.parseInt(getNextArg());
@@ -87,6 +153,14 @@ public class TcpMessage {
         }
     }
     
+    /**
+     * 
+     * 
+     * @param minValue
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public int getNextIntArg(int minValue) throws InvalidMessageArgsException, MissingMessageArgsException {
         int i = getNextIntArg();
         
@@ -97,6 +171,15 @@ public class TcpMessage {
         return i;
     }
     
+    /**
+     * 
+     * 
+     * @param minValue
+     * @param maxValue
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public int getNextIntArg(int minValue, int maxValue) throws InvalidMessageArgsException, MissingMessageArgsException {
         int i = getNextIntArg(minValue);
         
@@ -107,6 +190,13 @@ public class TcpMessage {
         return i;
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public byte getNextByteArg() throws InvalidMessageArgsException, MissingMessageArgsException {
         try {
             return Byte.parseByte(getNextArg());
@@ -116,6 +206,14 @@ public class TcpMessage {
         }
     }
     
+    /**
+     * 
+     * 
+     * @param minValue
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public byte getNextByteArg(byte minValue) throws InvalidMessageArgsException, MissingMessageArgsException {
         byte b = getNextByteArg();
         
@@ -126,6 +224,15 @@ public class TcpMessage {
         return b;
     }
     
+    /**
+     * 
+     * 
+     * @param minValue
+     * @param maxValue
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public byte getNextByteArg(byte minValue, byte maxValue) throws InvalidMessageArgsException, MissingMessageArgsException {
         byte b = getNextByteArg(minValue);
         
@@ -136,6 +243,13 @@ public class TcpMessage {
         return b;
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public boolean getNextBoolArg() throws InvalidMessageArgsException, MissingMessageArgsException {
         String arg = getNextArg();
         
@@ -150,6 +264,11 @@ public class TcpMessage {
         throw new InvalidMessageArgsException();
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String toString() {
         if (hasArgs()) {

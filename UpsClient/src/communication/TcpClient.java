@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Třída představující základní součást komunikační vrstvy aplikace.
+ * Třída TcpClient představuje základní součást komunikační vrstvy aplikace.
  * Zajišťuje volání vestavěných komunikačních metod pro navazování spojení
  * se serverem a operace čtení a zápisu do socketu (tj. odesílání a příjem zpráv).
  * Zároveň uchovává základní údaje o aktuálním stavu hráče (např. ID a nickname)
@@ -21,18 +21,45 @@ import java.nio.charset.StandardCharsets;
  */
 public class TcpClient {
 
+    /**
+     * 
+     */
     private Socket socket;
+    
+    /**
+     * 
+     */
     private DataInputStream dis;
+    
+    /**
+     * 
+     */
     private DataOutputStream dos;
-    private InetAddress host;
-    private int port;
+    
+    /**
+     * 
+     */
     private String nick;
+    
+    /**
+     * 
+     */
     private int playerId;
+    
+    /**
+     * 
+     */
     private int currentGameId;
     
-    public synchronized void connect(InetAddress host, int port) throws IOException {
-        this.host = host;
-        this.port = port;
+    /**
+     * 
+     * 
+     * @param address
+     * @param port
+     * @throws IOException 
+     */
+    public synchronized void connect(String address, int port) throws IOException {
+        InetAddress host = InetAddress.getByName(address);
         
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
@@ -41,6 +68,11 @@ public class TcpClient {
         dos = new DataOutputStream(socket.getOutputStream());
     }
     
+    /**
+     * 
+     * 
+     * @throws IOException 
+     */
     public synchronized void disconnect() throws IOException {
         if (socket != null && !socket.isClosed()) {
             dis.close();
@@ -51,46 +83,96 @@ public class TcpClient {
         socket = null;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public synchronized boolean isConnected() {
         return socket != null && !socket.isClosed();
     }
     
+    /**
+     * 
+     * 
+     * @param id 
+     */
     public synchronized void logIn(int id) {
         if (id > 0) {
             playerId = id;
         }
     }
     
+    /**
+     * 
+     * 
+     */
     public synchronized void logOut() {
         playerId = 0;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public synchronized boolean isLoggedIn() {
         return playerId > 0;
     }
     
+    /**
+     * 
+     * 
+     * @param id 
+     */
     public synchronized void joinGame(int id) {
         if (id > 0) {
             currentGameId = id;
         }
     }
     
+    /**
+     * 
+     * 
+     */
     public synchronized void leaveGame() {
         currentGameId = 0;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public synchronized int getPlayerId() {
         return playerId;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public synchronized String getPlayerNick() {
         return nick;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public synchronized int getGameId() {
         return currentGameId;
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @throws IOException
+     * @throws InvalidMessageArgsException 
+     */
     public synchronized void sendMessage(TcpMessage message) throws IOException, InvalidMessageArgsException {
         String msgStr = message.toString();
         
@@ -101,12 +183,25 @@ public class TcpClient {
         writeToSocket(msgStr);
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws IOException
+     * @throws InvalidMessageStringLengthException 
+     */
     public synchronized TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
         
         return new TcpMessage(msgStr);
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @throws IOException 
+     */
     private void writeToSocket(String message) throws IOException {
         dos.writeInt(message.length());
         
@@ -118,6 +213,13 @@ public class TcpClient {
         dos.flush();
     }
     
+    /**
+     * 
+     * 
+     * @return
+     * @throws IOException
+     * @throws InvalidMessageStringLengthException 
+     */
     private String readFromSocket() throws IOException, InvalidMessageStringLengthException {
         int length;
         

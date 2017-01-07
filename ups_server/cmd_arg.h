@@ -1,8 +1,8 @@
 /* 
- * Author: Petr Kozler
- * 
- * Soubor obsahuje deklaraci funkce pro zpracování
+ * Hlavičkový soubor cmd_arg obsahuje deklaraci funkce pro zpracování
  * parametrů programu a definuje strukturu pro jejich uchování.
+ * 
+ * Author: Petr Kozler
  */
 
 #ifndef CMD_ARG_H
@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-/*
+/**
  * Struktura s parametry serveru.
  */
 typedef struct {

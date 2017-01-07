@@ -3,14 +3,28 @@ package communication.tokens;
 import java.util.Objects;
 
 /**
- *
+ * Abstraktní třída AMessageStringToken 
+ * 
  * @author Petr Kozler
  */
 public abstract class AMessageStringToken {
     
+    /**
+     * 
+     */
     public final String KEYWORD;
+    
+    /**
+     * 
+     */
     public final int ARG_COUNT;
     
+    /**
+     * 
+     * 
+     * @param keyword
+     * @param argCount 
+     */
     public AMessageStringToken(String keyword, int argCount) {
         if (keyword == null || keyword.isEmpty() || argCount < 0) {
             throw new IllegalArgumentException();
@@ -20,6 +34,12 @@ public abstract class AMessageStringToken {
         this.ARG_COUNT = argCount;
     }
     
+    /**
+     * 
+     * 
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -38,6 +58,11 @@ public abstract class AMessageStringToken {
         return true;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public int hashCode() {
         int hash = 5;
@@ -45,6 +70,11 @@ public abstract class AMessageStringToken {
         return hash;
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String toString() {
         return KEYWORD;

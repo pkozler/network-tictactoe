@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor game_list deklaruje funkce pro práci se seznamem her.
+ * 
  * Author: Petr Kozler
  */
 
@@ -7,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "game.h"
 
 void create_game_list();
 void delete_game_list();

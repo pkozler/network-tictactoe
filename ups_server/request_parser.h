@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor request_parser deklaruje funkci pro přijetí
+ * a zpracování požadavku klienta.
+ * 
  * Author: Petr Kozler
  */
 

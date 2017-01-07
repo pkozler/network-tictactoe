@@ -1,10 +1,13 @@
 /* 
+ * Hlavičkový soubor player_list deklaruje funkce pro práci se seznamem hráčů.
+ * 
  * Author: Petr Kozler
  */
 
 #ifndef PLAYER_LIST_H
 #define PLAYER_LIST_H
 
+#include "player.h"
 #include <stdint.h>
 #include <stdbool.h>
 

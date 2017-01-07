@@ -1,16 +1,17 @@
 /* 
+ * Modul logger definuje funkce pro logování do souboru.
+ * 
  * Author: Petr Kozler
  */
 
 #include "logger.h"
 #include "config.h"
 #include "global.h"
+#include "tcp_server_control.h"
 #include "printer.h"
-#include "linked_list.h"
 #include "string_builder.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -25,16 +26,16 @@
  * @param format formát řetězce záznamu logu
  * @param ... argumenty řetězce záznamu logu
  */
-void log(const char *format, ...) { 
+void append_log(const char *format, ...) { 
     va_list vargs;
     va_start(vargs, format);
     char *log_str = create_string(MAX_STR_LENGHT, NULL, format, vargs);
     va_end(vargs);
     
     // vložení záznamu do fronty (atomická operace)
-    pthread_mutex_lock(&(g_logger.lock));
+    pthread_mutex_lock(&(g_logger->lock));
     enqueue_element(g_logger->log_queue, log_str);
-    pthread_mutex_unlock(&(g_logger.lock));
+    pthread_mutex_unlock(&(g_logger->lock));
 }
 
 /**
@@ -42,14 +43,14 @@ void log(const char *format, ...) {
  * jejich zápis do logovacího souboru v pořadí, v jakém byly vloženy.
  */
 void write_logs() {
-    while (!is_linked_list_empty(g_logger.log_queue)) {
+    while (!is_linked_list_empty(g_logger->log_queue)) {
         // výběr záznamu z fronty (atomická operace)
-        pthread_mutex_lock(&(g_logger.lock));
+        pthread_mutex_lock(&(g_logger->lock));
         char *log_str = dequeue_element(g_logger->log_queue);
-        pthread_mutex_unlock(&(g_logger.lock));
+        pthread_mutex_unlock(&(g_logger->lock));
         
         // zápis a odstranění řetězce
-        fputs(log_str, g_logger.log_file);
+        fputs(log_str, g_logger->log_file);
         free(log_str);
     }
 }
@@ -81,19 +82,19 @@ void *run_logging(void *arg) {
  */
 void start_logging(char *log_file_name) {
     g_logger = (logger_t *) malloc(sizeof(logger_t));
-    g_logger.log_file = fopen(log_file_name, "a");
+    g_logger->log_file = fopen(log_file_name, "a");
     
-    if (g_logger.log_file == NULL) {
+    if (g_logger->log_file == NULL) {
         print_err("Chyba při otevírání souboru pro zápis logů");
     }
 
-    g_logger.log_queue = create_linked_list();
+    g_logger->log_queue = create_linked_list();
     
-    if (pthread_mutex_init(&(g_logger.lock), NULL) < 0) {
+    if (pthread_mutex_init(&(g_logger->lock), NULL) < 0) {
         print_err("Chyba při vytváření zámku pro zápis logů");
     }
     
-    if (pthread_create(&(g_logger.thread), NULL, run_logging, NULL) < 0) {
+    if (pthread_create(&(g_logger->thread), NULL, run_logging, NULL) < 0) {
         print_err("Chyba při vytváření vlákna pro zápis logů");
     }
 }
@@ -103,11 +104,11 @@ void start_logging(char *log_file_name) {
  * a uzavře logovací soubor.
  */
 void shutdown_logging() {
-    pthread_mutex_destroy(&(g_logger.lock));
+    pthread_mutex_destroy(&(g_logger->lock));
     
     // výpis zbylých logů ve frontě po ukončení serveru
     write_logs();
-    delete_linked_list(g_logger.log_queue);
-    fclose(g_logger.log_file);
+    delete_linked_list(g_logger->log_queue, NULL);
+    fclose(g_logger->log_file);
     free(g_logger);
 }

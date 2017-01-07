@@ -22,19 +22,58 @@ import visualisation.listmodels.GameListModel;
 import visualisation.listmodels.PlayerListModel;
 
 /**
- *
+ * Třída CurrentGameDetailUpdateParser 
+ * 
  * @author Petr Kozler
  */
 public class CurrentGameDetailUpdateParser extends AUpdateParser {
 
+    /**
+     * 
+     */
     private final JList<PlayerInfo> PLAYER_LIST;
+    
+    /**
+     * 
+     */
     private final JList<GameInfo> GAME_LIST;
+    
+    /**
+     * 
+     */
     private final PlayerListModel PLAYER_LIST_MODEL;
+    
+    /**
+     * 
+     */
     private final GameListModel GAME_LIST_MODEL;
+    
+    /**
+     * 
+     */
     private final CurrentGamePanel CURRENT_GAME_WINDOW;
+    
+    /**
+     * 
+     */
     private final GameBoard CURRENT_GAME_BOARD;
+    
+    /**
+     * 
+     */
     private final ArrayList<JoinedPlayer> JOINED_PLAYER_LIST;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param playerListPanel
+     * @param gameListPanel
+     * @param currentGameWindow
+     * @param message
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     public CurrentGameDetailUpdateParser(TcpClient client,
             PlayerListPanel playerListPanel, GameListPanel gameListPanel,
             CurrentGamePanel currentGameWindow, TcpMessage message)
@@ -67,6 +106,16 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         JOINED_PLAYER_LIST = new ArrayList<>(CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter());
     }
     
+    /**
+     * 
+     * 
+     * @param gameInfo
+     * @param currentWinner
+     * @param str
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     private byte[] parseWinnerCells(GameInfo gameInfo, byte currentWinner, String str)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         byte coords[] = new byte[gameInfo.CELL_COUNT];
@@ -93,6 +142,15 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         return coords;
     }
     
+    /**
+     * 
+     * 
+     * @param gameInfo
+     * @param str
+     * @return
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     private byte[][] parseBoard(GameInfo gameInfo, String str)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         byte[][] board = new byte[gameInfo.BOARD_SIZE][gameInfo.BOARD_SIZE];
@@ -116,11 +174,23 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         return board;
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public boolean hasNextItemMessage() {
         return JOINED_PLAYER_LIST.size() < CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter();
     }
 
+    /**
+     * 
+     * 
+     * @param itemMessage
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     @Override
     public void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
@@ -132,6 +202,11 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         JOINED_PLAYER_LIST.add(new JoinedPlayer(joinedPlayerInfo, currentGameIndex, currentGameScore));
     }
 
+    /**
+     * 
+     * 
+     * @return 
+     */
     @Override
     public String getStatusAndUpdateGUI() {
         if (hasNextItemMessage()) {

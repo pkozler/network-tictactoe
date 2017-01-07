@@ -1,7 +1,8 @@
 package communication.containers;
 
 /**
- *
+ * Třída GameInfo 
+ * 
  * @author Petr Kozler
  */
 public class GameInfo implements Comparable<GameInfo> {

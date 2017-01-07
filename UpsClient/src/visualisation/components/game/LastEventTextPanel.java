@@ -13,17 +13,37 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
- *
+ * Třída LastEventTextPanel 
+ * 
  * @author Petr Kozler
  */
 public class LastEventTextPanel extends JPanel {
     
+    /**
+     * 
+     */
     private JLabel eventLabel;
+    
+    /**
+     * 
+     */
     private final JButton START_GAME_BUTTON;
+    
+    /**
+     * 
+     */
     private final JButton LEAVE_GAME_BUTTON;
+    
+    /**
+     * 
+     */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
-    
+    /**
+     * 
+     * 
+     * @param messageBackgroundSender 
+     */
     public LastEventTextPanel(MessageBackgroundSender messageBackgroundSender) {
         MESSAGE_SENDER = messageBackgroundSender;
         
@@ -40,10 +60,18 @@ public class LastEventTextPanel extends JPanel {
         setListeners();
     }
     
+    /**
+     * 
+     * 
+     */
     private void startGameActionPerformed() {
         MESSAGE_SENDER.enqueueMessageBuilder(new StartGameRequestBuilder());
     }
     
+    /**
+     * 
+     * 
+     */
     private void leaveGameActionPerformed() {
         int result = JOptionPane.showConfirmDialog(null,
                 "Opravdu chcete opustit herní místnost?", "Opuštění hry", JOptionPane.YES_NO_OPTION);
@@ -53,6 +81,10 @@ public class LastEventTextPanel extends JPanel {
         }
     }
     
+    /**
+     * 
+     * 
+     */
     private void setListeners() {
         START_GAME_BUTTON.addActionListener(new ActionListener() {
             

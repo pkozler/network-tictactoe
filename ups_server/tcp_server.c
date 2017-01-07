@@ -1,4 +1,7 @@
 /* 
+ * Modul tcp_server definuje funkce pro inicializaci datových struktur
+ * serveru a spuštění navazování spojení s klienty.
+ * 
  * Author: Petr Kozler
  */
 
@@ -25,6 +28,12 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+/**
+ * Zpracuje IP adresu ze zadaného řetězce.
+ * 
+ * @param ip řetězec IP
+ * @return IP v binární podobě
+ */
 in_addr_t parse_ip(char *ip) {
     struct in_addr ipvalue;
     
@@ -40,6 +49,14 @@ in_addr_t parse_ip(char *ip) {
     }
 }
 
+/**
+ * Vytvoří socket serveru.
+ * 
+ * @param host adresa serveru
+ * @param port port
+ * @param queue_length délka fronty pro čekání na příchozí spojení
+ * @return deskriptor socketu serveru
+ */
 int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     int srv_sock;
     struct sockaddr_in srv_addr;
@@ -93,6 +110,12 @@ int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     return srv_sock;
 }
 
+/**
+ * Vytvoří socket klienta.
+ * 
+ * @param srv_sock deskriptor socketu serveru
+ * @return deskriptor socketu klienta
+ */
 int accept_socket(int srv_sock) {
     int sock;
     struct sockaddr_in addr;
@@ -134,6 +157,15 @@ int accept_socket(int srv_sock) {
     return sock;
 }
 
+/**
+ * Inicializuje datové struktury serveru a spustí řídící vlákna.
+ * 
+ * @param host adresa pro naslouchání
+ * @param port port pro naslouchání
+ * @param log_file logovací soubor
+ * @param queue_length délka fronty
+ * @return deskriptor socketu serveru
+ */
 int setup_connection(char *host, int32_t port, char *log_file, int32_t queue_length) {
     clear_stats();
     start_server();
@@ -145,12 +177,17 @@ int setup_connection(char *host, int32_t port, char *log_file, int32_t queue_len
     int srv_sock = create_serversocket(host, port, queue_length);
     start_prompt();
     
-    log("Start serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
+    append_log("Start serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
     print_out("Server spuštěn");
     
     return srv_sock;
 }
 
+/**
+ * Provádí hlavní cyklus programu pro navazování spojení s klienty.
+ * 
+ * @param srv_sock deskriptor socketu serveru
+ */
 void run_connection(int srv_sock) {
     while (is_server_running()) {
         int cli_sock = accept_socket(srv_sock);
@@ -160,24 +197,34 @@ void run_connection(int srv_sock) {
         }
         
         inc_stats_connections_established();
-        log("Připojen klient s číslem socketu %d", cli_sock);
+        append_log("Připojen klient s číslem socketu %d", cli_sock);
         player_t *player = create_player(cli_sock);
         add_element(g_client_list, player);
     }
 }
 
+/**
+ * Uvolní paměť datových struktur serveru a ukončí řídící vlákna.
+ * 
+ * @param srv_sock deskriptor socketu serveru
+ */
 void shutdown_connection(int srv_sock) {
     close(srv_sock);
     delete_game_list();
     delete_player_list();
     delete_linked_list(g_client_list, delete_player);
-    log("Ukončení serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
+    append_log("Ukončení serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
     shutdown_logging();
     
     print_out("Server ukončen");
     print_stats();
 }
 
+/**
+ * Spustí hlavní cyklus programu se zadanými argumenty.
+ * 
+ * @param args struktura argumentů příkazové řádky
+ */
 void initialize(args_t args) {
     g_server_info.args.host = args.host;
     g_server_info.args.port = args.port;
@@ -189,5 +236,6 @@ void initialize(args_t args) {
                 g_server_info.args.log_file, g_server_info.args.queue_length);
         run_connection(srv_sock);
         shutdown_connection(srv_sock);
+        scan_args();
     }
 }

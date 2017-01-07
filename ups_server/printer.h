@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor printer deklaruje funkce pro výpis do konzole.
+ * 
  * Author: Petr Kozler
  */
 

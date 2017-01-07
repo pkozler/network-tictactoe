@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor global obsahuje globální proměnné používané
+ * v různých částech programu.
+ * 
  * Author: Petr Kozler
  */
 
@@ -12,6 +15,9 @@
 #include "linked_list.h"
 #include <pthread.h>
 
+/**
+ * Struktura informací o aktuální instanci serveru.
+ */
 struct {
     args_t args; // struktura uchovávající aktuální nastavení serveru
     stats_t stats; // struktura uchovávající statistiky běhu serveru

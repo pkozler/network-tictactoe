@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor config obsahuje definice konfiguračních konstant serveru.
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,6 +11,7 @@
  * Základní konfigurační konstanty serveru:
  */
 
+#define HELP_OPTION "-?" // argument příkazové řádky značící výpis nápovědy
 #define HOST_OPTION "-h" // argument příkazové řádky značící volbu IP adresy
 #define PORT_OPTION "-p" // argument příkazové řádky značící volbu čísla portu
 #define LOG_OPTION "-l" // argument příkazové řádky značící volbu logovacího souboru
@@ -32,6 +35,11 @@
 #define BOOL_STR_LEN 5 // maximální délka řetězce představujícího logickou hodnotu
 #define BYTE_BUF_LEN 4 // délka bufferu pro převod 8-bitového čísla na řetězec
 #define INT_BUF_LEN 11 // délka bufferu pro převod 32-bitového čísla na řetězec
+
+/*
+ * Konfigurační konstanty konzolového uživatelského rozhraní:
+ */
+
 #define CMD_MAX_LENGTH 10 // maximální délka řetězce příkazu uživatele
 #define ARGS_CMD "args" // příkaz pro výpis parametrů serveru
 #define STATS_CMD "stats" // příkaz pro výpis statistik serveru

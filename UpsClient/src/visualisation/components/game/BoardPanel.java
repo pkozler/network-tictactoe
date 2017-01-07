@@ -10,25 +10,46 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
 /**
- *
+ * Třída BoardPanel 
+ * 
  * @author Petr Kozler
  */
 public class BoardPanel extends JPanel {
 
+    /**
+     * 
+     */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
+    /**
+     * 
+     */
     private GameBoard gameBoard;
     
+    /**
+     * 
+     * 
+     * @param messageBackgroundSender 
+     */
     public BoardPanel(MessageBackgroundSender messageBackgroundSender) {
         MESSAGE_SENDER = messageBackgroundSender;
         setListeners();
     }
     
+    /**
+     * 
+     * 
+     * @param gameBoard 
+     */
     public void setGameBoard(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
         repaint();
     }
     
+    /**
+     * 
+     * 
+     */
     private void setListeners() {
         addMouseListener(new MouseAdapter() {
             
@@ -40,6 +61,11 @@ public class BoardPanel extends JPanel {
         });
     }
     
+    /**
+     * 
+     * 
+     * @param e 
+     */
     private void playGameActionPerformed(MouseEvent e) {
         byte x = 0;
         byte y = 0;
@@ -67,6 +93,11 @@ public class BoardPanel extends JPanel {
         MESSAGE_SENDER.enqueueMessageBuilder(new PlayGameRequestBuilder(x, y));
     }
 
+    /**
+     * 
+     * 
+     * @param g 
+     */
     @Override
     public void paint(Graphics g) {
         super.paint(g);

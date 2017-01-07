@@ -1,4 +1,8 @@
 /*
+ * Hlavičkový soubor linked_list definuje strukturu spojového seznamu
+ * používanou pro uchovávání dat v různých částech programu
+ * (hry, hráči, nepřihlášení klienti, záznamy logu).
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,12 +13,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// ukazatel na funkci pro uvolnění hodnoty uložené v uzlu seznamu z paměti
 typedef void (*dispose_func_t)(void *e);
 
+/**
+ * Struktura obousměrně zřetězeného spojového seznamu.
+ */
 typedef struct {
-    int32_t count;
-    linked_list_node_t *first;
-    linked_list_node_t *last;
+    int32_t count; // počet prvků
+    linked_list_node_t *first; // první uzel
+    linked_list_node_t *last; // poslední uzel
 } linked_list_t;
 
 linked_list_t *create_linked_list();

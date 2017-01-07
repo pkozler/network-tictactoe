@@ -1,16 +1,30 @@
 /* 
+ * Modul tcp_server_control definuje funkce pro ovládání aktuální
+ * instance serveru a výpis informací.
+ * 
  * Author: Petr Kozler
  */
 
 #include "tcp_server_control.h"
 #include "global.h"
+#include "config.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
+/**
+ * Otestuje, zda server běží.
+ * 
+ * @return true, pokud server běží, jinak false
+ */
 bool is_server_running() {
     return g_server_info.running;
 }
 
+/**
+ * Spustí server se zadaným nastavením. Následně jsou vytvořeny datové struktury
+ * pro záznam aktuálně připojených hráčů a vytvořených her.
+ */
 void start_server() {
     // uložení času spuštění
     gettimeofday(&(g_server_info.stats.start_time), NULL);
@@ -53,4 +67,31 @@ void print_stats() {
     printf("Počet navázaných spojení: %o\n", g_server_info.stats.connections_established);
     printf("Počet přenosů zrušených pro chybu: %o\n", g_server_info.stats.transfers_failed);
     printf("Doba běhu: %f\n", elapsed_time);
+}
+
+/**
+ * Načte nové parametry při restartu serveru.
+ */
+void scan_args() {
+    char *host;
+    int32_t port;
+    char *log_file;
+    int32_t queue_length;
+    
+    printf("Zadejte IP adresu pro naslouchání (\"%s\"  pro naslouchání na všech adresách)\n",
+            DEFAULT_HOST);
+    scanf("%s", &host);
+    printf("Zadejte číslo portu v rozsahu %d - %d\n",
+            MIN_PORT, MAX_PORT);
+    scanf("%d", &port);
+    printf("Zadejte název souboru pro logování včetně cesty\n");
+    scanf("%s", &log_file);
+    printf("Zadejte délku fronty v rozsahu %d - %d\n",
+            MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
+    scanf("%d", &queue_length);
+    
+    g_server_info.args.host = host;
+    g_server_info.args.port = port;
+    g_server_info.args.log_file = log_file;
+    g_server_info.args.queue_length = queue_length;
 }

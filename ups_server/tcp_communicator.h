@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor tcp_communicator deklaruje funkce pro výměnu zpráv
+ * mezi serverem a klienty.
+ * 
  * Author: Petr Kozler
  */
 

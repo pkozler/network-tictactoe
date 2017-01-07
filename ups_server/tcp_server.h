@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor tcp_server deklaruje funkci pro inicializaci datových struktur
+ * serveru a spuštění navazování spojení s klienty.
+ * 
  * Author: Petr Kozler
  */
 

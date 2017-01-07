@@ -1,4 +1,7 @@
 /*
+ * Hlavičkový soubor string_builder deklaruje funkci pro vytvoření formátovaného
+ * řetězce pro výpis na konzoli nebo do logovacího souboru.
+ * 
  * Author: Petr Kozler
  */
 

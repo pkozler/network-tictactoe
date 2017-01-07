@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor message obsahuje definici struktury zprávy.
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,7 +11,7 @@
 #include <stdbool.h>
 
 /**
- * Definice struktury zpráv vyměňovaných mezi klienty a serverem v rámci
+ * Struktura zpráv vyměňovaných mezi klienty a serverem v rámci
  * textového aplikačního protokolu postaveného nad transportním protokolem TCP
  * pro usnadnění sestavování odesílaných a zpracovávání přijatých zpráv.
  */

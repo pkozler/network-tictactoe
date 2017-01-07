@@ -1,11 +1,16 @@
 /* 
+ * Hlavičkový soubor logger deklaruje funkce pro logování do souboru.
+ * 
  * Author: Petr Kozler
  */
 
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include "linked_list.h"
+#include <stdio.h>
 #include <stdarg.h>
+#include <pthread.h>
 
 /**
  * Struktura loggeru pro uchovávání záznamů o činnosti pracovních vláken
@@ -18,7 +23,7 @@ typedef struct {
     FILE *log_file; // logovací soubor
 } logger_t;
 
-void log(const char *format, ...);
+void append_log(const char *format, ...);
 void start_logging(char *log_file_name);
 void shutdown_logging();
 

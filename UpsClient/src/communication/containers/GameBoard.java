@@ -1,7 +1,8 @@
 package communication.containers;
 
 /**
- *
+ * Třída GameBoard 
+ * 
  * @author Petr Kozler
  */
 public class GameBoard {

@@ -1,4 +1,7 @@
 /* 
+ * Modul player_list definuje funkce pro vytvoření, odstranění a manipulaci
+ * se seznamem hráčů a pozorování seznamu.
+ * 
  * Author: Petr Kozler
  */
 
@@ -8,12 +11,32 @@
 #include "observable_list.h"
 #include "linked_list_iterator.h"
 #include "broadcaster.h"
+#include "printer.h"
+#include "player_list_sender.h"
+#include "tcp_server_control.h"
 #include <stdlib.h>
 
-/*
- * Funkce pro vytvoření seznamu hráčů:
+/**
+ * Pozoruje seznam hráčů a v případě změny rozešle zprávu klientům.
+ * 
+ * @param arg null
+ * @return null
  */
+void *run_player_list_observer(void *arg) {
+    while (is_server_running()) {
+        if (g_player_list->changed) {
+            lock_player_list();
+            broadcast_player_list();
+            unlock_player_list(false);
+        }
+    }
+    
+    return NULL;
+}
 
+/**
+ * Vytvoří seznam hráčů.
+ */
 void create_player_list() {
     g_player_list = (observable_list_t *) malloc(sizeof(observable_list_t));
     g_player_list->list = create_linked_list();
@@ -28,27 +51,43 @@ void create_player_list() {
     }
 }
 
+/**
+ * Odstraní seznam hráčů.
+ */
 void delete_player_list() {
     pthread_mutex_destroy(&(g_player_list->lock));
     delete_linked_list(g_player_list->list, NULL);
     free(g_player_list);
 }
 
+/**
+ * Uzamkne seznam hráčů.
+ */
 void lock_player_list() {
     pthread_mutex_lock(&(g_player_list->lock));
 }
 
+/**
+ * Odemkne seznam hráčů.
+ * 
+ * @param changed příznak změny
+ */
 void unlock_player_list(bool changed) {
     g_player_list->changed = changed;
     pthread_mutex_unlock(&(g_player_list->lock));
 }
 
+/**
+ * Přidá hráče do seznamu.
+ * 
+ * @param player hráč
+ */
 void add_player_to_list(player_t *player) {
     if (player == NULL) {
         return;
     }
     
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
+    linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
     int32_t max_id = 0;
 
@@ -64,8 +103,14 @@ void add_player_to_list(player_t *player) {
     add_element(g_player_list->list, player);
 }
 
+/**
+ * Získá hráče ze seznamu podle ID.
+ * 
+ * @param id ID hráče
+ * @return hráč
+ */
 player_t *get_player_by_id(int32_t id) {
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
+    linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
 
     while (has_next_element(iterator)) {
@@ -79,8 +124,14 @@ player_t *get_player_by_id(int32_t id) {
     return NULL;
 }
 
+/**
+ * Získá hráče ze seznamu podle přezdívky.
+ * 
+ * @param name přezdívka hráče
+ * @return hráč
+ */
 player_t *get_player_by_name(char *name) {
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
+    linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
 
     while (has_next_element(iterator)) {
@@ -94,8 +145,14 @@ player_t *get_player_by_name(char *name) {
     return NULL;
 }
 
+/**
+ * Odstraní hráče ze seznamu podle ID.
+ * 
+ * @param id ID hráče
+ * @return hráč
+ */
 player_t *remove_player_by_id(int32_t id) {
-    linked_list_iterator_t *iterator = create_iterator(g_player_list);
+    linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
 
     while (has_next_element(iterator)) {
@@ -106,18 +163,6 @@ player_t *remove_player_by_id(int32_t id) {
             current_player->id = 0;
             
             return current_player;
-        }
-    }
-    
-    return NULL;
-}
-
-void *run_player_list_observer(void *arg) {
-    while (is_server_running()) {
-        if (g_player_list->changed) {
-            lock_player_list();
-            broadcast_player_list();
-            unlock_player_list(false);
         }
     }
     

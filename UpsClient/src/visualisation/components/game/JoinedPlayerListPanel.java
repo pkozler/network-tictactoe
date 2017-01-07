@@ -7,19 +7,36 @@ import javax.swing.JPanel;
 import visualisation.listmodels.JoinedPlayerListModel;
 
 /**
- *
+ * Třída JoinedPlayerListPanel 
+ * 
  * @author Petr Kozler
  */
 public class JoinedPlayerListPanel extends JPanel {
 
+    /**
+     * 
+     */
     private final JList<JoinedPlayer> JOINED_PLAYER_LIST_VIEW;
+    
+    /**
+     * 
+     */
     private final JoinedPlayerListModel JOINED_PLAYER_LIST_MODEL;
     
+    /**
+     * 
+     * 
+     */
     public JoinedPlayerListPanel() {
         JOINED_PLAYER_LIST_MODEL = new JoinedPlayerListModel();
         JOINED_PLAYER_LIST_VIEW = new JList<>(JOINED_PLAYER_LIST_MODEL);
     }
     
+    /**
+     * 
+     * 
+     * @param joinedPlayerList 
+     */
     public void setJoinedPlayerList(ArrayList<JoinedPlayer> joinedPlayerList) {
         JOINED_PLAYER_LIST_MODEL.setListWithSorting(joinedPlayerList);
     }

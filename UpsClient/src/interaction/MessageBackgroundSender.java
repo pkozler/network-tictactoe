@@ -9,24 +9,51 @@ import javax.swing.SwingUtilities;
 import visualisation.components.StatusBarPanel;
 
 /**
- *
+ * Třída MessageBackgroundSender 
+ * 
  * @author Petr Kozler
  */
 public class MessageBackgroundSender implements Runnable {
 
+    /**
+     * 
+     */
     private final Queue<ARequestBuilder> requestQueue = new LinkedList<>();
+    
+    /**
+     * 
+     */
     private final TcpClient CLIENT;
+    
+    /**
+     * 
+     */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param statusBarPanel 
+     */
     public MessageBackgroundSender(TcpClient client, StatusBarPanel statusBarPanel) {
         CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
     }
     
+    /**
+     * 
+     * 
+     * @param builder 
+     */
     public void enqueueMessageBuilder(ARequestBuilder builder) {
         requestQueue.add(builder);
     }
     
+    /**
+     * 
+     * 
+     */
     @Override
     public void run() {
         while (CLIENT.isConnected()) {
@@ -36,6 +63,10 @@ public class MessageBackgroundSender implements Runnable {
         requestQueue.clear();
     }
     
+    /**
+     * 
+     * 
+     */
     private void handleMessageToSend() {
         if (requestQueue.isEmpty()) {
             return;

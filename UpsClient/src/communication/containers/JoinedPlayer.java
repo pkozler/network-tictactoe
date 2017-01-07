@@ -1,7 +1,8 @@
 package communication.containers;
 
 /**
- *
+ * Třída JoinedPlayer 
+ * 
  * @author Petr Kozler
  */
 public class JoinedPlayer implements Comparable<JoinedPlayer> {

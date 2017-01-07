@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor protocol obsahuje definice konstant představujících
+ * textové řetězce označující jednotlivé typy zpráv aplikačního protokolu.
+ * 
  * Author: Petr Kozler
  */
 

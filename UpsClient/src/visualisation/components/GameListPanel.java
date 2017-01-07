@@ -23,17 +23,42 @@ import javax.swing.SpinnerNumberModel;
 import visualisation.listmodels.GameListModel;
 
 /**
- *
+ * Třída GameListPanel 
+ * 
  * @author Petr Kozler
  */
 public class GameListPanel extends JPanel {
 
+    /**
+     * 
+     */
     private final JList<GameInfo> GAME_LIST_VIEW;
+    
+    /**
+     * 
+     */
     private final GameListModel GAME_LIST_MODEL;
+    
+    /**
+     * 
+     */
     private final JButton CREATE_GAME_BUTTON;
+    
+    /**
+     * 
+     */
     private final JButton JOIN_GAME_BUTTON;
+    
+    /**
+     * 
+     */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
+    /**
+     * 
+     * 
+     * @param messageBackgroundSender 
+     */
     public GameListPanel(MessageBackgroundSender messageBackgroundSender) {
         super(new BorderLayout());
         
@@ -54,14 +79,28 @@ public class GameListPanel extends JPanel {
         setListeners();
     }
     
+    /**
+     * 
+     * 
+     * @return 
+     */
     public JList<GameInfo> getGameList() {
         return GAME_LIST_VIEW;
     }
 
+    /**
+     * 
+     * 
+     * @param gameList 
+     */
     public void setGameList(ArrayList<GameInfo> gameList) {
         GAME_LIST_MODEL.setListWithSorting(gameList);
     }
     
+    /**
+     * 
+     * 
+     */
     private void setListeners() {
         CREATE_GAME_BUTTON.addActionListener(new ActionListener() {
             
@@ -82,6 +121,10 @@ public class GameListPanel extends JPanel {
         });
     }
     
+    /**
+     * 
+     * 
+     */
     private void createGameActionPerformed() {
         JTextField nameTF = new JTextField("Nová místnost");
         JSpinner playerCountSpinner = new JSpinner(new SpinnerNumberModel(
@@ -115,11 +158,20 @@ public class GameListPanel extends JPanel {
         }
     }
     
+    /**
+     * 
+     * 
+     */
     private void joinGameActionPerformed() {
         int gameId = GAME_LIST_VIEW.getSelectedValue().ID;
         MESSAGE_SENDER.enqueueMessageBuilder(new JoinGameRequestBuilder(gameId));
     }
     
+    /**
+     * 
+     * 
+     * @param enabled 
+     */
     public void setButtons(boolean enabled) {
         CREATE_GAME_BUTTON.setEnabled(enabled);
         JOIN_GAME_BUTTON.setEnabled(enabled);

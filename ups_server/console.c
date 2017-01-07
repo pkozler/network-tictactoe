@@ -1,4 +1,7 @@
 /* 
+ * Modul tcp_server definuje funkce pro zpracování příkazů uživatele
+ * z konzole.
+ * 
  * Author: Petr Kozler
  */
 
@@ -26,8 +29,8 @@ void print_commands() {
     printf("Dostupné příkazy:\n");
     printf("   %s ... výpis statistik\n", STATS_CMD);
     printf("   %s ... restart serveru\n", RESET_CMD);
-    printf("   %s  ... nápověda příkazů\n", EXIT_CMD);
-    printf("   %s  ... ukončení programu\n", EXIT_CMD);
+    printf("   %s ... nápověda příkazů\n", EXIT_CMD);
+    printf("   %s ... ukončení programu\n", EXIT_CMD);
 }
 
 /**

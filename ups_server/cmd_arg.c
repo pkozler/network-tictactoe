@@ -1,7 +1,7 @@
 /* 
- * Author: Petr Kozler
+ * Modul cmd_arg definuje funkce pro zpracování argumentů programu.
  * 
- * Modul definuje funkce pro zpracování argumentů programu.
+ * Author: Petr Kozler
  */
 
 #include "cmd_arg.h"
@@ -19,7 +19,6 @@
  * 
  * @param argc počet argumentů příkazové řádky
  * @param argv argumenty příkazové řádky (IP adresa a port pro naslouchání)
- * 
  * @return návratová hodnota programu
  */
 args_t parse_args(int argc, char** argv) {
@@ -36,7 +35,10 @@ args_t parse_args(int argc, char** argv) {
     while (i < argc && starts_with(argv[i], "-")) {
         arg = argv[i++];
 
-        if (!strcmp(HOST_OPTION, arg)) {
+        if (!strcmp(HELP_OPTION, arg)) {
+            usage();
+        }
+        else if (!strcmp(HOST_OPTION, arg)) {
             if (i < argc) {
                 args.host = argv[i++];
             } else {
@@ -64,15 +66,6 @@ args_t parse_args(int argc, char** argv) {
                 printf("%s vyžaduje číslo portu (%d - %d)", PORT_OPTION, MIN_PORT, MAX_PORT);
             }
         }
-        else if (!strcmp(LOG_OPTION, arg)) {
-            if (i < argc) {
-                args.log_file = argv[i++];
-            }
-            else {
-                printf("%s vyžaduje název souboru pro logování včetně cesty",
-                        LOG_OPTION);
-            }
-        }
         else if (!strcmp(QUEUE_OPTION, arg)) {
             if (i < argc) {
                 tmp = argv[i++];
@@ -94,7 +87,15 @@ args_t parse_args(int argc, char** argv) {
                 printf("%s vyžaduje délku fronty (%d - %d)", QUEUE_OPTION, MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
             }
         }
-        
+        else if (!strcmp(LOG_OPTION, arg)) {
+            if (i < argc) {
+                args.log_file = argv[i++];
+            }
+            else {
+                printf("%s vyžaduje název souboru pro logování včetně cesty",
+                        LOG_OPTION);
+            }
+        }
         else {
             printf("server: neplatný argument %s", arg);
         }
@@ -110,7 +111,7 @@ void usage() {
     printf("TCP server hry \"Piškvorky pro více hráčů\" (Verze 2.0)\n");
     printf("Seminární práce z předmětu \"Úvod do počítačových sítí\" (KIV/UPS)\n");
     printf("Autor: Petr Kozler (A13B0359P), 2017\n\n");
-    printf("Použití:   server [%s <host>] [%s <port>] [%s <logovací soubor>] [%s <délka fronty>]\n",
+    printf("Použití:   server [%s <host>] [%s <port>] [%s <délka fronty>] [%s <logovací soubor>]\n",
             HOST_OPTION, PORT_OPTION, LOG_OPTION, QUEUE_OPTION);
     printf("Popis parametrů:\n");
     printf("   <host> ... IP adresa pro naslouchání (\"%s\"  pro naslouchání na všech adresách)\n",
@@ -122,4 +123,5 @@ void usage() {
             MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
     printf("Příklad:   server %s %s %s %d\n",
             HOST_OPTION, DEFAULT_HOST, PORT_OPTION, DEFAULT_PORT);
+    exit(EXIT_SUCCESS);
 }

@@ -1,4 +1,6 @@
 /* 
+ * Hlavičkový soubor checker deklaruje funkce pro validaci požadavků klienta.
+ * 
  * Author: Petr Kozler
  */
 
@@ -20,7 +22,7 @@ bool is_current_player(game_t *game, player_t *player);
 bool is_cell_in_board(game_t *game, int8_t x, int8_t y);
 bool is_game_full(game_t *game);
 bool has_game_enough_players(game_t *game);
-bool is_game_active(game_t *game);
+bool is_round_started(game_t *game);
 bool can_play(game_t *game, int8_t x, int8_t y);
 
 #endif /* CHECKER_H */

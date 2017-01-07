@@ -27,22 +27,66 @@ import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- *
+ * Třída MessageBackgroundReceiver 
+ * 
  * @author Petr Kozler
  */
 public class MessageBackgroundReceiver implements Runnable {
 
+    /**
+     * 
+     */
     private final TcpClient CLIENT;
+    
+    /**
+     * 
+     */
     private final StatusBarPanel STATUS_BAR_PANEL;
+    
+    /**
+     * 
+     */
     private final PlayerListPanel PLAYER_LIST_PANEL;
+    
+    /**
+     * 
+     */
     private final GameListPanel GAME_LIST_PANEL;
+    
+    /**
+     * 
+     */
     private final CurrentGamePanel CURRENT_GAME_WINDOW;
     
+    /**
+     * 
+     */
     private PlayerListUpdateParser playerListUpdateParser;
+    
+    /**
+     * 
+     */
     private GameListUpdateParser gameListUpdateParser;
+    
+    /**
+     * 
+     */
     private CurrentGameDetailUpdateParser currentGameDetailUpdateParser;
+    
+    /**
+     * 
+     */
     private AParser currentParser;
     
+    /**
+     * 
+     * 
+     * @param client
+     * @param statusBarPanel
+     * @param playerListPanel
+     * @param gameListPanel
+     * @param currentGameWindow 
+     */
     public MessageBackgroundReceiver(TcpClient client,
             StatusBarPanel statusBarPanel, PlayerListPanel playerListPanel,
             GameListPanel gameListPanel, CurrentGamePanel currentGameWindow) {
@@ -56,6 +100,10 @@ public class MessageBackgroundReceiver implements Runnable {
         currentGameDetailUpdateParser = null;
     }
     
+    /**
+     * 
+     * 
+     */
     @Override
     public void run() {
         handleCreatedConnection();
@@ -67,6 +115,10 @@ public class MessageBackgroundReceiver implements Runnable {
         handleLostConnection();
     }
     
+    /**
+     * 
+     * 
+     */
     private void handleCreatedConnection() {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -78,6 +130,10 @@ public class MessageBackgroundReceiver implements Runnable {
         });
     }
     
+    /**
+     * 
+     * 
+     */
     private void handleLostConnection() {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -89,6 +145,10 @@ public class MessageBackgroundReceiver implements Runnable {
         });
     }
     
+    /**
+     * 
+     * 
+     */
     private void handleReceivedMessage() {
         Runnable runnable;
         
@@ -124,6 +184,17 @@ public class MessageBackgroundReceiver implements Runnable {
         SwingUtilities.invokeLater(runnable);
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @throws MissingListHeaderException
+     * @throws UnknownMessageTypeException
+     * @throws ClientAlreadyLoggedException
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException
+     * @throws ClientNotLoggedException 
+     */
     private void executeParserOnBackground(TcpMessage message) throws MissingListHeaderException,
             UnknownMessageTypeException, ClientAlreadyLoggedException,
             InvalidMessageArgsException, MissingMessageArgsException, ClientNotLoggedException {
@@ -148,6 +219,18 @@ public class MessageBackgroundReceiver implements Runnable {
         validateByLoginStatus(message, CLIENT.isLoggedIn());
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @return
+     * @throws UnknownMessageTypeException
+     * @throws ClientAlreadyLoggedException
+     * @throws MissingListHeaderException
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException
+     * @throws ClientNotLoggedException 
+     */
     private AParser handleResponse(TcpMessage message)
             throws UnknownMessageTypeException, ClientAlreadyLoggedException,
             MissingListHeaderException, InvalidMessageArgsException,
@@ -183,6 +266,15 @@ public class MessageBackgroundReceiver implements Runnable {
         return null;
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @return
+     * @throws MissingListHeaderException
+     * @throws InvalidMessageArgsException
+     * @throws MissingMessageArgsException 
+     */
     private AParser handleUpdate(TcpMessage message)
             throws MissingListHeaderException, InvalidMessageArgsException, MissingMessageArgsException {
         if (message.isTypeOf(Protocol.MSG_PLAYER_LIST)) {
@@ -245,6 +337,14 @@ public class MessageBackgroundReceiver implements Runnable {
         return null;
     }
     
+    /**
+     * 
+     * 
+     * @param message
+     * @param logged
+     * @throws ClientAlreadyLoggedException
+     * @throws ClientNotLoggedException 
+     */
     private void validateByLoginStatus(TcpMessage message, boolean logged)
             throws ClientAlreadyLoggedException, ClientNotLoggedException {
         if (logged) {

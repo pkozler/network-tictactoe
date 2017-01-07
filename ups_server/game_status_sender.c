@@ -1,4 +1,6 @@
 /* 
+ * Modul game_status_sender definuje funkce pro odesílání stavu hry.
+ * 
  * Author: Petr Kozler
  */
 
@@ -9,7 +11,16 @@
 #include "message_list.h"
 #include "config.h"
 #include "string_utils.h"
+#include <string.h>
 
+/**
+ * Sestaví řetězec zprávy představující souřadnice vítězných políček.
+ * 
+ * @param cell_count počet políček potřebných k obsazení
+ * @param current_winner pořadí vítěze
+ * @param winner_cells pole pro souřadnice
+ * @return řetězec souřadnic
+ */
 char *build_winner_cells_string(int8_t cell_count, int8_t current_winner, int8_t *winner_cells) {
     int32_t cells_str_len = (cell_count * (BYTE_BUF_LEN + 1)) + 1;
     char *winner_cells_str = (char *) malloc(sizeof(char) * cells_str_len);
@@ -36,6 +47,12 @@ char *build_winner_cells_string(int8_t cell_count, int8_t current_winner, int8_t
     return winner_cells_str;
 }
 
+/**
+ * Sestaví řetězec zprávy představující políčka herního pole.
+ * 
+ * @param game hra
+ * @return řetězec políček herního pole
+ */
 char *build_board_string(game_t *game) {
     int32_t board_str_len = game->board_size * game->board_size * BOARD_CELL_SEED_SIZE + 1;
     char *board_str = (char *) malloc(sizeof(char) * board_str_len);
@@ -54,6 +71,12 @@ char *build_board_string(game_t *game) {
     return board_str;
 }
 
+/**
+ * Sestaví zprávu představující stav herní místnosti.
+ * 
+ * @param game hra
+ * @return stav herní místnosti
+ */
 message_t *game_board_to_message(game_t *game) {
     message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);
     
@@ -69,11 +92,17 @@ message_t *game_board_to_message(game_t *game) {
             game->cell_count, game->current_winner, game->winner_cells_x));
     put_string_arg(new_message, build_winner_cells_string(
             game->cell_count, game->current_winner, game->winner_cells_y));
-    put_string_arg(new_message, game->board);
+    put_string_arg(new_message, build_board_string(game));
     
     return new_message;
 }
 
+/**
+ * Sestaví zprávu představující položku seznamu hráčů v herní místnosti.
+ * 
+ * @param player hráč
+ * @return položka seznamu hráčů v herní místnosti
+ */
 message_t *joined_player_to_message(player_t *player) {
     message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
     put_int_arg(new_message, player->id);
@@ -83,6 +112,12 @@ message_t *joined_player_to_message(player_t *player) {
     return new_message;
 }
 
+/**
+ * Vytvoří zprávy o stavu herní místnosti a hráčích, kteří se v ní nacházejí.
+ * 
+ * @param game hra
+ * @return seznam zpráv o stavu hry a hráčích
+ */
 message_list_t *game_status_to_message_list(game_t *game) {
     message_list_t *message_list = create_message_list(
             game_board_to_message(game), game->player_counter);
@@ -99,6 +134,11 @@ message_list_t *game_status_to_message_list(game_t *game) {
     return message_list;
 }
 
+/**
+ * Rozešle stav hry.
+ * 
+ * @param game hra
+ */
 void broadcast_game_status(game_t *game) {
     send_message_list_to_selected(game_status_to_message_list(game),
             game->players, game->player_count);

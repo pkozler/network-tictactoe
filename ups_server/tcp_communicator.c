@@ -1,4 +1,6 @@
 /* 
+ * Modul tcp_communicator definuje funkce pro komunikace serveru s klienty.
+ * 
  * Author: Petr Kozler
  */
 
@@ -21,7 +23,7 @@
  * @param sock deskriptor socketu příjemce
  * @param buf blok paměti s bajty určenými k zápisu
  * @param len počet bajtů určených k zápisu
- * @return 0 v případě úspěchu, záporná hodnota v případě chyby
+ * @return 1 v případě úspěchu, nekladná hodnota v případě chyby
  */
 int read_bytes(int sock, void *buf, unsigned int len) {
     int bytes_read = 0;
@@ -30,7 +32,7 @@ int read_bytes(int sock, void *buf, unsigned int len) {
     while (bytes_read < len) {
         read_result = recv(sock, buf + bytes_read, len - bytes_read, 0);
 
-        if (read_result < 0) {
+        if (read_result < 1) {
             // chyba - spojení přerušeno
             return read_result;
         }
@@ -38,7 +40,7 @@ int read_bytes(int sock, void *buf, unsigned int len) {
         bytes_read += read_result;
     }
     
-    return 0;
+    return 1;
 }
 
 /**
@@ -83,7 +85,7 @@ char *read_from_socket(int sock) {
     int32_t str_len;
 
     int32_t n = read_bytes(sock, &str_len, sizeof(int32_t));
-    if (n < 0) {
+    if (n < 1) {
         return NULL;
     }
     
@@ -94,7 +96,7 @@ char *read_from_socket(int sock) {
     char *msg_str = (char *) malloc(sizeof(char) * str_len + 1);
     
     n = read_bytes(sock, msg_str, str_len);
-    if (n < 0) {
+    if (n < 1) {
         return NULL;
     }
     
@@ -152,13 +154,13 @@ message_t *receive_message(int sock) {
     
     if (msg_str == NULL) {
         inc_stats_transfers_failed();
-        log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+        append_log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
         
         return NULL;
     }
     
     inc_stats_messages_transferred();
-    log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+    append_log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
     
     if (strlen(msg_str) == 0) {
         free(msg_str);
@@ -239,11 +241,11 @@ bool send_message(message_t *msg, int sock) {
     
     if (result) {
         inc_stats_messages_transferred();
-        log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+        append_log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
     }
     else {
         inc_stats_transfers_failed();
-        log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+        append_log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
     }
     
     free(msg_str);

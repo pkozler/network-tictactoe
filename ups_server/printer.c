@@ -1,4 +1,6 @@
 /* 
+ * Modul printer definuje funkce pro výpis na konzoli.
+ * 
  * Author: Petr Kozler
  */
 
@@ -22,7 +24,7 @@ void print_out(const char *format, ...) {
     
     va_list vargs;
     va_start(vargs, format);
-    create_string(0, buf, format, vargs);
+    create_string(MAX_STR_LENGHT, buf, format, vargs);
     va_end(vargs);
     
     printf("%s.\n", buf);
