@@ -5,18 +5,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Třída PlayerListModel 
+ * Třída PlayerListModel představuje model seznamu hráčů pro zobrazení v GUI.
  * 
  * @author Petr Kozler
  */
 public class PlayerListModel extends AUniqueItemListModel<PlayerInfo> {
 
     /**
+     * Otestuje, zda daný prvek seznamu hráčů obsahuje dané ID.
      * 
-     * 
-     * @param element
-     * @param key
-     * @return 
+     * @param element prvek
+     * @param key klíč
+     * @return true, pokud prvek obsahuje klíč, jinak false
      */
     @Override
     protected boolean hasKey(PlayerInfo element, int key) {
@@ -24,9 +24,9 @@ public class PlayerListModel extends AUniqueItemListModel<PlayerInfo> {
     }
 
     /**
+     * Seřadí vnitřní seznam hráčů.
      * 
-     * 
-     * @param list 
+     * @param list vnitřní seznam
      */
     @Override
     protected void sortList(ArrayList<PlayerInfo> list) {

@@ -17,49 +17,50 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 /**
- * Třída ConnectionBarPanel 
+ * Třída ConnectionBarPanel představuje panel pro zobrazení stavu
+ * spojení se serverem.
  * 
  * @author Petr Kozler
  */
 public class ConnectionBarPanel extends JPanel {
     
     /**
-     * 
+     * tlačítko pro připojení
      */
     private final JButton CONNECT_BUTTON;
     
     /**
-     * 
+     * tlačítko pro odpojení
      */
     private final JButton DISCONNECT_BUTTON;
     
     /**
-     * 
+     * objekt klienta
      */
     private final TcpClient CLIENT;
     
     /**
-     * 
+     * časovač pro navazování spojení
      */
     private Timer connectTimer;
     
     /**
-     * 
+     * úloha časovače pro navazování spojení
      */
     private TimerTask connectTimerTask;
     
     /**
-     * 
+     * panel stavového řádku
      */ 
     private final StatusBarPanel statusBarPanel;
     
     /**
+     * Vytvoří panel pro zobrazení stavu spojení.
      * 
-     * 
-     * @param client
-     * @param connectionTimer
-     * @param connectTimerTask
-     * @param statusBarPanel 
+     * @param client objekt klienta
+     * @param connectionTimer časovač pro navazování spojení
+     * @param connectTimerTask úloha časovače pro navazování spojení
+     * @param statusBarPanel panel stavového řádku
      */
     public ConnectionBarPanel(TcpClient client, Timer connectionTimer,
             TimerTask connectTimerTask, StatusBarPanel statusBarPanel) {
@@ -70,11 +71,12 @@ public class ConnectionBarPanel extends JPanel {
         
         CONNECT_BUTTON = new JButton("Připojit se");
         DISCONNECT_BUTTON = new JButton("Odpojit se");
+        
+        setListeners();
     }
     
     /**
-     * 
-     * 
+     * Nastaví listenery pro stisk tlačítek.
      */
     private void setListeners() {
         CONNECT_BUTTON.addActionListener(new ActionListener() {
@@ -97,8 +99,7 @@ public class ConnectionBarPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro připojení k serveru.
      */
     private void connectActionPerformed() {
         JTextField hostTF = new JTextField("localhost");
@@ -123,8 +124,7 @@ public class ConnectionBarPanel extends JPanel {
     }
 
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro odpojení od serveru.
      */
     private void disconnectActionPerformed() {
         int result = JOptionPane.showConfirmDialog(null,

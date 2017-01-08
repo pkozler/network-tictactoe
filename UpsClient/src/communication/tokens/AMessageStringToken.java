@@ -3,27 +3,30 @@ package communication.tokens;
 import java.util.Objects;
 
 /**
- * Abstraktní třída AMessageStringToken 
+ * Abstraktní třída AMessageStringToken představuje obecný token řetězce
+ * zprávy přijaté od serveru.
+ * Slouží jako pomocná datová třída pro definici klíčových slov
+ * aplikačního protokolu.
  * 
  * @author Petr Kozler
  */
 public abstract class AMessageStringToken {
     
     /**
-     * 
+     * klíčové slovo
      */
     public final String KEYWORD;
     
     /**
-     * 
+     * počet argumentů
      */
     public final int ARG_COUNT;
     
     /**
+     * Vytvoří token.
      * 
-     * 
-     * @param keyword
-     * @param argCount 
+     * @param keyword klíčové slovo
+     * @param argCount počet argumentů
      */
     public AMessageStringToken(String keyword, int argCount) {
         if (keyword == null || keyword.isEmpty() || argCount < 0) {
@@ -35,10 +38,10 @@ public abstract class AMessageStringToken {
     }
     
     /**
+     * Otestuje, zda se dvě položky shodují.
      * 
-     * 
-     * @param obj
-     * @return 
+     * @param obj druhá položka
+     * @return true, pokud se položky shodují, jinak false
      */
     @Override
     public boolean equals(Object obj) {
@@ -59,9 +62,9 @@ public abstract class AMessageStringToken {
     }
     
     /**
+     * Vrátí hashcode.
      * 
-     * 
-     * @return 
+     * @return hashcode
      */
     @Override
     public int hashCode() {
@@ -71,9 +74,9 @@ public abstract class AMessageStringToken {
     }
 
     /**
+     * Vrátí textovou reprezentaci položky.
      * 
-     * 
-     * @return 
+     * @return textová reprezentace položky
      */
     @Override
     public String toString() {

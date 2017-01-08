@@ -23,41 +23,41 @@ import javax.swing.SpinnerNumberModel;
 import visualisation.listmodels.GameListModel;
 
 /**
- * Třída GameListPanel 
+ * Třída GameListPanel představuje panel pro zobrazení seznamu her.
  * 
  * @author Petr Kozler
  */
 public class GameListPanel extends JPanel {
 
     /**
-     * 
+     * seznam her
      */
     private final JList<GameInfo> GAME_LIST_VIEW;
     
     /**
-     * 
+     * model seznamu her
      */
     private final GameListModel GAME_LIST_MODEL;
     
     /**
-     * 
+     * tlačítko vytvoření hry
      */
     private final JButton CREATE_GAME_BUTTON;
     
     /**
-     * 
+     * tlačítko připojení ke hře
      */
     private final JButton JOIN_GAME_BUTTON;
     
     /**
-     * 
+     * vysílač zpráv
      */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     /**
+     * Vytvoří panel seznamu her.
      * 
-     * 
-     * @param messageBackgroundSender 
+     * @param messageBackgroundSender vysílač zpráv
      */
     public GameListPanel(MessageBackgroundSender messageBackgroundSender) {
         super(new BorderLayout());
@@ -80,26 +80,25 @@ public class GameListPanel extends JPanel {
     }
     
     /**
+     * Vrátí seznam her.
      * 
-     * 
-     * @return 
+     * @return seznam her
      */
     public JList<GameInfo> getGameList() {
         return GAME_LIST_VIEW;
     }
 
     /**
+     * Nastaví seznam her.
      * 
-     * 
-     * @param gameList 
+     * @param gameList seznam her
      */
     public void setGameList(ArrayList<GameInfo> gameList) {
         GAME_LIST_MODEL.setListWithSorting(gameList);
     }
     
     /**
-     * 
-     * 
+     * Nastaví listenery pro stisk tlačítek.
      */
     private void setListeners() {
         CREATE_GAME_BUTTON.addActionListener(new ActionListener() {
@@ -122,8 +121,7 @@ public class GameListPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro vytvoření hry.
      */
     private void createGameActionPerformed() {
         JTextField nameTF = new JTextField("Nová místnost");
@@ -159,8 +157,7 @@ public class GameListPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro připojení ke hře.
      */
     private void joinGameActionPerformed() {
         int gameId = GAME_LIST_VIEW.getSelectedValue().ID;
@@ -168,9 +165,9 @@ public class GameListPanel extends JPanel {
     }
     
     /**
+     * Nastaví aktivaci tlačítek.
      * 
-     * 
-     * @param enabled 
+     * @param enabled příznak aktivace
      */
     public void setButtons(boolean enabled) {
         CREATE_GAME_BUTTON.setEnabled(enabled);

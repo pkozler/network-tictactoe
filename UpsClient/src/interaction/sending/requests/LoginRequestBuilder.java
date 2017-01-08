@@ -5,21 +5,22 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- * Třída LoginRequestBuilder 
+ * Třída LoginRequestBuilder představuje požadavek klienta
+ * na přihlášení.
  * 
  * @author Petr Kozler
  */
 public class LoginRequestBuilder extends ARequestBuilder {
     
     /**
-     * 
+     * přezdívka hráče
      */
     private final String NICKNAME;
 
     /**
+     * Sestaví požadavek klienta na přihlášení.
      * 
-     * 
-     * @param nickname 
+     * @param nickname přezdívka hráče
      */
     public LoginRequestBuilder(String nickname) {
         this.NICKNAME = nickname;
@@ -28,9 +29,9 @@ public class LoginRequestBuilder extends ARequestBuilder {
     }
 
     /**
+     * Vrátí výsledek operace odeslání požadavku na přihlášení.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatus() {

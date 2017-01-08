@@ -4,29 +4,30 @@ import java.util.ArrayList;
 import javax.swing.AbstractListModel;
 
 /**
- * Abstraktní třída AUniqueItemListModel 
+ * Abstraktní třída AUniqueItemListModel představuje obecný model seznamu
+ * položek (které je možné přijmout prostřednictvím zpráv ze serveru)
+ * pro zobrazení v GUI.
  * 
  * @author Petr Kozler
  */
 public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     
     /**
-     * 
+     * vnitřní seznam
      */
     protected ArrayList<E> list;
 
     /**
-     * 
-     * 
+     * Vytvoří model seznamu.
      */
     public AUniqueItemListModel() {
         list = new ArrayList<>();
     }
     
     /**
+     * Vrátí počet prvků seznamu.
      * 
-     * 
-     * @return 
+     * @return počet prvků seznamu
      */
     @Override
     public int getSize() {
@@ -34,10 +35,10 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     }
 
     /**
+     * Vrátí prvek seznamu na daném indexu.
      * 
-     * 
-     * @param index
-     * @return 
+     * @param index index prvku
+     * @return prvek seznamu
      */
     @Override
     public E getElementAt(int index) {
@@ -45,10 +46,10 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     }
     
     /**
+     * Vrátí prvek seznamu podle klíče.
      * 
-     * 
-     * @param key
-     * @return 
+     * @param key klíč prvku
+     * @return prvek seznamu
      */
     public E getElementByKey(int key) {
         for (E element : list) {
@@ -61,9 +62,9 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     }
     
     /**
+     * Nastaví vnitřní seznam.
      * 
-     * 
-     * @param list 
+     * @param list vnitřní seznam
      */
     public final void setListWithSorting(ArrayList<E> list) {
         sortList(list);
@@ -71,18 +72,18 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     }
     
     /**
+     * Otestuje, zda daný prvek seznamu obsahuje daný klíč.
      * 
-     * 
-     * @param element
-     * @param key
-     * @return 
+     * @param element prvek seznamu
+     * @param key klíč prvku
+     * @return true, pokud prvek obsahuje klíč, jinak false
      */
     protected abstract boolean hasKey(E element, int key);
     
     /**
+     * Seřadí vnitřní seznam.
      * 
-     * 
-     * @param list 
+     * @param list vnitřní seznam
      */
     protected abstract void sortList(ArrayList<E> list);
     

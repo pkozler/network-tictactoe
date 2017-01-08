@@ -6,29 +6,32 @@ import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
+import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída LogoutResponseParser 
+ * Třída LogoutResponseParser představuje parser odpovědi serveru
+ * na požadavek na odhlášení.
  * 
  * @author Petr Kozler
  */
 public class LogoutResponseParser extends AResponseParser {
 
     /**
+     * Vytvoří parser pro zpracování odpovědi serveru na požadavek na odhlášení.
      * 
-     * 
-     * @param client
-     * @param gameListPanel
-     * @param statusBarPanel
-     * @param message
+     * @param client objekt klienta
+     * @param playerListPanel panel seznamu hráčů
+     * @param gameListPanel panel seznamu her
+     * @param statusBarPanel panel stavového řádku
+     * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public LogoutResponseParser(TcpClient client,
+    public LogoutResponseParser(TcpClient client, PlayerListPanel playerListPanel,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, gameListPanel, statusBarPanel, message);
+        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
             CLIENT.logOut();
@@ -36,9 +39,9 @@ public class LogoutResponseParser extends AResponseParser {
     }
 
     /**
+     * Vrátí výsledek požadavku a obnoví seznam hráčů.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatusAndUpdateGUI() {

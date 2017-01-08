@@ -7,34 +7,37 @@ import communication.tokens.MissingMessageArgsException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
+import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída PlayGameResponseParser 
+ * Třída PlayGameResponseParser představuje parser odpovědi serveru
+ * na požadavek na herní tah.
  * 
  * @author Petr Kozler
  */
 public class PlayGameResponseParser extends AResponseParser {
 
     /**
-     * 
+     * ID hry
      */
     protected int gameId;
     
     /**
+     * Vytvoří parser pro zpracování odpovědi serveru na požadavek na provedení tahu.
      * 
-     * 
-     * @param client
-     * @param gameListPanel
-     * @param statusBarPanel
-     * @param message
+     * @param client objekt klienta
+     * @param playerListPanel panel seznamu hráčů
+     * @param gameListPanel panel seznamu her
+     * @param statusBarPanel panel stavového řádku
+     * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public PlayGameResponseParser(TcpClient client,
+    public PlayGameResponseParser(TcpClient client, PlayerListPanel playerListPanel,
             GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, gameListPanel, statusBarPanel, message);
+        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
             gameId = CLIENT.getGameId();
@@ -46,9 +49,9 @@ public class PlayGameResponseParser extends AResponseParser {
     }
 
     /**
+     * Vrátí výsledek požadavku a obnoví stav hry.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatusAndUpdateGUI() {

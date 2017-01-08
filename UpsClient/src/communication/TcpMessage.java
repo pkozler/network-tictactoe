@@ -19,25 +19,25 @@ import configuration.Protocol;
 public class TcpMessage {
     
     /**
-     * 
+     * typ zprávy
      */
     private String type;
     
     /**
-     * 
+     * argumenty zprávy
      */
     private String[] args;
     
     /**
-     * 
+     * index aktuálního argumentu zprávy
      */
     private int current;
     
     /**
+     * Vytvoří novou zprávu z předaného typu a argumentů.
      * 
-     * 
-     * @param type
-     * @param args 
+     * @param type typ zprávy
+     * @param args argumenty zprávy
      */
     public TcpMessage(String type, String... args) {
         this.type = type;
@@ -46,9 +46,9 @@ public class TcpMessage {
     }
     
     /**
+     * Vytvoří novou zprávu z předaného řetězce.
      * 
-     * 
-     * @param msgStr 
+     * @param msgStr řetězec zprávy
      */
     public TcpMessage(String msgStr) {
         if (msgStr.isEmpty()) {
@@ -70,63 +70,62 @@ public class TcpMessage {
     }
     
     /**
-     * 
-     * 
+     * Vytvoří novou prázdnou zprávu pro testování odezvy.
      */
     public TcpMessage() {
         this(null);
     }
     
     /**
+     * Otestuje, zda má zpráva určený typ.
      * 
-     * 
-     * @return 
+     * @return true, pokud má zpráva typ, jinak false
      */
     public boolean hasTypeToken() {
         return type != null;
     }
     
     /**
+     * Otestuje, zda typ zprávy odpovídá předanému.
      * 
-     * 
-     * @param messageType
-     * @return 
+     * @param messageType typ zprávy
+     * @return true, pokud typ odpovídá, jinak false
      */
     public boolean isTypeOf(AMessageStringToken messageType) {
         return hasTypeToken() && type.equals(messageType.KEYWORD);
     }
     
     /**
+     * Otestuje, zda má zpráva argumenty.
      * 
-     * 
-     * @return 
+     * @return true, má-li zpráva argumenty, jinak false
      */
     public boolean hasArgs() {
         return args != null && args.length > 0;
     }
     
     /**
+     * Otestuje, zda zpráva slouží k testování odezvy.
      * 
-     * 
-     * @return 
+     * @return true, pokud zpráva testuje odezvu, jinak false
      */
     public boolean isPing() {
         return !hasTypeToken() && !hasArgs();
     }
     
     /**
+     * Otestuje, zda má zpráva další argument.
      * 
-     * 
-     * @return 
+     * @return true, pokud má další argument, jinak false
      */
     public boolean hasNextArg() {
         return current < args.length;
     }
     
     /**
+     * Získá další argument zprávy.
      * 
-     * 
-     * @return
+     * @return argument
      * @throws MissingMessageArgsException 
      */
     public String getNextArg() throws MissingMessageArgsException {
@@ -138,9 +137,9 @@ public class TcpMessage {
     }
     
     /**
+     * Získá další argument zprávy převedený na celé číslo.
      * 
-     * 
-     * @return
+     * @return argument převedený na celé číslo
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -154,10 +153,11 @@ public class TcpMessage {
     }
     
     /**
+     * Získá další argument zprávy převedený na celé číslo
+     * o zadané minimální hodnotě.
      * 
-     * 
-     * @param minValue
-     * @return
+     * @param minValue minimální hodnota
+     * @return argument převedený na celé číslo
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -172,11 +172,12 @@ public class TcpMessage {
     }
     
     /**
+     * Získá další argument zprávy převedený na celé číslo
+     * o zadané minimální a maximální hodnotě.
      * 
-     * 
-     * @param minValue
-     * @param maxValue
-     * @return
+     * @param minValue minimální hodnota
+     * @param maxValue maximální hodnota
+     * @return argument převedený na celé číslo
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -191,9 +192,9 @@ public class TcpMessage {
     }
     
     /**
+     * Získá další argument zprávy převedený na bajt.
      * 
-     * 
-     * @return
+     * @return argument převedený na bajt
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -207,10 +208,11 @@ public class TcpMessage {
     }
     
     /**
-     * 
+     * Získá další argument zprávy převedený na bajt
+     * o zadané minimální hodnotě.
      * 
      * @param minValue
-     * @return
+     * @return argument převedený na bajt
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -225,11 +227,12 @@ public class TcpMessage {
     }
     
     /**
-     * 
+     * Získá další argument zprávy převedený na bajt
+     * o zadané minimální a maximální hodnotě.
      * 
      * @param minValue
      * @param maxValue
-     * @return
+     * @return argument převedený na bajt
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -244,9 +247,9 @@ public class TcpMessage {
     }
     
     /**
+     * Získá další argument zprávy převedený logickou hodnotu.
      * 
-     * 
-     * @return
+     * @return argument převedený na logickou hodnotu
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -265,9 +268,9 @@ public class TcpMessage {
     }
 
     /**
+     * Převede zprávu na řetězcovou reprezentaci.
      * 
-     * 
-     * @return 
+     * @return řetězcová reprezentace zprávy
      */
     @Override
     public String toString() {

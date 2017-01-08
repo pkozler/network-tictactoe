@@ -10,26 +10,27 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
 /**
- * Třída BoardPanel 
+ * Třída BoardPanel představuje panel pro zobrazení herního pole
+ * aktuální herní místnosti.
  * 
  * @author Petr Kozler
  */
 public class BoardPanel extends JPanel {
 
     /**
-     * 
+     * vysílač zpráv
      */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     /**
-     * 
+     * herní pole
      */
     private GameBoard gameBoard;
     
     /**
+     * Vytvoří panel herního pole.
      * 
-     * 
-     * @param messageBackgroundSender 
+     * @param messageBackgroundSender vysílač zpráv
      */
     public BoardPanel(MessageBackgroundSender messageBackgroundSender) {
         MESSAGE_SENDER = messageBackgroundSender;
@@ -37,9 +38,9 @@ public class BoardPanel extends JPanel {
     }
     
     /**
+     * Nastaví herní pole.
      * 
-     * 
-     * @param gameBoard 
+     * @param gameBoard herní pole
      */
     public void setGameBoard(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
@@ -47,8 +48,7 @@ public class BoardPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Nastaví listenery pro tlačítka.
      */
     private void setListeners() {
         addMouseListener(new MouseAdapter() {
@@ -62,9 +62,9 @@ public class BoardPanel extends JPanel {
     }
     
     /**
+     * Zpracuje stisk políčka v herním poli.
      * 
-     * 
-     * @param e 
+     * @param e událost stisku myši
      */
     private void playGameActionPerformed(MouseEvent e) {
         byte x = 0;
@@ -94,9 +94,9 @@ public class BoardPanel extends JPanel {
     }
 
     /**
+     * Překreslí plátno pro zobrazení herního pole.
      * 
-     * 
-     * @param g 
+     * @param g grafický kontext
      */
     @Override
     public void paint(Graphics g) {

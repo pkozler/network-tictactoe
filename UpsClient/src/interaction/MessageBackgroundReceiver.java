@@ -27,82 +27,82 @@ import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída MessageBackgroundReceiver 
+ * Třída MessageBackgroundReceiver představuje čtecí vlákno
+ * pro příjem odpovědí a notifikací serveru.
  * 
  * @author Petr Kozler
  */
 public class MessageBackgroundReceiver implements Runnable {
 
     /**
-     * 
+     * objekt klienta
      */
     private final TcpClient CLIENT;
     
     /**
-     * 
+     * panel stavového řádku
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
     /**
-     * 
+     * panel seznamu hráčů
      */
     private final PlayerListPanel PLAYER_LIST_PANEL;
     
     /**
-     * 
+     * panel seznamu her
      */
     private final GameListPanel GAME_LIST_PANEL;
     
     /**
-     * 
+     * panel herní místnosti
      */
-    private final CurrentGamePanel CURRENT_GAME_WINDOW;
+    private final CurrentGamePanel CURRENT_GAME_PANEL;
     
     /**
-     * 
+     * parser seznamu hráčů
      */
     private PlayerListUpdateParser playerListUpdateParser;
     
     /**
-     * 
+     * parser seznamu her
      */
     private GameListUpdateParser gameListUpdateParser;
     
     /**
-     * 
+     * parser seznamu hráčů
      */
     private CurrentGameDetailUpdateParser currentGameDetailUpdateParser;
     
     /**
-     * 
+     * poslední použitý parser
      */
     private AParser currentParser;
     
     /**
+     * Vytvoří přijímač zpráv.
      * 
-     * 
-     * @param client
-     * @param statusBarPanel
-     * @param playerListPanel
-     * @param gameListPanel
-     * @param currentGameWindow 
+     * @param client objekt klienta
+     * @param statusBarPanel panel stavového řádku
+     * @param playerListPanel panel seznamu hráčů
+     * @param gameListPanel panel seznamu her
+     * @param currentGamePanel panel herní místnosti
      */
     public MessageBackgroundReceiver(TcpClient client,
             StatusBarPanel statusBarPanel, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, CurrentGamePanel currentGameWindow) {
+            GameListPanel gameListPanel, CurrentGamePanel currentGamePanel) {
         CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
         PLAYER_LIST_PANEL = playerListPanel;
         GAME_LIST_PANEL = gameListPanel;
-        CURRENT_GAME_WINDOW = currentGameWindow;
+        CURRENT_GAME_PANEL = currentGamePanel;
         playerListUpdateParser = null;
         gameListUpdateParser = null;
         currentGameDetailUpdateParser = null;
     }
     
     /**
-     * 
-     * 
+     * Provádí čtení a zpracovávání zpráv serveru.
      */
     @Override
     public void run() {
@@ -116,8 +116,7 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
-     * 
-     * 
+     * Zobrazí zprávu o navázání spojení.
      */
     private void handleCreatedConnection() {
         SwingUtilities.invokeLater(new Runnable() {
@@ -131,8 +130,7 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
-     * 
-     * 
+     * Zobrazí zprávu o zrušení spojení.
      */
     private void handleLostConnection() {
         SwingUtilities.invokeLater(new Runnable() {
@@ -146,8 +144,7 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
-     * 
-     * 
+     * Přijme a zpracuje zprávu serveru.
      */
     private void handleReceivedMessage() {
         Runnable runnable;
@@ -185,9 +182,9 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
+     * Spustí parser zprávy na pozadí.
      * 
-     * 
-     * @param message
+     * @param message zpráva
      * @throws MissingListHeaderException
      * @throws UnknownMessageTypeException
      * @throws ClientAlreadyLoggedException
@@ -220,10 +217,10 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
+     * Zpracuje odpověď serveru na požadavek.
      * 
-     * 
-     * @param message
-     * @return
+     * @param message zpráva
+     * @return parser zprávy
      * @throws UnknownMessageTypeException
      * @throws ClientAlreadyLoggedException
      * @throws MissingListHeaderException
@@ -236,41 +233,48 @@ public class MessageBackgroundReceiver implements Runnable {
             MissingListHeaderException, InvalidMessageArgsException,
             MissingMessageArgsException, ClientNotLoggedException {
         if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
-            return new LoginResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new LoginResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_LOGOUT_CLIENT)) {
-            return new LogoutResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new LogoutResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_CREATE_GAME)) {
-            return new CreateGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new CreateGameResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_JOIN_GAME)) {
-            return new JoinGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new JoinGameResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_LEAVE_GAME)) {
-            return new LeaveGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new LeaveGameResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_START_GAME)) {
-            return new StartGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new StartGameResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_PLAY_GAME)) {
-            return new PlayGameResponseParser(CLIENT, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
+            return new PlayGameResponseParser(CLIENT,
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, STATUS_BAR_PANEL, message);
         }
         
         return null;
     }
     
     /**
+     * Zpracuje notifikaci serveru o změně stavu.
      * 
-     * 
-     * @param message
-     * @return
+     * @param message zpráva
+     * @return parser zprávy
      * @throws MissingListHeaderException
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
@@ -289,7 +293,7 @@ public class MessageBackgroundReceiver implements Runnable {
         
         if (message.isTypeOf(Protocol.MSG_GAME_DETAIL)) {
             return new CurrentGameDetailUpdateParser(CLIENT,
-                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_WINDOW, message);
+                    PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL, message);
         }
         
         if (message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)) {
@@ -338,10 +342,10 @@ public class MessageBackgroundReceiver implements Runnable {
     }
     
     /**
+     * Ověří platnost zprávy na základě přihlášení klienta.
      * 
-     * 
-     * @param message
-     * @param logged
+     * @param message zpráva
+     * @param logged příznak přihlášení klienta
      * @throws ClientAlreadyLoggedException
      * @throws ClientNotLoggedException 
      */

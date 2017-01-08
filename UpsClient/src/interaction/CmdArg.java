@@ -3,7 +3,7 @@ package interaction;
 import configuration.Config;
 
 /**
- * Třída CmdArg 
+ * Třída CmdArg slouží ke zpracování argumentů příkazové řádky.
  * 
  * @author Petr Kozler
  */
@@ -20,9 +20,9 @@ public class CmdArg {
     private String host = Config.DEFAULT_HOST;
  
     /**
+     * Zpracuje předané argumenty.
      * 
-     * 
-     * @param args 
+     * @param args argumenty příkazové řádky
      */
     public CmdArg(String[] args) {
         int i = 0;
@@ -74,44 +74,43 @@ public class CmdArg {
     }
     
     /**
+     * Vrátí port serveru.
      * 
-     * 
-     * @return 
+     * @return port serveru
      */
     public int getPort() {
         return port;
     }
     
     /**
+     * Nastaví port serveru.
      * 
-     * 
-     * @param port 
+     * @param port port serveru
      */
     public void setPort(int port) {
         this.port = port;
     }
 
     /**
+     * Vrátí adresu nebo název serveru.
      * 
-     * 
-     * @return 
+     * @return adresa nebo název serveru
      */
     public String getHost() {
         return host;
     }
     
     /**
+     * Nastaví adresu nebo název serveru.
      * 
-     * 
-     * @param host 
+     * @param host adresa nebo název serveru
      */
     public void setHost(String host) {
         this.host = host;
     }
 
     /**
-     * 
-     * 
+     * Vypíše nápovědu ke spuštění programu.
      */
     public static void usage() {
         System.out.println("TCP klient hry \"Piškvorky pro více hráčů\" (Verze 2.0)");

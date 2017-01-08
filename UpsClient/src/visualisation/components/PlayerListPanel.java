@@ -16,41 +16,41 @@ import javax.swing.JPanel;
 import visualisation.listmodels.PlayerListModel;
 
 /**
- * Třída PlayerListPanel 
+ * Třída PlayerListPanel představuje panel pro zobrazení seznamu hráčů.
  * 
  * @author Petr Kozler
  */
 public class PlayerListPanel extends JPanel {
 
     /**
-     * 
+     * seznam hráčů
      */
     private final JList<PlayerInfo> PLAYER_LIST_VIEW;
     
     /**
-     * 
+     * model seznamu hráčů
      */
     private final PlayerListModel PLAYER_LIST_MODEL;
     
     /**
-     * 
+     * tlačítko přihlášení
      */
     private final JButton LOGIN_BUTTON;
     
     /**
-     * 
+     * tlačítko odhlášení
      */
     private final JButton LOGOUT_BUTTON;
     
     /**
-     * 
+     * vysílač zpráv
      */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     /**
+     * Vytvoří panel seznamu hráčů.
      * 
-     * 
-     * @param messageBackgroundSender 
+     * @param messageBackgroundSender vysílač zpráv
      */
     public PlayerListPanel(MessageBackgroundSender messageBackgroundSender) {
         super(new BorderLayout());
@@ -71,26 +71,25 @@ public class PlayerListPanel extends JPanel {
     }
     
     /**
+     * Vrátí seznam hráčů.
      * 
-     * 
-     * @return 
+     * @return seznam hráčů
      */
     public JList<PlayerInfo> getPlayerList() {
         return PLAYER_LIST_VIEW;
     }
 
     /**
+     * Nastaví seznam hráčů.
      * 
-     * 
-     * @param playerList 
+     * @param playerList seznam hráčů
      */
     public void setPlayerList(ArrayList<PlayerInfo> playerList) {
         PLAYER_LIST_MODEL.setListWithSorting(playerList);
     }
 
     /**
-     * 
-     * 
+     * Nastaví listenery pro stisk tlačítek.
      */
     private void setListeners() {
         LOGIN_BUTTON.addActionListener(new ActionListener() {
@@ -113,8 +112,7 @@ public class PlayerListPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro přihlášení klienta.
      */
     private void loginActionPerformed() {
         String nickname = JOptionPane.showInputDialog(null, "Zadejte přezdívku:", "Přihlášení");
@@ -125,8 +123,7 @@ public class PlayerListPanel extends JPanel {
     }
 
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro odhlášení klienta.
      */
     private void logoutActionPerformed() {
         int result = JOptionPane.showConfirmDialog(null,

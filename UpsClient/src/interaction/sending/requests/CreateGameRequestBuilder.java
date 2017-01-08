@@ -5,39 +5,40 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- * Třída CreateGameRequestBuilder 
+ * Třída CreateGameRequestBuilder představuje požadavek klienta
+ * na vytvoření hry.
  * 
  * @author Petr Kozler
  */
 public class CreateGameRequestBuilder extends ARequestBuilder {
 
     /**
-     * 
+     * název hry
      */
     private final String NAME;
     
     /**
-     * 
+     * počet hráčů
      */
     private final byte PLAYER_COUNT;
     
     /**
-     * 
+     * rozměr hracího pole
      */
     private final byte BOARD_SIZE;
     
     /**
-     * 
+     * počet políček k obsazení
      */
     private final byte CELL_COUNT;
     
     /**
+     * Sestaví požadavek klienta na vytvoření hry.
      * 
-     * 
-     * @param name
-     * @param playerCount
-     * @param boardSize
-     * @param cellCount 
+     * @param name název hry
+     * @param playerCount počet hráčů
+     * @param boardSize rozměr hracího pole
+     * @param cellCount počet políček k obsazení
      */
     public CreateGameRequestBuilder(String name,
             byte playerCount, byte boardSize, byte cellCount) {
@@ -51,9 +52,9 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
     }
     
     /**
+     * Vrátí výsledek operace odeslání požadavku na vytvoření hry.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatus() {

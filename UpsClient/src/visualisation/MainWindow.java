@@ -19,8 +19,8 @@ import visualisation.components.PlayerListPanel;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída MainWindow představuje hlavní okno GUI, které je základní součástí vizualizační
- * vrstvy aplikace.
+ * Třída MainWindow představuje hlavní okno GUI, které je základní součástí
+ * vizualizační vrstvy aplikace.
  * Okno obsahuje komponenty pro zobrazení seznamu připojených hráčů,
  * seznamu herních místností, a dále textová pole zobrazující hlášení
  * o událostech probíhajících v komunikační vrstvě aplikace.
@@ -30,75 +30,75 @@ import visualisation.components.StatusBarPanel;
 public class MainWindow extends JFrame {
     
     /**
-     * 
+     * objekt klienta
      */
     private final TcpClient CLIENT;
     
     /**
-     * 
+     * panel stavového řádku
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
     /**
-     * 
+     * panel seznamu hráčů
      */
     private final PlayerListPanel PLAYER_LIST_PANEL;
     
     /**
-     * 
+     * panel seznamu her
      */
     private final GameListPanel GAME_LIST_PANEL;
     
     /**
-     * 
+     * panel stavu připojení
      */
     private final ConnectionBarPanel CONNECTION_PANEL;
     
     /**
-     * 
+     * panel aktuální herní místnosti
      */
     private final CurrentGamePanel CURRENT_GAME_PANEL;
     
     /**
-     * 
+     * přijímač zpráv
      */
     private final MessageBackgroundReceiver MESSAGE_RECEIVER;
     
     /**
-     * 
+     * vysílač zpráv
      */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     /**
-     * 
+     * objekt pro zpracování parametrů příkazového řádku
      */
     private final CmdArg CMD_ARG_HANDLER;
     
     /**
-     * 
+     * časovač pro navazování spojení
      */
     private Timer connectTimer;
     
     /**
-     * 
+     * časovač pro testování odezvy
      */
     private Timer pingTimer;
     
     /**
-     * 
+     * vlákno pro příjem zpráv na pozadí
      */
     private Thread receiveThread;
     
     /**
-     * 
+     * vlákno pro odesílání zpráv na pozadí
      */
     private Thread sendThread;
     
     /**
+     * Vytvoří hlavní okno.
      * 
-     * 
-     * @param client
-     * @param cmdArgHandler 
+     * @param client objekt klienta
+     * @param cmdArgHandler objekt pro zpracování argumentů příkazové řádky
      */
     public MainWindow(TcpClient client, CmdArg cmdArgHandler) {
         setTitle("Piškvorky - klient");
@@ -136,9 +136,9 @@ public class MainWindow extends JFrame {
     }
     
     /**
+     * Vytvoří časovače pro spojení se serverem a testování odezvy.
      * 
-     * 
-     * @return 
+     * @return úloha časovače pro navazování spojení
      */
     private TimerTask createConnectionTimers() {
         TimerTask pingTimerTask = new TimerTask() {
@@ -179,8 +179,7 @@ public class MainWindow extends JFrame {
     }
     
     /**
-     * 
-     * 
+     * Spustí vlákna pro příjem a odesílání zpráv.
      */
     private void startCommunicationThreads() {
         receiveThread = new Thread(MESSAGE_RECEIVER);

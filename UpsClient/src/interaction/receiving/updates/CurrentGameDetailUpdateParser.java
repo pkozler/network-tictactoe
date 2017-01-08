@@ -10,10 +10,8 @@ import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
-import configuration.Protocol;
 import interaction.receiving.AUpdateParser;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 import javax.swing.JList;
 import visualisation.components.CurrentGamePanel;
 import visualisation.components.GameListPanel;
@@ -22,61 +20,62 @@ import visualisation.listmodels.GameListModel;
 import visualisation.listmodels.PlayerListModel;
 
 /**
- * Třída CurrentGameDetailUpdateParser 
+ * Třída CurrentGameDetailUpdateParser představuje parser notifikace
+ * serveru o změně stavu aktuální herní místnosti.
  * 
  * @author Petr Kozler
  */
 public class CurrentGameDetailUpdateParser extends AUpdateParser {
 
     /**
-     * 
+     * seznam hráčů
      */
     private final JList<PlayerInfo> PLAYER_LIST;
     
     /**
-     * 
+     * seznam her
      */
     private final JList<GameInfo> GAME_LIST;
     
     /**
-     * 
+     * model seznamu hráčů
      */
     private final PlayerListModel PLAYER_LIST_MODEL;
     
     /**
-     * 
+     * model seznamu her
      */
     private final GameListModel GAME_LIST_MODEL;
     
     /**
-     * 
+     * panel pro zobrazení herní místnosti
      */
-    private final CurrentGamePanel CURRENT_GAME_WINDOW;
+    private final CurrentGamePanel CURRENT_GAME_PANEL;
     
     /**
-     * 
+     * herní pole
      */
     private final GameBoard CURRENT_GAME_BOARD;
     
     /**
-     * 
+     * seznam hráčů v aktuální hře
      */
     private final ArrayList<JoinedPlayer> JOINED_PLAYER_LIST;
     
     /**
+     * Vytvoří parser stavu hry.
      * 
-     * 
-     * @param client
-     * @param playerListPanel
-     * @param gameListPanel
-     * @param currentGameWindow
-     * @param message
+     * @param client objekt klienta
+     * @param playerListPanel panel seznamu hráčů
+     * @param gameListPanel panel seznamu her
+     * @param currentGamePanel panel stavu herní místnosti
+     * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
     public CurrentGameDetailUpdateParser(TcpClient client,
             PlayerListPanel playerListPanel, GameListPanel gameListPanel,
-            CurrentGamePanel currentGameWindow, TcpMessage message)
+            CurrentGamePanel currentGamePanel, TcpMessage message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, message);
         
@@ -84,7 +83,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         GAME_LIST = gameListPanel.getGameList();
         PLAYER_LIST_MODEL = (PlayerListModel) PLAYER_LIST.getModel();
         GAME_LIST_MODEL = (GameListModel) GAME_LIST.getModel();
-        CURRENT_GAME_WINDOW = currentGameWindow;
+        CURRENT_GAME_PANEL = currentGamePanel;
         
         GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(client.getGameId());
         
@@ -107,12 +106,12 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
     
     /**
+     * Zpracuje řetězec souřadnic vítězných políček.
      * 
-     * 
-     * @param gameInfo
-     * @param currentWinner
-     * @param str
-     * @return
+     * @param gameInfo základní informace o hře
+     * @param currentWinner pořadí vítěze ve hře
+     * @param str řetězec souřadnic
+     * @return pole souřadnic
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -143,11 +142,11 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
     
     /**
+     * Zpracuje řetězec herního pole.
      * 
-     * 
-     * @param gameInfo
-     * @param str
-     * @return
+     * @param gameInfo základní informace o hře
+     * @param str řetězec herního pole
+     * @return herní pole
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -175,9 +174,9 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
     
     /**
+     * Otestuje, zda seznam zpráv obsahuje další položku seznamu hráčů ve hře.
      * 
-     * 
-     * @return 
+     * @return true, pokud má seznam další položku, jinak false
      */
     @Override
     public boolean hasNextItemMessage() {
@@ -185,9 +184,9 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
 
     /**
+     * Zpracuje další položku seznamu hráčů ve hře ze seznamu zpráv.
      * 
-     * 
-     * @param itemMessage
+     * @param itemMessage zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -203,9 +202,9 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
 
     /**
+     * Vrátí výsledek zpracování zprávy a aktualizuje stav hry v GUI.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatusAndUpdateGUI() {
@@ -216,7 +215,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         
         CurrentGameDetail currentGameDetail = new CurrentGameDetail(
                 CURRENT_GAME_BOARD, JOINED_PLAYER_LIST);
-        CURRENT_GAME_WINDOW.setGameDetail(currentGameDetail);
+        CURRENT_GAME_PANEL.setGameDetail(currentGameDetail);
         
         return "Aktualizace stavu herní místností byla dokončena";
     }

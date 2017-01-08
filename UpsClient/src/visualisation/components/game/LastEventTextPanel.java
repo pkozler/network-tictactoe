@@ -13,36 +13,37 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
- * Třída LastEventTextPanel 
+ * Třída LastEventTextPanel představuje panel pro zobrazení
+ * poslední události v aktuální herní místnosti.
  * 
  * @author Petr Kozler
  */
 public class LastEventTextPanel extends JPanel {
     
     /**
-     * 
+     * popis události ve hře
      */
     private JLabel eventLabel;
     
     /**
-     * 
+     * tlačítko zahájení herního kola
      */
     private final JButton START_GAME_BUTTON;
     
     /**
-     * 
+     * tlačítko opuštění herní místnosti
      */
     private final JButton LEAVE_GAME_BUTTON;
     
     /**
-     * 
+     * vysílač zpráv
      */
     private final MessageBackgroundSender MESSAGE_SENDER;
     
     /**
+     * Vytvoří panel pro zobrazení události v herní místnosti.
      * 
-     * 
-     * @param messageBackgroundSender 
+     * @param messageBackgroundSender vysílač zpráv
      */
     public LastEventTextPanel(MessageBackgroundSender messageBackgroundSender) {
         MESSAGE_SENDER = messageBackgroundSender;
@@ -61,16 +62,14 @@ public class LastEventTextPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro zahájení nového kola hry.
      */
     private void startGameActionPerformed() {
         MESSAGE_SENDER.enqueueMessageBuilder(new StartGameRequestBuilder());
     }
     
     /**
-     * 
-     * 
+     * Zpracuje stisk tlačítka pro opuštění herní místnosti.
      */
     private void leaveGameActionPerformed() {
         int result = JOptionPane.showConfirmDialog(null,
@@ -82,8 +81,7 @@ public class LastEventTextPanel extends JPanel {
     }
     
     /**
-     * 
-     * 
+     * Nastaví listenery pro stisk tlačítek.
      */
     private void setListeners() {
         START_GAME_BUTTON.addActionListener(new ActionListener() {

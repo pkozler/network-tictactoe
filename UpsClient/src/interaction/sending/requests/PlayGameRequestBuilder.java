@@ -5,27 +5,28 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- * Třída PlayGameRequestBuilder 
+ * Třída PlayGameRequestBuilder představuje požadavek klienta
+ * na provedení tahu hry.
  * 
  * @author Petr Kozler
  */
 public class PlayGameRequestBuilder extends ARequestBuilder {
 
     /**
-     * 
+     * souřadnice X tahu
      */
     private final byte X;
     
     /**
-     * 
+     * souřadnice Y tahu
      */
     private final byte Y;
     
     /**
+     * Sestaví požadavek klienta na provedení tahu.
      * 
-     * 
-     * @param x
-     * @param y 
+     * @param x souřadnice X tahu
+     * @param y souřadnice Y tahu
      */
     public PlayGameRequestBuilder(byte x, byte y) {
         X = x;
@@ -36,9 +37,9 @@ public class PlayGameRequestBuilder extends ARequestBuilder {
     }
     
     /**
+     * Vrátí výsledek operace odeslání požadavku na provedení tahu.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatus() {

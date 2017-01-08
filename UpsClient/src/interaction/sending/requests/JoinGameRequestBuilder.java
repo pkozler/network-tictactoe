@@ -5,21 +5,22 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- * Třída JoinGameRequestBuilder 
+ * Třída JoinGameRequestBuilder představuje požadavek klienta
+ * na připojení ke hře.
  * 
  * @author Petr Kozler
  */
 public class JoinGameRequestBuilder extends ARequestBuilder {
 
     /**
-     * 
+     * ID hry
      */
     private final int GAME_ID;
     
     /**
+     * Sestaví požadavek klienta na připojení ke hře.
      * 
-     * 
-     * @param gameId 
+     * @param gameId ID hry
      */
     public JoinGameRequestBuilder(int gameId) {
         GAME_ID = gameId;
@@ -28,9 +29,9 @@ public class JoinGameRequestBuilder extends ARequestBuilder {
     }
     
     /**
+     * Vrátí výsledek operace odeslání požadavku na připojení ke hře.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatus() {

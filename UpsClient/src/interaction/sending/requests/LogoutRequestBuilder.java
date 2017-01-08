@@ -5,24 +5,24 @@ import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
 /**
- * Třída LogoutRequestBuilder 
+ * Třída LogoutRequestBuilder představuje požadavek klienta
+ * na odhlášení.
  * 
  * @author Petr Kozler
  */
 public class LogoutRequestBuilder extends ARequestBuilder {
 
     /**
-     * 
-     * 
+     * Sestaví požadavek klienta na odhlášení.
      */
     public LogoutRequestBuilder() {
         message = new TcpMessage(Protocol.MSG_LOGOUT_CLIENT.KEYWORD);
     }
     
     /**
+     * Vrátí výsledek operace odeslání požadavku na odhlášení.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatus() {

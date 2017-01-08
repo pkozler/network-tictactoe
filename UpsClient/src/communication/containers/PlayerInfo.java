@@ -1,33 +1,34 @@
 package communication.containers;
 
 /**
- * Třída PlayerInfo 
+ * Třída PlayerInfo slouží jako přepravka pro uchování informací
+ * o položce seznamu hráčů.
  * 
  * @author Petr Kozler
  */
 public class PlayerInfo implements Comparable<PlayerInfo> {
     
     /**
-     * 
+     * ID hráče
      */
     public final int ID;
     
     /**
-     * 
+     * přezdívka
      */
     public final String NICK;
     
     /**
-     * 
+     * celkové skóre
      */
     private int totalScore;
     
     /**
+     * Vytvoří seznam hráčů.
      * 
-     * 
-     * @param id
-     * @param nick
-     * @param totalScore 
+     * @param id ID hráče
+     * @param nick přezdívka
+     * @param totalScore celkové skóre
      */
     public PlayerInfo(int id, String nick, int totalScore) {
         ID = id;
@@ -36,18 +37,18 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     }
     
     /**
+     * Vrátí celkové skóre.
      * 
-     * 
-     * @return 
+     * @return celkové skóre
      */
     public int getTotalScore() {
         return totalScore;
     }
     
     /**
+     * Vrátí hashcode.
      * 
-     * 
-     * @return 
+     * @return hashcode
      */
     @Override
     public int hashCode() {
@@ -57,10 +58,10 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     }
 
     /**
+     * Otestuje, zda se dvě položky shodují.
      * 
-     * 
-     * @param obj
-     * @return 
+     * @param obj druhá položka
+     * @return true, pokud se položky shodují, jinak false
      */
     @Override
     public boolean equals(Object obj) {
@@ -81,9 +82,9 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     }
     
     /**
+     * Vrátí textovou reprezentaci položky.
      * 
-     * 
-     * @return 
+     * @return textová reprezentace položky
      */
     @Override
     public String toString() {
@@ -91,10 +92,10 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     }
 
     /**
+     * Porovná dvě položky.
      * 
-     * 
-     * @param o
-     * @return 
+     * @param o druhá položka
+     * @return výsledek porovnání
      */
     @Override
     public int compareTo(PlayerInfo o) {

@@ -22,40 +22,40 @@ import java.nio.charset.StandardCharsets;
 public class TcpClient {
 
     /**
-     * 
+     * objekt socketu klienta
      */
     private Socket socket;
     
     /**
-     * 
+     * objekt pro příjem zpráv
      */
     private DataInputStream dis;
     
     /**
-     * 
+     * objekt pro odesílání zpráv
      */
     private DataOutputStream dos;
     
     /**
-     * 
+     * přezdívka hráče
      */
     private String nick;
     
     /**
-     * 
+     * ID hráče
      */
     private int playerId;
     
     /**
-     * 
+     * ID aktuální herní místnosti
      */
     private int currentGameId;
     
     /**
+     * Provede pokus o navázání spojení se serverem.
      * 
-     * 
-     * @param address
-     * @param port
+     * @param address adresa
+     * @param port port
      * @throws IOException 
      */
     public synchronized void connect(String address, int port) throws IOException {
@@ -69,7 +69,7 @@ public class TcpClient {
     }
     
     /**
-     * 
+     * Zruší spojení se serverem.
      * 
      * @throws IOException 
      */
@@ -84,18 +84,18 @@ public class TcpClient {
     }
     
     /**
+     * Otestuje, zda je navázáno spojení se serverem.
      * 
-     * 
-     * @return 
+     * @return true, pokud je spojení navázáno, jinak false
      */
     public synchronized boolean isConnected() {
         return socket != null && !socket.isClosed();
     }
     
     /**
+     * Nastaví přidělené ID po přihlášení k serveru.
      * 
-     * 
-     * @param id 
+     * @param id ID klienta
      */
     public synchronized void logIn(int id) {
         if (id > 0) {
@@ -104,26 +104,25 @@ public class TcpClient {
     }
     
     /**
-     * 
-     * 
+     * Vynuluje přidělené ID po odhlášení ze serveru.
      */
     public synchronized void logOut() {
         playerId = 0;
     }
     
     /**
+     * Otestuje, zda je klient přihlášen.
      * 
-     * 
-     * @return 
+     * @return true, pokud je klient přihlášen, jinak false
      */
     public synchronized boolean isLoggedIn() {
         return playerId > 0;
     }
     
     /**
+     * Nastaví ID hry po vstupu do herní místnosti.
      * 
-     * 
-     * @param id 
+     * @param id ID hry
      */
     public synchronized void joinGame(int id) {
         if (id > 0) {
@@ -132,44 +131,43 @@ public class TcpClient {
     }
     
     /**
-     * 
-     * 
+     * Vynuluje ID hry po opuštění herní místnosti.
      */
     public synchronized void leaveGame() {
         currentGameId = 0;
     }
     
     /**
+     * Vrátí přidělené ID klienta.
      * 
-     * 
-     * @return 
+     * @return ID klienta
      */
     public synchronized int getPlayerId() {
         return playerId;
     }
     
     /**
+     * Vrátí zvolený nickname klienta.
      * 
-     * 
-     * @return 
+     * @return nickname klienta
      */
     public synchronized String getPlayerNick() {
         return nick;
     }
     
     /**
+     * Vrátí ID aktuální hry.
      * 
-     * 
-     * @return 
+     * @return ID hry
      */
     public synchronized int getGameId() {
         return currentGameId;
     }
     
     /**
+     * Odešle zprávu.
      * 
-     * 
-     * @param message
+     * @param message zpráva
      * @throws IOException
      * @throws InvalidMessageArgsException 
      */
@@ -184,9 +182,9 @@ public class TcpClient {
     }
     
     /**
+     * Přijme zprávu.
      * 
-     * 
-     * @return
+     * @return zpráva
      * @throws IOException
      * @throws InvalidMessageStringLengthException 
      */
@@ -197,9 +195,9 @@ public class TcpClient {
     }
     
     /**
+     * Zapíše zprávu do socketu.
      * 
-     * 
-     * @param message
+     * @param message zpráva
      * @throws IOException 
      */
     private void writeToSocket(String message) throws IOException {
@@ -214,9 +212,9 @@ public class TcpClient {
     }
     
     /**
+     * Načte zprávu ze socketu.
      * 
-     * 
-     * @return
+     * @return zpráva
      * @throws IOException
      * @throws InvalidMessageStringLengthException 
      */

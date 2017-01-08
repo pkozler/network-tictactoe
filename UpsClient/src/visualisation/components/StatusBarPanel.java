@@ -13,20 +13,20 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 /**
- * Třída StatusBarPanel 
+ * Třída StatusBarPanel představuje panel pro zobrazení textového pole
+ * pro výpis událostí klienta.
  * 
  * @author Petr Kozler
  */
 public class StatusBarPanel extends JPanel {
 
     /**
-     * 
+     * textové pole
      */
     private final JTextPane textPane;
 
     /**
-     * 
-     * 
+     * Vytvoří panel stavového řádku.
      */
     public StatusBarPanel() {
         final int fontSize = 12;
@@ -43,19 +43,19 @@ public class StatusBarPanel extends JPanel {
     }
 
     /**
+     * Vypíše výsledek příjmu zprávy.
      * 
-     * 
-     * @param format
-     * @param args 
+     * @param format formátovací řetězec
+     * @param args argumenty řetězce
      */
     public void printReceivingStatus(String format, Object... args) {
         appendToPane(Color.BLACK, format, args);
     }
 
     /**
+     * Vypíše výsledek odeslání zprávy.
      * 
-     * 
-     * @param format
+     * @param format formátovací řetězec
      * @param args 
      */
     public void printSendingStatus(String format, Object... args) {
@@ -63,21 +63,21 @@ public class StatusBarPanel extends JPanel {
     }
 
     /**
+     * Vypíše chybu při komunikaci.
      * 
-     * 
-     * @param format
-     * @param args 
+     * @param format formátovací řetězec
+     * @param args argumenty řetězce
      */
     public void printErrorStatus(String format, Object... args) {
         appendToPane(Color.RED, format, args);
     }
 
     /**
+     * Přidá text do textového pole.
      * 
-     * 
-     * @param c
-     * @param format
-     * @param args 
+     * @param c barva textu
+     * @param format formátovací řetězec
+     * @param args argumenty řetězce
      */
     private void appendToPane(Color c, String format, Object... args) {
         String msg = String.format(format, args);

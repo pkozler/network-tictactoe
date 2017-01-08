@@ -6,33 +6,34 @@ import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 
 /**
- * Abstraktní třída AUpdateParser 
+ * Abstraktní třída AUpdateParser představuje obecný parser notifikací
+ * o změnách stavu přijatých ze serveru.
  * 
  * @author Petr Kozler
  */
 public abstract class AUpdateParser extends AParser {
     
     /**
+     * Vytvoří parser notifikace.
      * 
-     * 
-     * @param client
-     * @param message 
+     * @param client objekt klienta
+     * @param message zpráva
      */
     public AUpdateParser(TcpClient client, TcpMessage message) {
         super(client, message);
     }
     
     /**
+     * Otestuje, zda seznam zpráv obsahuje další položku.
      * 
-     * 
-     * @return 
+     * @return true, pokud má seznam další položku, jinak false
      */
     public abstract boolean hasNextItemMessage();
     
     /**
+     * Zpracuje další položku seznamu zpráv.
      * 
-     * 
-     * @param itemMessage
+     * @param itemMessage zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */

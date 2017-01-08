@@ -10,33 +10,34 @@ import java.util.ArrayList;
 import visualisation.components.PlayerListPanel;
 
 /**
- * Třída PlayerListUpdateParser 
+ * Třída PlayerListUpdateParser představuje parser notifikace
+ * serveru o změně seznamu hráčů.
  * 
  * @author Petr Kozler
  */
 public class PlayerListUpdateParser extends AUpdateParser {
 
     /**
-     * 
+     * panel seznamu hráčů
      */
     private final PlayerListPanel PLAYER_LIST_PANEL;
     
     /**
-     * 
+     * počet prvků
      */
     private final int ITEM_COUNT;
     
     /**
-     * 
+     * seznam hráčů
      */
     private final ArrayList<PlayerInfo> PLAYER_LIST;
     
     /**
+     * Vytvoří parser seznamu hráčů.
      * 
-     * 
-     * @param client
-     * @param playerListPanel
-     * @param message
+     * @param client objekt klienta
+     * @param playerListPanel panel seznamu hráčů
+     * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -51,9 +52,9 @@ public class PlayerListUpdateParser extends AUpdateParser {
     }
 
     /**
+     * Otestuje, zda seznam zpráv obsahuje další položku seznamu hráčů.
      * 
-     * 
-     * @return 
+     * @return true, pokud má seznam další položku, jinak false
      */
     @Override
     public boolean hasNextItemMessage() {
@@ -61,9 +62,9 @@ public class PlayerListUpdateParser extends AUpdateParser {
     }
 
     /**
+     * Zpracuje další položku seznamu hráčů ze seznamu zpráv.
      * 
-     * 
-     * @param itemMessage
+     * @param itemMessage zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
@@ -77,9 +78,9 @@ public class PlayerListUpdateParser extends AUpdateParser {
     }
 
     /**
+     * Vrátí výsledek zpracování zprávy a aktualizuje seznam hráčů v GUI.
      * 
-     * 
-     * @return 
+     * @return výsledek
      */
     @Override
     public String getStatusAndUpdateGUI() {

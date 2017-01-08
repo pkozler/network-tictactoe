@@ -9,32 +9,33 @@ import javax.swing.SwingUtilities;
 import visualisation.components.StatusBarPanel;
 
 /**
- * Třída MessageBackgroundSender 
+ * Třída MessageBackgroundSender představuje vlákno pro odesílání
+ * požadavků serveru uložených ve frontě.
  * 
  * @author Petr Kozler
  */
 public class MessageBackgroundSender implements Runnable {
 
     /**
-     * 
+     * fronta požadavků
      */
     private final Queue<ARequestBuilder> requestQueue = new LinkedList<>();
     
     /**
-     * 
+     * objekt klienta
      */
     private final TcpClient CLIENT;
     
     /**
-     * 
+     * panel stavového řádku
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
     /**
+     * Vytvoří vysílač zpráv.
      * 
-     * 
-     * @param client
-     * @param statusBarPanel 
+     * @param client objekt klienta
+     * @param statusBarPanel panel stavového řádku
      */
     public MessageBackgroundSender(TcpClient client, StatusBarPanel statusBarPanel) {
         CLIENT = client;
@@ -42,17 +43,16 @@ public class MessageBackgroundSender implements Runnable {
     }
     
     /**
+     * Uloží požadavek klienta.
      * 
-     * 
-     * @param builder 
+     * @param builder požadavek
      */
     public void enqueueMessageBuilder(ARequestBuilder builder) {
         requestQueue.add(builder);
     }
     
     /**
-     * 
-     * 
+     * Provádí pozorování fronty požadavků, které postupně odesílá na server.
      */
     @Override
     public void run() {
@@ -64,8 +64,7 @@ public class MessageBackgroundSender implements Runnable {
     }
     
     /**
-     * 
-     * 
+     * Sestaví požadavek a odešle jej na server.
      */
     private void handleMessageToSend() {
         if (requestQueue.isEmpty()) {
