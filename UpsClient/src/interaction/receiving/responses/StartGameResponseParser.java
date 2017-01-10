@@ -60,7 +60,7 @@ public class StartGameResponseParser extends AResponseParser {
         }
         
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
-            return "Hráč se nenachází v herní místnosti se zadaným ID";
+            return "Hráč se nenachází v herní místnosti";
         }
         
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROUND_ALREADY_STARTED)) {
