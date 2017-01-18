@@ -8,7 +8,6 @@
         <itemPath>linked_list.h</itemPath>
         <itemPath>linked_list_iterator.h</itemPath>
         <itemPath>linked_list_node.h</itemPath>
-        <itemPath>string_builder.h</itemPath>
         <itemPath>string_utils.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
@@ -61,7 +60,6 @@
       <logicalFolder name="f3" displayName="aux" projectFiles="true">
         <itemPath>linked_list.c</itemPath>
         <itemPath>linked_list_iterator.c</itemPath>
-        <itemPath>string_builder.c</itemPath>
         <itemPath>string_utils.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
@@ -223,10 +221,6 @@
       </item>
       <item path="request_parser.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="string_builder.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="string_builder.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="string_utils.h" ex="false" tool="3" flavor2="0">
@@ -356,10 +350,6 @@
       <item path="request_parser.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="request_parser.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="string_builder.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="string_builder.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>

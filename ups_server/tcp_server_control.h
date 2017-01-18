@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 
+void print_stats();
 bool is_server_running();
 void start_server();
 void stop_server();

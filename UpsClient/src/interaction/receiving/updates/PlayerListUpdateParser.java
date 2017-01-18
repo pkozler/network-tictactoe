@@ -48,17 +48,17 @@ public class PlayerListUpdateParser extends AUpdateParser {
         
         PLAYER_LIST_PANEL = playerListPanel;
         ITEM_COUNT = message.getNextIntArg(0);
-        PLAYER_LIST = new ArrayList<>(ITEM_COUNT);
+        PLAYER_LIST = new ArrayList<>();
     }
 
     /**
-     * Otestuje, zda seznam zpráv obsahuje další položku seznamu hráčů.
+     * Otestuje, zda seznam hráčů již obsahuje všechny položky.
      * 
-     * @return true, pokud má seznam další položku, jinak false
+     * @return true, pokud seznam obsahuje všechny položky, jinak false
      */
     @Override
-    public boolean hasNextItemMessage() {
-        return PLAYER_LIST.size() < ITEM_COUNT;
+    public boolean hasAllItems() {
+        return PLAYER_LIST.size() == ITEM_COUNT;
     }
 
     /**
@@ -78,20 +78,46 @@ public class PlayerListUpdateParser extends AUpdateParser {
     }
 
     /**
-     * Vrátí výsledek zpracování zprávy a aktualizuje seznam hráčů v GUI.
+     * Aktualizuje objekty pro komunikaci a vrátí výsledek zpracování zprávy.
      * 
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
-        if (hasNextItemMessage()) {
-            return String.format("Probíhá aktualizace seznamu přihlášených klientů (zbývá %d položek)",
-                    ITEM_COUNT - PLAYER_LIST.size());
+    public String updateClient() {
+        if (!hasAllItems()) {
+            return null;
+                /*String.format("Probíhá aktualizace seznamu přihlášených klientů (zbývá %d položek)",
+                    ITEM_COUNT - PLAYER_LIST.size());*/
         }
         
-        PLAYER_LIST_PANEL.setPlayerList(PLAYER_LIST);
-        
+        setPlayerInfoToClient();
+                
         return "Aktualizace seznamu přihlášených klientů byla dokončena";
     }
     
+    /**
+     * Aktualizuje stav GUI.
+     */
+    @Override
+    public void updateGui() {
+        PLAYER_LIST_PANEL.setPlayerList(PLAYER_LIST);
+        PLAYER_LIST_PANEL.setLabel(CLIENT.getPlayerInfo());
+    }
+    
+    /**
+     * Uloží údaje o hráči do objektu klienta, pokud je hráč přihlášen,
+     * nebo údaje odstraní, pokud je odhlášen.
+     */
+    private void setPlayerInfoToClient() {
+        for (PlayerInfo p : PLAYER_LIST) {
+            if (p.ID == CLIENT.getPlayerId()) {
+                CLIENT.logIn(p);
+                
+                return;
+            }
+        }
+        
+        CLIENT.logOut();
+    } 
+
 }

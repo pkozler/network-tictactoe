@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 /**
  * Otestuje, zda server běží.
@@ -38,6 +39,18 @@ void start_server() {
  */
 void stop_server() {
     g_server_info.running = false;
+}
+
+/**
+ * Vypíše seznam dostupných příkazů se stručným popisem jejich činnosti.
+ */
+void print_commands() {
+    printf("Dostupné příkazy:\n");
+    printf("   %s ... výpis nastavení\n", ARGS_CMD);
+    printf("   %s ... výpis statistik\n", STATS_CMD);
+    // printf("   %s ... restart serveru\n", RESET_CMD);
+    printf("   %s ... nápověda příkazů\n", HELP_CMD);
+    printf("   %s ... ukončení programu\n", EXIT_CMD);
 }
 
 /**
@@ -94,4 +107,23 @@ void scan_args() {
     g_server_info.args.port = port;
     g_server_info.args.log_file = log_file;
     g_server_info.args.queue_length = queue_length;
+}
+
+/**
+ * Zobrazí dialog pro ukončení serveru.
+ */
+void prompt_exit() {
+    printf("Opravdu chcete ukončit server? (y/n)\n");
+    
+    while (true) {
+        int c = getchar();
+        
+        if ((char) c == 'n') {
+            break;
+        }
+
+        if ((char) c == 'y') {
+            exit(EXIT_SUCCESS);
+        }
+    }
 }

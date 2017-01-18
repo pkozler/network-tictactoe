@@ -19,16 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class LoginResponseParser extends AResponseParser {
 
     /**
-     * ID hráče
-     */
-    protected int id;
-    
-    /**
-     * jméno hráče
-     */
-    protected String nick;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na přihlášení.
      * 
      * @param client objekt klienta
@@ -45,9 +35,8 @@ public class LoginResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CLIENT.logIn(MESSAGE.getNextIntArg(1));
-            id = CLIENT.getPlayerId();
-            nick = CLIENT.getPlayerNick();
+            int id = MESSAGE.getNextIntArg(0);
+            client.setPlayerId(id);
             
             return;
         }
@@ -61,18 +50,22 @@ public class LoginResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
             GAME_LIST_PANEL.setButtons(true);
             
-            return String.format("Hráč byl přihlášen k serveru pod ID %d s přezdívkou: %s", id, nick);
+            return String.format("Hráč byl přihlášen k serveru");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_LOGGED.KEYWORD)) {
+            return "Hráč je již přihlášen";
+        }
+        
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME.KEYWORD)) {
             return "Zadaná přezdívka hráče je neplatná";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME.KEYWORD)) {
             return "Hráč se zadanou přezdívkou již existuje";
         }
         

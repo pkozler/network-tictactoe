@@ -19,11 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class StartGameResponseParser extends AResponseParser {
 
     /**
-     * ID hry
-     */
-    protected int gameId;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na zahájení nového kola hry.
      * 
      * @param client objekt klienta
@@ -40,8 +35,6 @@ public class StartGameResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            gameId = CLIENT.getGameId();
-
             return;
         }
         
@@ -54,20 +47,20 @@ public class StartGameResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
-            return String.format("Hráč zahájil nové kolo hry v místnosti s ID %d", gameId);
+            return String.format("Hráč zahájil nové kolo hry");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
             return "Hráč se nenachází v herní místnosti";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROUND_ALREADY_STARTED)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROUND_ALREADY_STARTED.KEYWORD)) {
             return "Nové kolo hry bylo již zahájeno";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_ENOUGH_PLAYERS)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_ENOUGH_PLAYERS.KEYWORD)) {
             return "V herní místnosti není dostatek hráčů pro zahájení nového kola hry";
         }
         

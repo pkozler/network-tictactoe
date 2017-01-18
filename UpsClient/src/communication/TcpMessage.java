@@ -42,6 +42,7 @@ public class TcpMessage {
     public TcpMessage(String type, String... args) {
         this.type = type;
         this.args = args;
+        
         current = 0;
     }
     
@@ -51,8 +52,13 @@ public class TcpMessage {
      * @param msgStr řetězec zprávy
      */
     public TcpMessage(String msgStr) {
+        if (msgStr == null) {
+            msgStr = "";
+        }
+        
         if (msgStr.isEmpty()) {
             type = null;
+            args = null;
             
             return;
         }
@@ -274,11 +280,11 @@ public class TcpMessage {
      */
     @Override
     public String toString() {
-        if (hasArgs()) {
+        if (hasTypeToken()) {
             String msgStr = type;
-
-            if (!hasTypeToken()) {
-                msgStr += Protocol.SEPARATOR + String.join(Protocol.SEPARATOR, args);
+            
+            if (hasArgs()) {
+                return msgStr + Protocol.SEPARATOR + joinArgs(Protocol.SEPARATOR, args);
             }
             
             return msgStr;
@@ -290,6 +296,20 @@ public class TcpMessage {
         
         // zpráva má argumenty, ale nemá typ - neplatná zpráva
         return null;
+    }
+    
+    private static String joinArgs(String separator, String[] args) {
+        if (args.length < 1) {
+            return "";
+        }
+        
+        StringBuilder sb = new StringBuilder(args[0]);
+        
+        for (int i = 1; i < args.length; i ++) {
+            sb.append(separator).append(args[i]);
+        }
+        
+        return sb.toString();
     }
     
 }

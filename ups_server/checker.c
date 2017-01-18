@@ -88,7 +88,7 @@ bool is_game_player_count_valid(int8_t player_count) {
  * @return true, pokud je údaj platný, jinak false
  */
 bool is_game_cell_count_valid(int8_t cell_count) {
-    return MIN_CELL_COUNT <= cell_count && cell_count <= MIN_CELL_COUNT;
+    return MIN_CELL_COUNT <= cell_count && cell_count <= MAX_CELL_COUNT;
 }
 
 /**

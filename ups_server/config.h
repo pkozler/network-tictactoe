@@ -25,13 +25,14 @@
 #define MAX_QUEUE_LENGTH 10 // maximální délka fronty pro příchozí spojení
 #define DEFAULT_QUEUE_LENGTH 5 // výchozí délka fronty pro příchozí spojení
 #define SOCKET_TIMEOUT_SEC 5 // timeout příjmu/odeslání zprávy klienta v sekundách
+#define MAX_MESSAGE_LENGTH 65535 // maximální povolená délka zprávy
 #define MAX_NAME_LENGTH 16 // maximální povolená délka jména hráče nebo názvu hry
 #define MIN_BOARD_SIZE 3 // minimální povolený rozměr hracího pole
-#define MAX_BOARD_SIZE 12 // maximální povolený rozměr hracího pole
+#define MAX_BOARD_SIZE 16 // maximální povolený rozměr hracího pole
 #define MIN_PLAYERS_SIZE 2 // minimální povolený počet hráčů ve hře
 #define MAX_PLAYERS_SIZE 4 // maximální povolený počet hráčů ve hře
 #define MIN_CELL_COUNT 3 // minimální povolený počet políček potřebných k obsazení
-#define MAX_CELL_COUNT 12 // maximální povolený počet políček potřebných k obsazení
+#define MAX_CELL_COUNT 8 // maximální povolený počet políček potřebných k obsazení
 #define BOOL_STR_LEN 5 // maximální délka řetězce představujícího logickou hodnotu
 #define BYTE_BUF_LEN 4 // délka bufferu pro převod 8-bitového čísla na řetězec
 #define INT_BUF_LEN 11 // délka bufferu pro převod 32-bitového čísla na řetězec
@@ -40,7 +41,7 @@
  * Konfigurační konstanty konzolového uživatelského rozhraní:
  */
 
-#define CMD_MAX_LENGTH 10 // maximální délka řetězce příkazu uživatele
+#define CMD_MAX_LENGTH 16 // maximální délka řetězce příkazu uživatele
 #define ARGS_CMD "args" // příkaz pro výpis parametrů serveru
 #define STATS_CMD "stats" // příkaz pro výpis statistik serveru
 #define RESET_CMD "reset" // příkaz pro restart serveru s novými parametry

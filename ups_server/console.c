@@ -23,17 +23,6 @@
 #include <arpa/inet.h>
 
 /**
- * Vypíše seznam dostupných příkazů se stručným popisem jejich činnosti.
- */
-void print_commands() {
-    printf("Dostupné příkazy:\n");
-    printf("   %s ... výpis statistik\n", STATS_CMD);
-    printf("   %s ... restart serveru\n", RESET_CMD);
-    printf("   %s ... nápověda příkazů\n", EXIT_CMD);
-    printf("   %s ... ukončení programu\n", EXIT_CMD);
-}
-
-/**
  * Vstupní bod vlákna pro čtení příkazů uživatele. Periodicky načítá a spouští
  * příkazy z konzole, dokud není čtecí vlákno ukončeno hlavním vláknem
  * při zastavení serveru.
@@ -44,21 +33,26 @@ void *run_prompt(void *arg) {
     while (is_server_running()) {
         char buf[CMD_MAX_LENGTH];
         fgets(buf, CMD_MAX_LENGTH, stdin);
-
+        
+        char *pos;
+        if ((pos = strchr(buf, '\n')) != NULL) {
+            *pos = '\0';
+        }
+        
         if (!strcmp(ARGS_CMD, buf)) {
             print_args();
         }
         else if (!strcmp(STATS_CMD, buf)) {
             print_stats();
         }
-        else if (!strcmp(RESET_CMD, buf)) {
+        /*else if (!strcmp(RESET_CMD, buf)) {
             stop_server();
-        }
+        }*/
         else if (!strcmp(HELP_CMD, buf)) {
             print_commands();
         }
         else if (!strcmp(EXIT_CMD, buf)) {
-            exit(EXIT_SUCCESS);
+            prompt_exit();
         }
         else {
             printf("Neznámý příkaz.\n");

@@ -6,10 +6,9 @@ import interaction.CmdArg;
 import interaction.MessageBackgroundReceiver;
 import interaction.MessageBackgroundSender;
 import java.awt.BorderLayout;
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import visualisation.components.ConnectionBarPanel;
@@ -37,7 +36,7 @@ public class MainWindow extends JFrame {
     /**
      * panel stavového řádku
      */
-    private final StatusBarPanel STATUS_BAR_PANEL;
+    private final StatusBarPanel STATUS_PANEL;
     
     /**
      * panel seznamu hráčů
@@ -60,41 +59,6 @@ public class MainWindow extends JFrame {
     private final CurrentGamePanel CURRENT_GAME_PANEL;
     
     /**
-     * přijímač zpráv
-     */
-    private final MessageBackgroundReceiver MESSAGE_RECEIVER;
-    
-    /**
-     * vysílač zpráv
-     */
-    private final MessageBackgroundSender MESSAGE_SENDER;
-    
-    /**
-     * objekt pro zpracování parametrů příkazového řádku
-     */
-    private final CmdArg CMD_ARG_HANDLER;
-    
-    /**
-     * časovač pro navazování spojení
-     */
-    private Timer connectTimer;
-    
-    /**
-     * časovač pro testování odezvy
-     */
-    private Timer pingTimer;
-    
-    /**
-     * vlákno pro příjem zpráv na pozadí
-     */
-    private Thread receiveThread;
-    
-    /**
-     * vlákno pro odesílání zpráv na pozadí
-     */
-    private Thread sendThread;
-    
-    /**
      * Vytvoří hlavní okno.
      * 
      * @param client objekt klienta
@@ -102,91 +66,53 @@ public class MainWindow extends JFrame {
      */
     public MainWindow(TcpClient client, CmdArg cmdArgHandler) {
         setTitle("Piškvorky - klient");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(Config.DEFAULT_WINDOW_WIDTH, Config.DEFAULT_WINDOW_HEIGHT);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(0, 0));
         
-        CMD_ARG_HANDLER = cmdArgHandler;
         CLIENT = client;
-        STATUS_BAR_PANEL = new StatusBarPanel();
-        MESSAGE_SENDER = new MessageBackgroundSender(CLIENT, STATUS_BAR_PANEL);
-        PLAYER_LIST_PANEL = new PlayerListPanel(MESSAGE_SENDER);
-        GAME_LIST_PANEL = new GameListPanel(MESSAGE_SENDER);
-        CURRENT_GAME_PANEL = new CurrentGamePanel(MESSAGE_SENDER);
-        MESSAGE_RECEIVER = new MessageBackgroundReceiver(CLIENT,
-                STATUS_BAR_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL);
+        STATUS_PANEL = new StatusBarPanel();
+        MessageBackgroundSender messageBackgroundSender = new MessageBackgroundSender(CLIENT, STATUS_PANEL);
+        CURRENT_GAME_PANEL = new CurrentGamePanel(messageBackgroundSender);
+        GAME_LIST_PANEL = new GameListPanel(messageBackgroundSender);
+        PLAYER_LIST_PANEL = new PlayerListPanel(messageBackgroundSender);
+        MessageBackgroundReceiver messageBackgroundReceiver = new MessageBackgroundReceiver(CLIENT,
+                STATUS_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL);
         
         contentPane.add(CURRENT_GAME_PANEL, BorderLayout.CENTER);
-        contentPane.add(STATUS_BAR_PANEL, BorderLayout.SOUTH);
-        contentPane.add(PLAYER_LIST_PANEL, BorderLayout.WEST);
-        contentPane.add(GAME_LIST_PANEL, BorderLayout.EAST);
+        contentPane.add(STATUS_PANEL, BorderLayout.SOUTH);
+        contentPane.add(PLAYER_LIST_PANEL, BorderLayout.EAST);
+        contentPane.add(GAME_LIST_PANEL, BorderLayout.WEST);
         
-        TimerTask connectTimerTask = createConnectionTimers();
-        CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, connectTimer, connectTimerTask, STATUS_BAR_PANEL);
+        CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, cmdArgHandler,
+                messageBackgroundSender, messageBackgroundReceiver,
+                PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL, STATUS_PANEL);
         contentPane.add(CONNECTION_PANEL, BorderLayout.NORTH);
         
         setContentPane(contentPane);
-        setVisible(true);
         
-        connectTimer.schedule(connectTimerTask, Config.SOCKET_TIMEOUT_MILLIS, Config.SOCKET_TIMEOUT_MILLIS);
-    }
-    
-    /**
-     * Vytvoří časovače pro spojení se serverem a testování odezvy.
-     * 
-     * @return úloha časovače pro navazování spojení
-     */
-    private TimerTask createConnectionTimers() {
-        TimerTask pingTimerTask = new TimerTask() {
+        addWindowListener(new java.awt.event.WindowAdapter() {
             
-            @Override
-            public void run() {
-                MESSAGE_SENDER.enqueueMessageBuilder(null);
-                
+            public void windowClosing(WindowEvent winEvt) {
                 if (!CLIENT.isConnected()) {
-                    createConnectionTimers();
-                }
-            }
-            
-        };
-        
-        TimerTask connectTimerTask = new TimerTask() {
-            
-            @Override
-            public void run() {
-                try {
-                    CLIENT.connect(
-                            CMD_ARG_HANDLER.getHost(), CMD_ARG_HANDLER.getPort());
-                }
-                catch (IOException e) {
-                    // čekání na spojení
+                    System.exit(0);
                 }
                 
-                if (CLIENT.isConnected()) {
-                    startCommunicationThreads();
-                    pingTimer.schedule(pingTimerTask,
-                            Config.SOCKET_TIMEOUT_MILLIS, Config.SOCKET_TIMEOUT_MILLIS);
+                int result = JOptionPane.showConfirmDialog(null,
+                    "Opravdu se chcete odpojit?", "Odpojení", JOptionPane.YES_NO_OPTION);
+                
+                if (result == JOptionPane.YES_OPTION) {
+                    System.exit(0);
                 }
             }
             
-        };
+        });
         
-        return connectTimerTask;
-    }
-    
-    /**
-     * Spustí vlákna pro příjem a odesílání zpráv.
-     */
-    private void startCommunicationThreads() {
-        receiveThread = new Thread(MESSAGE_RECEIVER);
-        sendThread = new Thread(MESSAGE_SENDER);
-        
-        receiveThread.start();
-        sendThread.start();
+        setVisible(true);
     }
     
 }

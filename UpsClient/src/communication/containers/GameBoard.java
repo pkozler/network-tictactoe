@@ -44,24 +44,29 @@ public class GameBoard {
     private byte lastCellY;
     
     /**
-     * pořadí posledního hráče, který odešel ze hry
-     */
-    private byte lastLeaving;
-    
-    /**
      * pořadí vítěze
      */
     private byte currentWinner;
     
     /**
-     * souřadnice X vítězných políček
+     * souřadnice X prvního vítězného políčka
      */
-    private byte[] winnerCellsX;
+    private byte firstWinnerCellX;
     
     /**
-     * souřadnice Y vítězných políček
+     * souřadnice Y prvního vítězného políčka
      */
-    private byte[] winnerCellsY;
+    private byte firstWinnerCellY;
+    
+    /**
+     * souřadnice X posledního vítězného políčka
+     */
+    private byte lastWinnerCellX;
+    
+    /**
+     * souřadnice Y posledního vítězného políčka
+     */
+    private byte lastWinnerCellY;
     
     /**
      * herní pole
@@ -78,16 +83,17 @@ public class GameBoard {
      * @param lastPlaying pořadí posledního táhnoucího hráče
      * @param lastCellX souřadnice X posledního tahu
      * @param lastCellY souřadnice Y posledního tahu
-     * @param lastLeaving pořadí posledního hráče, který odešel ze hry
      * @param currentWinner pořadí vítěze
-     * @param winnerCellsX souřadnice X vítězných políček
-     * @param winnerCellsY souřadnice Y vítězných políček
+     * @param firstWinnerCellX souřadnice X prvního vítězného políčka
+     * @param firstWinnerCellY souřadnice Y prvního vítězného políčka
+     * @param lastWinnerCellX souřadnice X posledního vítězného políčka
+     * @param lastWinnerCellY souřadnice Y posledního vítězného políčka
      * @param cells herní pole
      */
     public GameBoard(GameInfo gameInfo, int currentRound, boolean roundFinished,
             byte currentPlaying, byte lastPlaying, byte lastCellX, byte lastCellY,
-            byte lastLeaving, byte currentWinner, byte[] winnerCellsX, byte[] winnerCellsY,
-            byte[][] cells) {
+            byte currentWinner, byte firstWinnerCellX, byte firstWinnerCellY,
+            byte lastWinnerCellX, byte lastWinnerCellY, byte[][] cells) {
         GAME_INFO = gameInfo;
         this.currentRound = currentRound;
         this.roundFinished = roundFinished;
@@ -95,10 +101,11 @@ public class GameBoard {
         this.lastPlaying = lastPlaying;
         this.lastCellX = lastCellX;
         this.lastCellY = lastCellY;
-        this.lastLeaving = lastLeaving;
         this.currentWinner = currentWinner;
-        this.winnerCellsX = winnerCellsX;
-        this.winnerCellsY = winnerCellsY;
+        this.firstWinnerCellX = firstWinnerCellX;
+        this.firstWinnerCellY = firstWinnerCellY;
+        this.lastWinnerCellX = lastWinnerCellX;
+        this.lastWinnerCellY = lastWinnerCellY;
         this.board = cells;
     }
 
@@ -157,15 +164,6 @@ public class GameBoard {
     }
 
     /**
-     * Vrátí pořadí posledního hráče, který odešel ze hry.
-     * 
-     * @return pořadí posledního hráče, který odešel ze hry
-     */
-    public byte getLastLeaving() {
-        return lastLeaving;
-    }
-
-    /**
      * Vrátí pořadí vítěze.
      * 
      * @return pořadí vítěze
@@ -175,21 +173,39 @@ public class GameBoard {
     }
 
     /**
-     * Vrátí souřadnice X vítězných políček.
+     * Vrátí souřadnici X prvního vítězného políčka.
      * 
-     * @return souřadnice X vítězných políček
+     * @return souřadnice X prvního vítězného políčka
      */
-    public byte[] getWinnerCellsX() {
-        return winnerCellsX;
+    public byte getFirstWinnerCellX() {
+        return firstWinnerCellX;
     }
 
     /**
-     * Vrátí souřadnice Y vítězných políček.
+     * Vrátí souřadnici Y prvního vítězného políčka.
      * 
-     * @return souřadnice Y vítězných políček
+     * @return souřadnice Y prvního vítězného políčka
      */
-    public byte[] getWinnerCellsY() {
-        return winnerCellsY;
+    public byte getFirstWinnerCellY() {
+        return firstWinnerCellY;
+    }
+
+    /**
+     * Vrátí souřadnici X posledního vítězného políčka.
+     * 
+     * @return souřadnice X posledního vítězného políčka
+     */
+    public byte getLastWinnerCellX() {
+        return lastWinnerCellX;
+    }
+
+    /**
+     * Vrátí souřadnici Y posledního vítězného políčka.
+     * 
+     * @return souřadnice Y posledního vítězného políčka
+     */
+    public byte getLastWinnerCellY() {
+        return lastWinnerCellY;
     }
 
     /**

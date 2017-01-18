@@ -28,7 +28,7 @@ public abstract class AUpdateParser extends AParser {
      * 
      * @return true, pokud má seznam další položku, jinak false
      */
-    public abstract boolean hasNextItemMessage();
+    public abstract boolean hasAllItems();
     
     /**
      * Zpracuje další položku seznamu zpráv.
@@ -39,5 +39,10 @@ public abstract class AUpdateParser extends AParser {
      */
     public abstract void parseNextItemMessage(TcpMessage itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException;
+    
+    /**
+     * Aktualizuje GUI.
+     */
+    public abstract void updateGui();
     
 }

@@ -135,9 +135,9 @@ game_t *get_game_by_name(char *name) {
     game_t *current_game;
 
     while (has_next_element(iterator)) {
-        current_game = get_next_element(iterator);
+        current_game = (game_t *) get_next_element(iterator);
 
-        if (current_game->name == name) {
+        if (!strcmp(current_game->name, name)) {
             return current_game;
         }
     }

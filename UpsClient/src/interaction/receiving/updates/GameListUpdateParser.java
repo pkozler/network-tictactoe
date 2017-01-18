@@ -49,17 +49,17 @@ public class GameListUpdateParser extends AUpdateParser {
         
         GAME_LIST_PANEL = gameListPanel;
         ITEM_COUNT = message.getNextIntArg(0);
-        GAME_LIST = new ArrayList<>(ITEM_COUNT);
+        GAME_LIST = new ArrayList<>();
     }
 
     /**
-     * Otestuje, zda seznam zpráv obsahuje další položku seznamu her.
+     * Otestuje, zda seznam her již obsahuje všechny položky.
      * 
-     * @return true, pokud má seznam další položku, jinak false
+     * @return true, pokud seznam obsahuje všechny položky, jinak false
      */
     @Override
-    public boolean hasNextItemMessage() {
-        return GAME_LIST.size() < ITEM_COUNT;
+    public boolean hasAllItems() {
+        return GAME_LIST.size() == ITEM_COUNT;
     }
 
     /**
@@ -74,28 +74,54 @@ public class GameListUpdateParser extends AUpdateParser {
             throws InvalidMessageArgsException, MissingMessageArgsException {
         int id = itemMessage.getNextIntArg(1);
         String name = itemMessage.getNextArg();
-        byte boardSize = itemMessage.getNextByteArg(Config.MIN_BOARD_SIZE, Config.MAX_BOARD_SIZE);
         byte playerCount = itemMessage.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte boardSize = itemMessage.getNextByteArg(Config.MIN_BOARD_SIZE, Config.MAX_BOARD_SIZE);
         byte cellCount = itemMessage.getNextByteArg(Config.MIN_CELL_COUNT, Config.MAX_CELL_COUNT);
         byte playerCounter = itemMessage.getNextByteArg((byte) 1, playerCount);
         GAME_LIST.add(new GameInfo(id, name, boardSize, playerCount, cellCount, playerCounter));
     }
 
     /**
-     * Vrátí výsledek zpracování zprávy a aktualizuje seznam her v GUI.
+     * Aktualizuje objekty pro komunikaci a vrátí výsledek zpracování zprávy.
      * 
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
-        if (hasNextItemMessage()) {
-            return String.format("Probíhá aktualizace seznamu herních místností (zbývá %d položek)",
-                    ITEM_COUNT - GAME_LIST.size());
+    public String updateClient() {
+        if (!hasAllItems()) {
+            return null;
+                /*String.format("Probíhá aktualizace seznamu herních místností (zbývá %d položek)",
+                    ITEM_COUNT - GAME_LIST.size());*/
         }
         
-        GAME_LIST_PANEL.setGameList(GAME_LIST);
+        setGameInfoToClient();
         
         return "Aktualizace seznamu herních místností byla dokončena";
     }
+    
+    /**
+     * Aktualizuje stav GUI.
+     */
+    @Override
+    public void updateGui() {
+        GAME_LIST_PANEL.setGameList(GAME_LIST);
+        GAME_LIST_PANEL.setLabel(CLIENT.getGameInfo());
+    }
+    
+    /**
+     * Uloží údaje o hře do objektu klienta, pokud je hráč ve hře,
+     * nebo údaje odstraní, pokud není.
+     */
+    private void setGameInfoToClient() {
+        for (GameInfo g : GAME_LIST) {
+            if (g.ID == CLIENT.getGameId()) {
+                CLIENT.joinGame(g);
+                
+                return;
+            }
+        }
+        
+        CLIENT.leaveGame();
+    } 
     
 }

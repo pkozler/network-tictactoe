@@ -17,14 +17,14 @@ import visualisation.components.StatusBarPanel;
 public class MessageBackgroundSender implements Runnable {
 
     /**
+     * objekt klienta
+     */
+    public final TcpClient CLIENT;
+    
+    /**
      * fronta požadavků
      */
     private final Queue<ARequestBuilder> requestQueue = new LinkedList<>();
-    
-    /**
-     * objekt klienta
-     */
-    private final TcpClient CLIENT;
     
     /**
      * panel stavového řádku
@@ -70,11 +70,11 @@ public class MessageBackgroundSender implements Runnable {
         if (requestQueue.isEmpty()) {
             return;
         }
-
-        ARequestBuilder builder = requestQueue.poll();
+        
+        final ARequestBuilder builder = requestQueue.poll();
 
         TcpMessage message;
-        String status;
+        final String status;
         Runnable runnable;
         
         if (builder == null || builder.getMessage() == null) {
@@ -100,7 +100,7 @@ public class MessageBackgroundSender implements Runnable {
 
             };
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             runnable = new Runnable() {
 
                 @Override

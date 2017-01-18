@@ -19,11 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class PlayGameResponseParser extends AResponseParser {
 
     /**
-     * ID hry
-     */
-    protected int gameId;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na provedení tahu.
      * 
      * @param client objekt klienta
@@ -40,8 +35,6 @@ public class PlayGameResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            gameId = CLIENT.getGameId();
-            
             return;
         }
         
@@ -54,37 +47,36 @@ public class PlayGameResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
-            
-            return String.format("Hráč odehrál tah v herní místnosti s ID %d", gameId);
+            return String.format("Hráč provedl herní tah");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
             return "Hráč se nenachází v herní místnosti se zadaným ID";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROUND_NOT_STARTED)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROUND_NOT_STARTED.KEYWORD)) {
             return "Hráč nemůže táhnout před zahájením kola";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_IN_ROUND)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_IN_ROUND.KEYWORD)) {
             return "Hráč již nemůže táhnout v tomto kole";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_NOW)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_NOW.KEYWORD)) {
             return "Hráč není na tahu";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_POSITION)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_POSITION.KEYWORD)) {
             return "Hráč provedl tah na neplatnou pozici";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CELL_OUT_OF_BOARD)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CELL_OUT_OF_BOARD.KEYWORD)) {
             return "Hráč provedl tah na pozici mimo hranice hracího pole";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CELL_OCCUPIED)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CELL_OCCUPIED.KEYWORD)) {
             return "Hráč se pokusil táhnout na již obsazené políčko";
         }
         

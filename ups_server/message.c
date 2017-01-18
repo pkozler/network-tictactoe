@@ -9,6 +9,7 @@
 #include "string_utils.h"
 #include <stdlib.h>
 #include <string.h>
+#include "string_utils.h"
 
 /**
  * Vloží řetězec do zprávy.
@@ -22,7 +23,7 @@ bool put_string_arg(message_t *msg, char *arg) {
         return false;
     }
     
-    msg->argv[msg->counter++] = arg;
+    msg->argv[msg->counter++] = copy_string(arg);
     
     return true;
 }
@@ -37,7 +38,7 @@ char *get_string_arg(message_t *msg) {
     char *arg = msg->argv[msg->argc - msg->counter];
     msg->counter--;
     
-    return arg;
+    return copy_string(arg);
 }
 
 /**
@@ -141,7 +142,7 @@ int32_t get_int_arg(message_t *msg) {
 message_t *create_message(char *msg_type, int32_t msg_argc) {
     message_t *message = (message_t *) malloc(sizeof(message_t));
     
-    message->type = msg_type;
+    message->type = copy_string(msg_type);
     message->argc = msg_argc;
     message->counter = 0;
     

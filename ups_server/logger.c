@@ -9,7 +9,6 @@
 #include "global.h"
 #include "tcp_server_control.h"
 #include "printer.h"
-#include "string_builder.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,7 +28,8 @@
 void append_log(const char *format, ...) { 
     va_list vargs;
     va_start(vargs, format);
-    char *log_str = create_string(MAX_STR_LENGHT, NULL, format, vargs);
+    char *log_str = (char *) malloc(sizeof(char) * MAX_STR_LENGHT);
+    vsnprintf(log_str, sizeof(char) * MAX_STR_LENGHT, format, vargs);
     va_end(vargs);
     
     // vložení záznamu do fronty (atomická operace)

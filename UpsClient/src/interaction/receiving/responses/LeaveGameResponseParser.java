@@ -19,11 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class LeaveGameResponseParser extends AResponseParser {
 
     /**
-     * ID hry
-     */
-    protected int gameId;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na opuštění hry.
      * 
      * @param client objekt klienta
@@ -40,9 +35,6 @@ public class LeaveGameResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            gameId = CLIENT.getGameId();
-            CLIENT.leaveGame();
-
             return;
         }
         
@@ -55,12 +47,12 @@ public class LeaveGameResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
-            return String.format("Hráč opustil herní místnost s ID %d", gameId);
+            return String.format("Hráč opustil herní místnost");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
             return "Hráč se nenachází v herní místnosti";
         }
         

@@ -85,84 +85,54 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         GAME_LIST_MODEL = (GameListModel) GAME_LIST.getModel();
         CURRENT_GAME_PANEL = currentGamePanel;
         
-        GameInfo currentGameInfo = GAME_LIST_MODEL.getElementByKey(client.getGameId());
+        GameInfo currentGameInfo = client.getGameInfo();
         
         int currentRound = message.getNextIntArg(0);
         boolean roundFinished = message.getNextBoolArg();
-        byte currentPlaying = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-        byte lastPlaying = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
+        byte currentPlaying = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte lastPlaying = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
         byte lastCellX = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
         byte lastCellY = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
-        byte lastLeaving = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-        byte currentWinner = message.getNextByteArg(Config.MIN_PLAYERS_SIZE, Config.MAX_PLAYERS_SIZE);
-        byte[] winnerCellsX = parseWinnerCells(currentGameInfo, currentWinner, message.getNextArg());
-        byte[] winnerCellsY = parseWinnerCells(currentGameInfo, currentWinner, message.getNextArg());
+        byte currentWinner = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte firstWinnerCellX = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte firstWinnerCellY = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte lastWinnerCellX = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte lastWinnerCellY = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
         byte[][] board = parseBoard(currentGameInfo, message.getNextArg());
         
         CURRENT_GAME_BOARD = new GameBoard(currentGameInfo, currentRound, roundFinished,
-                currentPlaying, lastPlaying, lastCellX, lastCellY, lastLeaving, currentWinner,
-                winnerCellsX, winnerCellsY, board);
-        JOINED_PLAYER_LIST = new ArrayList<>(CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter());
-    }
-    
-    /**
-     * Zpracuje řetězec souřadnic vítězných políček.
-     * 
-     * @param gameInfo základní informace o hře
-     * @param currentWinner pořadí vítěze ve hře
-     * @param str řetězec souřadnic
-     * @return pole souřadnic
-     * @throws InvalidMessageArgsException
-     * @throws MissingMessageArgsException 
-     */
-    private byte[] parseWinnerCells(GameInfo gameInfo, byte currentWinner, String str)
-            throws InvalidMessageArgsException, MissingMessageArgsException {
-        byte coords[] = new byte[gameInfo.CELL_COUNT];
-        
-        if (currentWinner < 1) {
-            return coords;
-        }
-        
-        String[] parts = str.split(",");
-        
-        if (parts.length != coords.length) {
-            throw new InvalidMessageArgsException();
-        }
-        
-        try {
-            for (int i = 0; i < coords.length; i++) {
-                coords[i] = Byte.parseByte(parts[i]);
-            }
-        }
-        catch (NumberFormatException e) {
-            throw new InvalidMessageArgsException();
-        }
-        
-        return coords;
+                currentPlaying, lastPlaying, lastCellX, lastCellY, currentWinner,
+                firstWinnerCellX, firstWinnerCellY, lastWinnerCellX, lastWinnerCellY, board);
+        JOINED_PLAYER_LIST = new ArrayList<>();
     }
     
     /**
      * Zpracuje řetězec herního pole.
      * 
      * @param gameInfo základní informace o hře
-     * @param str řetězec herního pole
+     * @param boardStr řetězec herního pole
      * @return herní pole
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    private byte[][] parseBoard(GameInfo gameInfo, String str)
+    private byte[][] parseBoard(GameInfo gameInfo, String boardStr)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         byte[][] board = new byte[gameInfo.BOARD_SIZE][gameInfo.BOARD_SIZE];
         
-        if (str.length() != gameInfo.BOARD_SIZE * gameInfo.BOARD_SIZE) {
+        if (boardStr.length() != gameInfo.BOARD_SIZE * gameInfo.BOARD_SIZE) {
             throw new InvalidMessageArgsException();
         }
+        
+        char[] boardArr = boardStr.toCharArray();
         
         try {
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board.length; j++) {
-                    board[i][j] = (byte) Character.getNumericValue(
-                            str.charAt(i * board.length + j));
+                    board[i][j] = (byte) Character.getNumericValue(boardArr[i * board.length + j]);
+                    
+                    if (board[i][j] < 0 || board[i][j] >= gameInfo.PLAYER_COUNT) {
+                        throw new InvalidMessageArgsException();
+                    }
                 }
             }
         }
@@ -174,13 +144,13 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
     
     /**
-     * Otestuje, zda seznam zpráv obsahuje další položku seznamu hráčů ve hře.
+     * Otestuje, zda seznam hráčů ve hře již obsahuje všechny položky.
      * 
-     * @return true, pokud má seznam další položku, jinak false
+     * @return true, pokud seznam obsahuje všechny položky, jinak false
      */
     @Override
-    public boolean hasNextItemMessage() {
-        return JOINED_PLAYER_LIST.size() < CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter();
+    public boolean hasAllItems() {
+        return JOINED_PLAYER_LIST.size() == CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter();
     }
 
     /**
@@ -202,22 +172,29 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     }
 
     /**
-     * Vrátí výsledek zpracování zprávy a aktualizuje stav hry v GUI.
+     * Aktualizuje objekty pro komunikaci a vrátí výsledek zpracování zprávy.
      * 
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
-        if (hasNextItemMessage()) {
-            return String.format("Probíhá aktualizace stavu herní místností (zbývá %d položek)",
-                    CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter() - JOINED_PLAYER_LIST.size());
+    public String updateClient() {
+        if (!hasAllItems()) {
+            return null;
+                /*String.format("Probíhá aktualizace stavu herní místností (zbývá %d položek)",
+                    CURRENT_GAME_BOARD.GAME_INFO.getPlayerCounter() - JOINED_PLAYER_LIST.size());*/
         }
         
+        return "Aktualizace stavu herní místností byla dokončena";
+    }
+    
+    /**
+     * Aktualizuje stav GUI.
+     */
+    @Override
+    public void updateGui() {
         CurrentGameDetail currentGameDetail = new CurrentGameDetail(
                 CURRENT_GAME_BOARD, JOINED_PLAYER_LIST);
         CURRENT_GAME_PANEL.setGameDetail(currentGameDetail);
-        
-        return "Aktualizace stavu herní místností byla dokončena";
     }
     
 }

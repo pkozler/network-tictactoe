@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+char *copy_string (const char *s);
 bool is_integer(const char *str);
 bool starts_with(const char *str, const char *pre);
 char *bool_to_string(bool i);

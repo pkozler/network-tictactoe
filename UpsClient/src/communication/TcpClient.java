@@ -1,5 +1,7 @@
 package communication;
 
+import communication.containers.GameInfo;
+import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
 import configuration.Config;
 import java.io.DataInputStream;
@@ -7,7 +9,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -21,6 +22,16 @@ import java.nio.charset.StandardCharsets;
  */
 public class TcpClient {
 
+    /**
+     * adresa
+     */
+    private String host;
+    
+    /**
+     * port
+     */
+    private int port;
+    
     /**
      * objekt socketu klienta
      */
@@ -37,11 +48,6 @@ public class TcpClient {
     private DataOutputStream dos;
     
     /**
-     * přezdívka hráče
-     */
-    private String nick;
-    
-    /**
      * ID hráče
      */
     private int playerId;
@@ -49,7 +55,17 @@ public class TcpClient {
     /**
      * ID aktuální herní místnosti
      */
-    private int currentGameId;
+    private int gameId;
+    
+    /**
+     * struktura s údaji přihlášeného hráče
+     */
+    private PlayerInfo playerInfo;
+    
+    /**
+     * struktura s údaji aktuální zvolené herní místnosti
+     */
+    private GameInfo gameInfo;
     
     /**
      * Provede pokus o navázání spojení se serverem.
@@ -58,8 +74,9 @@ public class TcpClient {
      * @param port port
      * @throws IOException 
      */
-    public synchronized void connect(String address, int port) throws IOException {
-        InetAddress host = InetAddress.getByName(address);
+    public void connect(String address, int port) throws IOException {
+        host = InetAddress.getByName(address).getHostAddress();
+        this.port = port;
         
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
@@ -73,7 +90,7 @@ public class TcpClient {
      * 
      * @throws IOException 
      */
-    public synchronized void disconnect() throws IOException {
+    public void disconnect() throws IOException {
         if (socket != null && !socket.isClosed()) {
             dis.close();
             dos.close();
@@ -81,6 +98,7 @@ public class TcpClient {
         }
         
         socket = null;
+        logOut();
     }
     
     /**
@@ -88,80 +106,119 @@ public class TcpClient {
      * 
      * @return true, pokud je spojení navázáno, jinak false
      */
-    public synchronized boolean isConnected() {
+    public boolean isConnected() {
         return socket != null && !socket.isClosed();
     }
     
     /**
-     * Nastaví přidělené ID po přihlášení k serveru.
+     * Vrátí ID hráče.
      * 
-     * @param id ID klienta
+     * @return ID hráče
      */
-    public synchronized void logIn(int id) {
-        if (id > 0) {
-            playerId = id;
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    /**
+     * Nastaví ID hráče.
+     * 
+     * @param playerId ID hráče
+     */
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
+    }
+
+    /**
+     * Vrátí ID hry.
+     * 
+     * @return ID hry
+     */
+    public int getGameId() {
+        return gameId;
+    }
+
+    /**
+     * Nastaví ID hry.
+     * 
+     * @param gameId ID hry
+     */
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
+    }
+    
+    /**
+     * Propojí hráče s položkou seznamu hráčů (použito po přihlášení).
+     * 
+     * @param playerInfo údaje hráče
+     */
+    public void logIn(PlayerInfo playerInfo) {
+        if (playerInfo != null) {
+            this.playerInfo = playerInfo;
         }
     }
     
     /**
-     * Vynuluje přidělené ID po odhlášení ze serveru.
+     * Odstraní odkaz na položku seznamu hráčů (použito po odhlášení).
      */
-    public synchronized void logOut() {
+    public void logOut() {
+        playerInfo = null;
         playerId = 0;
+        leaveGame();
     }
     
     /**
      * Otestuje, zda je klient přihlášen.
      * 
-     * @return true, pokud je klient přihlášen, jinak false
+     * @return true, je-li klient přihlášen, jinak false
      */
-    public synchronized boolean isLoggedIn() {
-        return playerId > 0;
+    public boolean isLogged() {
+        return playerInfo != null;
     }
     
     /**
-     * Nastaví ID hry po vstupu do herní místnosti.
+     * Vrátí údaje o hráči.
      * 
-     * @param id ID hry
+     * @return údaje hráče
      */
-    public synchronized void joinGame(int id) {
-        if (id > 0) {
-            currentGameId = id;
+    public PlayerInfo getPlayerInfo() {
+        return playerInfo;
+    }
+
+    /**
+     * Propojí hráče s položkou seznamu her (použito po vstupu do hry).
+     * 
+     * @param gameInfo údaje hry
+     */
+    public void joinGame(GameInfo gameInfo) {
+        if (gameInfo != null) {
+            this.gameInfo = gameInfo;
         }
     }
     
     /**
-     * Vynuluje ID hry po opuštění herní místnosti.
+     * Odstraní odkaz na položku seznamu her (použito po odchodu ze hry).
      */
-    public synchronized void leaveGame() {
-        currentGameId = 0;
+    public void leaveGame() {
+        gameInfo = null;
+        gameId = 0;
+    }
+
+    /**
+     * Otestuje, zda je klient v herní místnosti.
+     * 
+     * @return true, je-li klient v herní místnosti, jinak false
+     */
+    public boolean isInGame() {
+        return gameInfo != null;
     }
     
     /**
-     * Vrátí přidělené ID klienta.
+     * Vrátí údaje o hře.
      * 
-     * @return ID klienta
+     * @return údaje hry
      */
-    public synchronized int getPlayerId() {
-        return playerId;
-    }
-    
-    /**
-     * Vrátí zvolený nickname klienta.
-     * 
-     * @return nickname klienta
-     */
-    public synchronized String getPlayerNick() {
-        return nick;
-    }
-    
-    /**
-     * Vrátí ID aktuální hry.
-     * 
-     * @return ID hry
-     */
-    public synchronized int getGameId() {
-        return currentGameId;
+    public GameInfo getGameInfo() {
+        return gameInfo;
     }
     
     /**
@@ -171,7 +228,7 @@ public class TcpClient {
      * @throws IOException
      * @throws InvalidMessageArgsException 
      */
-    public synchronized void sendMessage(TcpMessage message) throws IOException, InvalidMessageArgsException {
+    public void sendMessage(TcpMessage message) throws IOException, InvalidMessageArgsException {
         String msgStr = message.toString();
         
         if (msgStr == null) {
@@ -188,8 +245,12 @@ public class TcpClient {
      * @throws IOException
      * @throws InvalidMessageStringLengthException 
      */
-    public synchronized TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
+    public TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
+        
+        if (!msgStr.isEmpty()) {
+            System.out.println(msgStr);
+        }
         
         return new TcpMessage(msgStr);
     }
@@ -221,14 +282,9 @@ public class TcpClient {
     private String readFromSocket() throws IOException, InvalidMessageStringLengthException {
         int length;
         
-        try {
-            length = dis.readInt();
-        }
-        catch (SocketTimeoutException ex) {
-            throw ex;
-        }
+        length = dis.readInt();
         
-        if (length < 0) {
+        if (length < 0 || length > Config.MAX_MESSAGE_LENGTH) {
             throw new InvalidMessageStringLengthException();
         }
         
@@ -238,12 +294,7 @@ public class TcpClient {
         
         byte[] bytes = new byte[length];
         
-        try {
-            dis.read(bytes);
-        }
-        catch (SocketTimeoutException ex) {
-            throw ex;
-        }
+        dis.read(bytes);
         
         return new String(bytes, StandardCharsets.US_ASCII);
     }

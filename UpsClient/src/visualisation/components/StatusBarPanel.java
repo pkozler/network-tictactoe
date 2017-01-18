@@ -1,16 +1,20 @@
 package visualisation.components;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 /**
  * Třída StatusBarPanel představuje panel pro zobrazení textového pole
@@ -24,22 +28,60 @@ public class StatusBarPanel extends JPanel {
      * textové pole
      */
     private final JTextPane textPane;
+    
+    /**
+     * formátovaný dokument textového pole
+     */
+    StyledDocument doc;
+    
+    /**
+     * atributy textu hlášení o odesílání
+     */
+    SimpleAttributeSet sendingStatusAttributes;
+    
+    /**
+     * atributy textu hlášení o příjmu
+     */
+    SimpleAttributeSet receivingStatusAttributes;
+    
+    /**
+     * atributy textu hlášení o chybě
+     */
+    SimpleAttributeSet errorStatusAttributes;
 
     /**
      * Vytvoří panel stavového řádku.
      */
     public StatusBarPanel() {
+        super(new BorderLayout());
+        setPreferredSize(new Dimension(0, 120));
+        setBorder(BorderFactory.createTitledBorder("Výpis událostí"));
+        
         final int fontSize = 12;
         textPane = new JTextPane();
+        textPane.setEditable(false);
         textPane.setFont(new Font("Monospaced", Font.PLAIN, fontSize));
-        JScrollPane scrollPane = new JScrollPane(textPane);
-
+        
+        doc = textPane.getStyledDocument();
+        sendingStatusAttributes = new SimpleAttributeSet();
+        receivingStatusAttributes = new SimpleAttributeSet();
+        errorStatusAttributes = new SimpleAttributeSet();
+        StyleConstants.setForeground(sendingStatusAttributes, Color.BLUE);
+        StyleConstants.setForeground(receivingStatusAttributes, Color.BLACK);
+        StyleConstants.setForeground(errorStatusAttributes, Color.RED);
+        
+        JScrollPane scrollPane = new JScrollPane(textPane, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            
+                @Override
                 public void adjustmentValueChanged(AdjustmentEvent e) {
                     textPane.select(textPane.getCaretPosition() * fontSize, 0);
                 }
+                
             }
         );
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     /**
@@ -49,7 +91,7 @@ public class StatusBarPanel extends JPanel {
      * @param args argumenty řetězce
      */
     public void printReceivingStatus(String format, Object... args) {
-        appendToPane(Color.BLACK, format, args);
+        appendToPane(receivingStatusAttributes, format, args);
     }
 
     /**
@@ -59,7 +101,7 @@ public class StatusBarPanel extends JPanel {
      * @param args 
      */
     public void printSendingStatus(String format, Object... args) {
-        appendToPane(Color.BLUE, format, args);
+        appendToPane(sendingStatusAttributes, format, args);
     }
 
     /**
@@ -69,29 +111,24 @@ public class StatusBarPanel extends JPanel {
      * @param args argumenty řetězce
      */
     public void printErrorStatus(String format, Object... args) {
-        appendToPane(Color.RED, format, args);
+        appendToPane(errorStatusAttributes, format, args);
     }
 
     /**
      * Přidá text do textového pole.
      * 
-     * @param c barva textu
+     * @param attributes atributy textu
      * @param format formátovací řetězec
      * @param args argumenty řetězce
      */
-    private void appendToPane(Color c, String format, Object... args) {
-        String msg = String.format(format, args);
+    private void appendToPane(AttributeSet attributes, String format, Object... args) {
+        String msg = String.format(format, args) + "\n";
 
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
-
-        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-
-        int len = textPane.getDocument().getLength();
-        textPane.setCaretPosition(len);
-        textPane.setCharacterAttributes(aset, false);
-        textPane.replaceSelection(msg);
+        try {
+            doc.insertString(doc.getLength(), msg, attributes);
+        } catch (BadLocationException ex) {
+            // chyba - neplatná pozice v dokumentu
+        }
     }
 
 }

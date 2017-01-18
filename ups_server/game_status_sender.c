@@ -12,40 +12,8 @@
 #include "config.h"
 #include "string_utils.h"
 #include <string.h>
-
-/**
- * Sestaví řetězec zprávy představující souřadnice vítězných políček.
- * 
- * @param cell_count počet políček potřebných k obsazení
- * @param current_winner pořadí vítěze
- * @param winner_cells pole pro souřadnice
- * @return řetězec souřadnic
- */
-char *build_winner_cells_string(int8_t cell_count, int8_t current_winner, int8_t *winner_cells) {
-    int32_t cells_str_len = (cell_count * (BYTE_BUF_LEN + 1)) + 1;
-    char *winner_cells_str = (char *) malloc(sizeof(char) * cells_str_len);
-    winner_cells_str[0] = '\0';
-    
-    if (current_winner < 1) {
-        return winner_cells_str;
-    }
-    
-    int32_t i;
-    int8_t cell = winner_cells[i];
-    char *cell_str = int_to_string(cell);
-    strncat(winner_cells_str, cell_str, BYTE_BUF_LEN);
-    free(cell_str);
-    
-    for (i = 1; i < cell_count; i++) {
-        cell = winner_cells[i];
-        cell_str = int_to_string(cell);
-        strncat(winner_cells_str, ",", 1);
-        strncat(winner_cells_str, cell_str, BYTE_BUF_LEN);
-        free(cell_str);
-    }
-    
-    return winner_cells_str;
-}
+#include <stdlib.h>
+#include <stdio.h>
 
 /**
  * Sestaví řetězec zprávy představující políčka herního pole.
@@ -56,15 +24,14 @@ char *build_winner_cells_string(int8_t cell_count, int8_t current_winner, int8_t
 char *build_board_string(game_t *game) {
     int32_t board_str_len = game->board_size * game->board_size * BOARD_CELL_SEED_SIZE + 1;
     char *board_str = (char *) malloc(sizeof(char) * board_str_len);
-    board_str[0] = '\0';
     char buf[BOARD_CELL_SEED_SIZE + 1];
     
     int32_t i, j;
-    for (j = 0; j < game->board_size; j++) {
-        for (i = 0; i < game->board_size; i++) {
-            int8_t cell = game->board[j][i];
-            snprintf(buf, BOARD_CELL_SEED_SIZE, "%d", cell);
-            strncat(board_str, buf, BOARD_CELL_SEED_SIZE);
+    for (i = 0; i < game->board_size; i++) {
+        for (j = 0; j < game->board_size; j++) {
+            int8_t cell = game->board[i][j];
+            snprintf(buf, BOARD_CELL_SEED_SIZE + 1, "%d", cell);
+            strncat(board_str, buf, BOARD_CELL_SEED_SIZE + 1);
         }
     }
     
@@ -86,12 +53,21 @@ message_t *game_board_to_message(game_t *game) {
     put_byte_arg(new_message, game->last_playing);
     put_byte_arg(new_message, game->last_cell_x);
     put_byte_arg(new_message, game->last_cell_y);
-    put_byte_arg(new_message, game->last_leaving);
     put_byte_arg(new_message, game->current_winner);
-    put_string_arg(new_message, build_winner_cells_string(
-            game->cell_count, game->current_winner, game->winner_cells_x));
-    put_string_arg(new_message, build_winner_cells_string(
-            game->cell_count, game->current_winner, game->winner_cells_y));
+    
+    if (game->current_winner < 1) {
+        put_byte_arg(new_message, 0);
+        put_byte_arg(new_message, 0);
+        put_byte_arg(new_message, 0);
+        put_byte_arg(new_message, 0);
+    }
+    else {
+        put_byte_arg(new_message, game->winner_cells_x[0]);
+        put_byte_arg(new_message, game->winner_cells_y[0]);
+        put_byte_arg(new_message, game->winner_cells_x[game->cell_count - 1]);
+        put_byte_arg(new_message, game->winner_cells_y[game->cell_count - 1]);
+    }
+    
     put_string_arg(new_message, build_board_string(game));
     
     return new_message;

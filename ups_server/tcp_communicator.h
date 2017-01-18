@@ -11,7 +11,7 @@
 #include "message.h"
 #include <stdbool.h>
 
-message_t *receive_message(int sock);
+message_t *receive_message(int sock, bool *success);
 bool send_message(message_t *msg, int sock);
 
 #endif /* TCP_COMMUNICATOR_H */

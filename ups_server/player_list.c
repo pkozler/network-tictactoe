@@ -15,6 +15,7 @@
 #include "player_list_sender.h"
 #include "tcp_server_control.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Pozoruje seznam hráčů a v případě změny rozešle zprávu klientům.
@@ -98,8 +99,9 @@ void add_player_to_list(player_t *player) {
             max_id = current_player->id;
         }
     }
-
+    
     player->id = max_id + 1;
+    
     add_element(g_player_list->list, player);
 }
 
@@ -135,9 +137,9 @@ player_t *get_player_by_name(char *name) {
     player_t *current_player;
 
     while (has_next_element(iterator)) {
-        current_player = get_next_element(iterator);
-
-        if (current_player->nick == name) {
+        current_player = (player_t *) get_next_element(iterator);
+        
+        if (!strcmp(current_player->nick, name)) {
             return current_player;
         }
     }

@@ -6,7 +6,6 @@
 
 #include "printer.h"
 #include "config.h"
-#include "string_builder.h"
 #include <error.h>
 #include <errno.h>
 #include <string.h>
@@ -24,7 +23,7 @@ void print_out(const char *format, ...) {
     
     va_list vargs;
     va_start(vargs, format);
-    create_string(MAX_STR_LENGHT, buf, format, vargs);
+    vsnprintf(buf, sizeof(char) * MAX_STR_LENGHT, format, vargs);
     va_end(vargs);
     
     printf("%s.\n", buf);
@@ -42,7 +41,7 @@ void print_err(const char *format, ...) {
     
     va_list vargs;
     va_start(vargs, format);
-    create_string(0, buf, format, vargs);
+    vsnprintf(buf, sizeof(char) * MAX_STR_LENGHT, format, vargs);
     va_end(vargs);
     
     printf("%s: %s\n", buf, strerror(errno));

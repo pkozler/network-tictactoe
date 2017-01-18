@@ -41,6 +41,7 @@ void *run_player(void *arg) {
         unlock_player(player);
     }
     
+    print_out("Zrušeno spojení s klientem s číslem socketu %d", player->sock);
     append_log("Odpojen klient s číslem socketu %d", player->sock);
     
     if (is_player_logged(player)) {
@@ -89,6 +90,9 @@ void delete_player(player_t *player) {
     pthread_cancel(player->thread);
     pthread_mutex_destroy(&(player->lock));
     close(player->sock);
+    
+    print_out("Spojení s klientem s číslem socketu %d zrušeno");
+    
     free(player);
 }
 

@@ -56,7 +56,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/player_list_sender.o \
 	${OBJECTDIR}/printer.o \
 	${OBJECTDIR}/request_parser.o \
-	${OBJECTDIR}/string_builder.o \
 	${OBJECTDIR}/string_utils.o \
 	${OBJECTDIR}/tcp_communicator.o \
 	${OBJECTDIR}/tcp_server.o \
@@ -191,11 +190,6 @@ ${OBJECTDIR}/request_parser.o: request_parser.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/request_parser.o request_parser.c
-
-${OBJECTDIR}/string_builder.o: string_builder.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_builder.o string_builder.c
 
 ${OBJECTDIR}/string_utils.o: string_utils.c 
 	${MKDIR} -p ${OBJECTDIR}

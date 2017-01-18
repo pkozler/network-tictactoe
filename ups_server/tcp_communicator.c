@@ -9,6 +9,7 @@
 #include "protocol.h"
 #include "logger.h"
 #include "com_stats.h"
+#include "string_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,7 +41,7 @@ int read_bytes(int sock, void *buf, unsigned int len) {
         bytes_read += read_result;
     }
     
-    return 1;
+    return bytes_read;
 }
 
 /**
@@ -68,7 +69,7 @@ int write_bytes(int sock, void *buf, unsigned int len) {
         bytes_wrote += write_result;
     }
     
-    return 0;
+    return bytes_wrote;
 }
 
 /**
@@ -79,28 +80,45 @@ int write_bytes(int sock, void *buf, unsigned int len) {
  * (testování odezvy) vrací pouze nulový znak. V případě chyby vrací hodnotu NULL.
  * 
  * @param sock deskriptor socketu klienta - odesílatele
+ * @param příznak průběhu přenosu (uloží se true, je-li spojení v pořádku, jinak true)
  * @return zpráva v textové formě (standardní řetězec, délka smí být nulová) nebo NULL
  */
-char *read_from_socket(int sock) {
+char *read_from_socket(int sock, bool *success) {
     int32_t str_len;
-
-    int32_t n = read_bytes(sock, &str_len, sizeof(int32_t));
+    
+    int n = read_bytes(sock, &str_len, sizeof(int32_t));
     if (n < 1) {
+        *success = false;
+        
         return NULL;
     }
     
-    inc_stats_bytes_transferred(n);
+    inc_stats_bytes_transferred((int32_t) n);
+    n = 0;
+    
     // převod pořadí bajtů čísla délky
     str_len = ntohl(str_len);
     
-    char *msg_str = (char *) malloc(sizeof(char) * str_len + 1);
-    
-    n = read_bytes(sock, msg_str, str_len);
-    if (n < 1) {
+    if (str_len < 0 || str_len > MAX_MESSAGE_LENGTH) {
+        *success = false;
+        
         return NULL;
     }
     
-    inc_stats_bytes_transferred(n);
+    char *msg_str = (char *) malloc(sizeof(char) * (str_len + 1));
+    
+    if (str_len > 0) {
+        n = read_bytes(sock, msg_str, str_len);
+        
+        if (n < 1) {
+            *success = false;
+            
+            return NULL;
+        }
+        
+        inc_stats_bytes_transferred((int32_t) n);
+    }
+    
     msg_str[str_len] = '\0';
     
     return msg_str;
@@ -118,16 +136,25 @@ char *read_from_socket(int sock) {
  */
 bool write_to_socket(char *msg_str, int sock) {
     int32_t str_len = (int32_t) strlen(msg_str); 
-
-    int32_t n = write_bytes(sock, &str_len, sizeof(int32_t));
+    // převod pořadí bajtů čísla délky
+    str_len = htonl(str_len);
+    int n = write_bytes(sock, &str_len, sizeof(int32_t));
     
     if (n < 0) {
         return false;
     }
     
-    inc_stats_bytes_transferred(n);
-    // převod pořadí bajtů čísla délky
-    str_len = htonl(str_len);
+    str_len = ntohl(str_len);
+    inc_stats_bytes_transferred((int32_t) n);
+    n = 0;
+    
+    if (str_len < 0) {
+        return false;
+    }
+    
+    if (str_len == 0) {
+        return true;
+    }
     
     n = write_bytes(sock, msg_str, str_len);
     
@@ -135,7 +162,7 @@ bool write_to_socket(char *msg_str, int sock) {
         return false;
     }
     
-    inc_stats_bytes_transferred(n);
+    inc_stats_bytes_transferred((int32_t) n);
     
     return true;
 }
@@ -147,20 +174,22 @@ bool write_to_socket(char *msg_str, int sock) {
  * hodnotu NULL.
  * 
  * @param sock deskriptor socketu klienta - odesílatele
+ * @param příznak průběhu přenosu (uloží se true, je-li spojení v pořádku, jinak true)
  * @return přijatá platná zpráva ve formě struktury nebo NULL
  */
-message_t *receive_message(int sock) {
-    char *msg_str = read_from_socket(sock);
+message_t *receive_message(int sock, bool *success) {
+    *success = true;
+    char *msg_str = read_from_socket(sock, success);
     
     if (msg_str == NULL) {
         inc_stats_transfers_failed();
-        append_log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+        //append_log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
         
         return NULL;
     }
     
     inc_stats_messages_transferred();
-    append_log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
+    //append_log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
     
     if (strlen(msg_str) == 0) {
         free(msg_str);
@@ -177,25 +206,26 @@ message_t *receive_message(int sock) {
         pch = strpbrk(pch + 1, SEPARATOR);
     }
     
-    pch = strtok(msg_str, SEPARATOR);
+    char *saveptr;
+    
+    pch = __strtok_r(msg_str, SEPARATOR, &saveptr);
+    msg_str = saveptr;
     
     if (pch == NULL || strlen(pch) == 0) {
         return NULL;
     }
     
     message_t *message = create_message(pch, delim_cnt);
-    pch = strtok(NULL, SEPARATOR);
     
-    while (pch != NULL) {
+    while (pch = __strtok_r(msg_str, SEPARATOR, &saveptr)) {
         if (strlen(pch) == 0) {
             return NULL;
         }
         
-        message->argv[message->counter++] = pch;
-        pch = strtok(NULL, SEPARATOR);
+        message->argv[message->counter++] = copy_string(pch);
+        msg_str = saveptr;
     }
     
-    free(msg_str);
     message->argc = message->counter;
     
     return message;
@@ -227,7 +257,10 @@ bool send_message(message_t *msg, int sock) {
         for (i = 0; i < msg->argc; i++) {
             strcat(msg_str, SEPARATOR);
             strcat(msg_str, msg->argv[i]);
+            
         }
+        
+        printf("%s\n", msg_str);
     }
     else if (msg->type == NULL && msg->argc == 0) {
         msg_str = (char *) malloc(sizeof(char));
@@ -241,11 +274,11 @@ bool send_message(message_t *msg, int sock) {
     
     if (result) {
         inc_stats_messages_transferred();
-        append_log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+        //append_log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
     }
     else {
         inc_stats_transfers_failed();
-        append_log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
+        //append_log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
     }
     
     free(msg_str);

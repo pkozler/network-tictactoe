@@ -60,7 +60,7 @@ in_addr_t parse_ip(char *ip) {
 int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     int srv_sock;
     struct sockaddr_in srv_addr;
-
+    
     // vytvoření TCP socketu
     srv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -85,8 +85,8 @@ int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     // naplnění struktury adresy
     memset(&srv_addr, 0, sizeof(srv_addr));
     srv_addr.sin_family = AF_INET;
-    srv_addr.sin_port = htons(port);
-    srv_addr.sin_addr.s_addr = htonl(parse_ip(host));
+    srv_addr.sin_port = htons((short) port);
+    inet_aton(host, &srv_addr.sin_addr);
 
     // provázání socketu s adresou
     if (bind(srv_sock, (struct sockaddr*) &srv_addr, sizeof(srv_addr)) < 0) {
@@ -133,8 +133,8 @@ int accept_socket(int srv_sock) {
         
         char *ip_str = inet_ntoa(addr.sin_addr);
         int port_no = (int) htons(addr.sin_port);
-        print_out("Spojení s klientem na adrese %s:%d navázáno",
-            ip_str, port_no);
+        print_out("Navázáno spojení s klientem na adrese %s:%d s číslem socketu %d",
+            ip_str, port_no, sock);
         
         struct timeval timeout;
         timeout.tv_sec = SOCKET_TIMEOUT_SEC;
@@ -149,7 +149,7 @@ int accept_socket(int srv_sock) {
             continue;
         }
         
-        print_out("Timeout pro příjem zpráv byl úspěšně nastaven na %d sekundy",
+        print_out("Timeout pro příjem zpráv byl úspěšně nastaven na %d sekund",
                 SOCKET_TIMEOUT_SEC);
     }
     while (sock < 0);

@@ -19,11 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class CreateGameResponseParser extends AResponseParser {
 
     /**
-     * ID hry
-     */
-    protected int gameId;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na vytvoření hry.
      * 
      * @param client objekt klienta
@@ -40,8 +35,8 @@ public class CreateGameResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CLIENT.joinGame(MESSAGE.getNextIntArg(1));
-            gameId = CLIENT.getGameId();
+            int id = MESSAGE.getNextIntArg(0);
+            client.setGameId(id);
             
             return;
         }
@@ -72,28 +67,28 @@ public class CreateGameResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
-            return String.format("Hráč vytvořil herní místnost ID %d", gameId);
+            return String.format("Hráč vytvořil herní místnost");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME.KEYWORD)) {
             return "Zadaný název herní místnosti je neplatný";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_EXISTING_NAME.KEYWORD)) {
             return "Herní místnost se zadaným názvem již existuje";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_BOARD_SIZE)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_BOARD_SIZE.KEYWORD)) {
             return "Zadaný rozměr hracího pole je neplatný";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_PLAYER_COUNT)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_PLAYER_COUNT.KEYWORD)) {
             return "Zadaný počet hráčů je neplatný";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_CELL_COUNT)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_CELL_COUNT.KEYWORD)) {
             return "Zadaný počet políček potřebných k obsazení je neplatný";
         }
         

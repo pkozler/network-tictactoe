@@ -22,7 +22,8 @@ linked_list_iterator_t *create_iterator(linked_list_t *list) {
     linked_list_iterator_t *iterator = (linked_list_iterator_t *) malloc(sizeof(linked_list_iterator_t));
     
     iterator->list = list;
-    iterator->current == list->first;
+    iterator->current = list->first;
+    iterator->recent = (linked_list_t *) malloc(sizeof(linked_list_t));
     
     return iterator;
 }
@@ -39,6 +40,7 @@ void *get_next_element(linked_list_iterator_t *iterator) {
     }
     
     void *e = iterator->current->value;
+    iterator->recent = iterator->current;
     iterator->current = iterator->current->next;
     
     return e;
@@ -51,12 +53,13 @@ void *get_next_element(linked_list_iterator_t *iterator) {
  * @return hodnota prvku
  */
 void *remove_last_element(linked_list_iterator_t *iterator) {
-    if (iterator == NULL || iterator->current == NULL) {
+    if (iterator == NULL || iterator->recent == NULL) {
         return NULL;
     }
     
-    linked_list_node_t *node = iterator->current->previous;
+    linked_list_node_t *node = iterator->recent;
     void *e = node->value;
+    iterator->recent = iterator->recent->previous;
     remove_node(iterator->list, node);
     iterator->list->count--;
     

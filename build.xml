@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<project name="Client" default="distjar">
+  <description>
+    Build file pro Java klienta
+  </description>
+
+  <!-- =========================================================================
+    properties
+    nastavení překladu - zdrojové a cílové adresáře
+  ========================================================================== -->
+	
+  <property name="app.name" value="Client" />	
+
+  <property name="src.dir" value="." />
+  <property name="build.dir" value="../java_bin" />	
+  <property name="doc.dir" value="." />	
+  <property name="jar.dir" value="../java_bin" />  
+  
+  <property name="bin.jar.file" value="Client.jar" />
+
+  <property name="main-class" value="application.Main" />
+  <path id="classpath">
+    <pathelement location="${build.dir}" />    
+  </path>
+
+  <!-- =========================================================================
+    target: compile
+    přeloží aplikaci
+      zdrojové soubory v adresáři src.dir
+      přeložené uloží do adresáře build.dir
+      (cesty nastavené v properties)
+  ========================================================================== -->
+  <target name="compile" >
+    <mkdir dir="${build.dir}" />
+    <javac srcdir="${src.dir}" destdir="${build.dir}" compiler="javac1.7" encoding="UTF-8" includeantruntime="false">
+      <classpath refid="classpath" />
+    </javac>
+  </target>
+
+  <!-- =========================================================================
+    target: run
+    spustí přeložený program, pokud je potřeba provede překlad
+  ========================================================================== -->
+  <target name="run" depends="compile">
+    <java classname="${main-class}" fork="true" dir="${build.dir}">
+      <classpath refid="classpath" />
+    </java>
+  </target>
+
+  <!-- =========================================================================
+    target: distjar
+    vytvoří JAR soubor s programem a uloží ho do adresáře jar.dir
+  ========================================================================== -->
+  <target name="distjar" depends="compile">
+    <mkdir dir="${jar.dir}" />
+    <!-- vytvori JAR file -->
+    <jar destfile="${jar.dir}/${bin.jar.file}" basedir="${build.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="${main-class}" />        
+      </manifest>
+    </jar>
+  </target>
+	
+  <!-- =========================================================================
+    target: javadoc
+    pomocí javadocu vytvoří dokumentaci k programu a uloží do adresáře doc.dir
+  ========================================================================== -->
+  <target name="javadoc">
+    <mkdir dir="${doc.dir}" />        
+    <javadoc destdir="${doc.dir}">          
+      <fileset dir="${src.dir}/" includes="**/*.java" />
+    </javadoc>  	
+  </target>
+
+  <!-- =========================================================================
+    target: clean
+    smaže všechny vytvořené soubory - přeložené třídy, dokumentaci
+    vytvořený JAR nemaže
+  ========================================================================== -->
+  <target name="clean">
+    <delete includeemptydirs="true">
+      <fileset dir="${build.dir}" excludes="**/*.jar"/>
+    </delete>
+  </target>
+
+</project>

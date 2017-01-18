@@ -28,13 +28,13 @@ args_t parse_args(int argc, char** argv) {
     args.log_file = DEFAULT_LOG_FILE;
     args.queue_length = DEFAULT_QUEUE_LENGTH;
     
-    int i = 0;
+    int i = 1;
     char *arg;
     char *tmp;
 
     while (i < argc && starts_with(argv[i], "-")) {
         arg = argv[i++];
-
+        
         if (!strcmp(HELP_OPTION, arg)) {
             usage();
         }

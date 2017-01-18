@@ -18,6 +18,7 @@
 typedef struct {
     linked_list_t *list; // iterovaný spojový seznam
     linked_list_node_t *current; // aktuální prvek
+    linked_list_node_t *recent; // ukazatel na předchozí prvek
 } linked_list_iterator_t;
 
 linked_list_iterator_t *create_iterator(linked_list_t *list);

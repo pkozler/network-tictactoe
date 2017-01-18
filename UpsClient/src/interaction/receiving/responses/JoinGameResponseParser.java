@@ -19,11 +19,6 @@ import visualisation.components.StatusBarPanel;
 public class JoinGameResponseParser extends AResponseParser {
 
     /**
-     * ID hry
-     */
-    protected int gameId;
-    
-    /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na připojení se ke hře.
      * 
      * @param client objekt klienta
@@ -40,9 +35,6 @@ public class JoinGameResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CLIENT.joinGame(MESSAGE.getNextIntArg(1));
-            gameId = CLIENT.getGameId();
-            
             return;
         }
         
@@ -55,24 +47,24 @@ public class JoinGameResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
+    public String updateClient() {
         if (messageErrorKeyword == null) {
-            return String.format("Hráč vstoupil do herní místnosti s ID %d", gameId);
+            return String.format("Hráč vstoupil do herní místnosti");
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_ID)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_ID.KEYWORD)) {
             return "Zadané ID herní místnosti je neplatné";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ID_NOT_FOUND)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ID_NOT_FOUND.KEYWORD)) {
             return "Herní místnost se zadaným ID neexistuje";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_IN_ROOM)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_IN_ROOM.KEYWORD)) {
             return "Hráč se již nachází v herní místnosti se zadaným ID";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROOM_FULL)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ROOM_FULL.KEYWORD)) {
             return "Herní místnost je již plně obsazena";
         }
         

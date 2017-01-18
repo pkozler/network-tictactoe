@@ -29,7 +29,6 @@ public class CurrentGameDetail {
      * @param joinedPlayers hráči v herní místnosti
      */
     public CurrentGameDetail(GameBoard gameBoard, ArrayList<JoinedPlayer> joinedPlayers) {
-        super();
         this.GAME_BOARD = gameBoard;
         this.JOINED_PLAYERS = joinedPlayers;
     }

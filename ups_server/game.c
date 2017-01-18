@@ -30,9 +30,11 @@ void *run_game(void *arg) {
     
     while (game->player_counter > 0) {
         if (game->changed) {
+            lock_game_list();
             lock_game(game);
             broadcast_game_status(game);
             unlock_game(game, false);
+            unlock_game_list(false);
         }
     }
     
@@ -54,7 +56,7 @@ void *run_game(void *arg) {
  */
 game_t *create_game(player_t *player, char *name,
         int8_t board_size, int8_t player_count, int8_t cell_count) {
-    game_t *game = calloc(sizeof(game_t), 1);
+    game_t *game = calloc(1, sizeof(game_t));
     pthread_mutex_init(&(game->lock), NULL);
 
     game->name = name;
@@ -65,7 +67,7 @@ game_t *create_game(player_t *player, char *name,
     game->players = calloc(player_count, sizeof(player_t *));
     game->winner_cells_x = calloc(game->cell_count, sizeof(int8_t));
     game->winner_cells_y = calloc(game->cell_count, sizeof(int8_t));
-    game->board = calloc(board_size, sizeof(int8_t));
+    game->board = calloc(board_size, sizeof(int8_t *));
 
     int8_t i = 0;
     for (i = 0; i < game->board_size; i++) {
@@ -78,7 +80,6 @@ game_t *create_game(player_t *player, char *name,
     game->last_playing = 0;
     game->last_cell_x = 0;
     game->last_cell_y = 0;
-    game->last_leaving = 0;
     game->current_winner = 0;
     
     game->changed = true;

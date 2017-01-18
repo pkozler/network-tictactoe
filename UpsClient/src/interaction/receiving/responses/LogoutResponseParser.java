@@ -4,6 +4,7 @@ import communication.TcpClient;
 import communication.TcpMessage;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
+import configuration.Protocol;
 import interaction.receiving.AResponseParser;
 import visualisation.components.GameListPanel;
 import visualisation.components.PlayerListPanel;
@@ -34,8 +35,10 @@ public class LogoutResponseParser extends AResponseParser {
         super(client, playerListPanel, gameListPanel, statusBarPanel, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            CLIENT.logOut();
+            return;
         }
+        
+        messageErrorKeyword = MESSAGE.getNextArg();
     }
 
     /**
@@ -44,9 +47,13 @@ public class LogoutResponseParser extends AResponseParser {
      * @return výsledek
      */
     @Override
-    public String getStatusAndUpdateGUI() {
-        if (messageErrorKeyword != null) {
+    public String updateClient() {
+        if (messageErrorKeyword == null) {
             return null;
+        }
+        
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_LOGGED.KEYWORD)) {
+            return "Hráč ještě není přihlášen";
         }
         
         return "Hráč byl odhlášen ze serveru";

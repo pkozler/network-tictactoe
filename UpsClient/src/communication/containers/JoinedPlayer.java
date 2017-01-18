@@ -61,8 +61,8 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
      */
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 11 * hash + this.PLAYER_INFO.hashCode();
+        int hash = 3;
+        hash = 59 * hash + this.currentGameIndex;
         return hash;
     }
 
@@ -84,12 +84,12 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
             return false;
         }
         final JoinedPlayer other = (JoinedPlayer) obj;
-        if (!this.PLAYER_INFO.equals(other.PLAYER_INFO)) {
+        if (this.currentGameIndex != other.currentGameIndex) {
             return false;
         }
         return true;
     }
-    
+
     /**
      * Vrátí textovou reprezentaci položky.
      * 
@@ -109,10 +109,6 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
      */
     @Override
     public int compareTo(JoinedPlayer o) {
-        if (currentGameScore != o.currentGameScore) {
-            return o.currentGameScore - currentGameScore;
-        }
-        
         return currentGameIndex - o.currentGameIndex;
     }
     

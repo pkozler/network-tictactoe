@@ -159,6 +159,8 @@ void remove_node(linked_list_t *list, linked_list_node_t *node) {
     else {
         node->next->previous = node->previous;
     }
+    
+    free(node);
 }
 
 /**
@@ -222,6 +224,7 @@ void remove_element(linked_list_t *list, void *e) {
     for (node = list->first; node != NULL; node = node->next) {
         if (node->value == e) {
             remove_node(list, node);
+            list->count--;
             break;
         }
     }

@@ -10,3 +10,5 @@ materiály/**
 /UpcClientDemo/dist/
 /UpsClient/build/
 /ups_server/dist/
+/UpsClient/dist/
+/TextPaneExample/nbproject/private/

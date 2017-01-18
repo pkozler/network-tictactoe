@@ -38,7 +38,6 @@ void start_next_round(game_t *game) {
     game->last_playing = 0;
     game->last_cell_x = 0;
     game->last_cell_y = 0;
-    game->last_leaving = 0;
     game->current_winner = 0;
     
     game->changed = true;
@@ -109,7 +108,6 @@ void remove_player_from_game(player_t *player) {
         player->playing = false;
         player->current_game_index = 0;
         player->current_game = NULL;
-        player->total_score += player->current_game_score;
         player->current_game_score = 0;
         game->players[i] = NULL;
         game->player_counter--;
@@ -339,7 +337,9 @@ void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     game->current_winner = get_winner(game, player_pos, x, y);
     
     if (game->current_winner > 0) {
-        game->players[game->current_winner - 1]->current_game_score++;
+        player_t *winner = game->current_winner - 1;
+        winner->current_game_score++;
+        winner->total_score++;
     }
     
     game->round_finished = game->current_winner > 0 || is_draw(game);

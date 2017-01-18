@@ -37,6 +37,6 @@ public abstract class AParser {
      * 
      * @return výsledek zpracování
      */
-    public abstract String getStatusAndUpdateGUI();
+    public abstract String updateClient();
     
 }

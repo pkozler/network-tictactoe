@@ -24,6 +24,7 @@ typedef struct PLAYER {
     pthread_mutex_t lock; // zámek strukury klienta
     int sock; // deskriptor socketu klienta
     bool connected; // příznak připojení klienta
+    
     /*
      * základní informace o připojeném klientovi odesílané v položkách seznamu hráčů:
      */

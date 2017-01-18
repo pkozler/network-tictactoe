@@ -11,6 +11,28 @@
 #include <ctype.h>
 
 /**
+ * Zkopíruje zadaný řetězec.
+ * 
+ * @param s řetězec
+ * @return kopie řetězce
+ */
+char *copy_string(const char *s) {
+    if (s == NULL) {
+        return NULL;
+    }
+    
+    char *d = malloc (strlen (s) + 1);
+    
+    if (d == NULL) {
+        return NULL;
+    }
+    
+    strcpy(d,s);
+    
+    return d;
+}
+
+/**
  * Určí, zda předaný řetězec představuje platnou celočíselnou hodnotu.
  * 
  * @param str řetězec
@@ -53,10 +75,7 @@ bool starts_with(const char *str, const char *pre) {
  * @return řetězec
  */
 char *bool_to_string(bool i) {
-    char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
-    snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
-    
-    return i ? strdup(MSG_TRUE) : strdup(MSG_FALSE);
+    return copy_string(i ? MSG_TRUE : MSG_FALSE);
 }
 
 /**
@@ -66,7 +85,7 @@ char *bool_to_string(bool i) {
  * @return logická hodnota
  */
 bool string_to_bool(char *str) {
-    return strncmp(MSG_TRUE, str, BOOL_STR_LEN);
+    return !strncmp(MSG_TRUE, str, BOOL_STR_LEN);
 }
 
 /**
@@ -76,7 +95,7 @@ bool string_to_bool(char *str) {
  * @return řetězec
  */
 char *byte_to_string(int8_t i) {
-    char *str = (char *) malloc(sizeof(char) * (BYTE_BUF_LEN + 1));
+    char *str = (char *) calloc(BYTE_BUF_LEN + 1, sizeof(char));
     snprintf(str, BYTE_BUF_LEN + 1, "%d", i);
     
     return str;
@@ -99,7 +118,7 @@ int8_t string_to_byte(char *str) {
  * @return řetězec
  */
 char *int_to_string(int32_t i) {
-    char *str = (char *) malloc(sizeof(char) * (INT_BUF_LEN + 1));
+    char *str = (char *) calloc(INT_BUF_LEN + 1, sizeof(char));
     snprintf(str, INT_BUF_LEN + 1, "%d", i);
     
     return str;

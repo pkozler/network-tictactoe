@@ -71,7 +71,7 @@ message_t *handle_login_request(message_t *message, player_t *player) {
     }
     
     char *nick = get_string_arg(message);
-
+    
     // neplatný nick
     if (!is_name_valid(nick)) {
         return create_err_message(message, MSG_ERR_INVALID_NAME, player);
@@ -89,7 +89,7 @@ message_t *handle_login_request(message_t *message, player_t *player) {
     player->nick = nick;
     add_player_to_list(player);
     unlock_player_list(true);
-
+    
     message_t *new_message = create_message(message->type, MSG_LOGIN_CLIENT_ID_ARGC);
     put_string_arg(new_message, MSG_TRUE);
     put_int_arg(new_message, player->id);
@@ -130,8 +130,8 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     }
     
     char *name = get_string_arg(message);
-    int8_t board_size = get_byte_arg(message);
     int8_t player_count = get_byte_arg(message);
+    int8_t board_size = get_byte_arg(message);
     int8_t cell_count = get_byte_arg(message);
     message_t *new_message;
 
@@ -149,17 +149,6 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_EXISTING_NAME, player);
     }
     
-    if (!is_game_board_size_valid(board_size)) {
-        unlock_game_list(false);
-        new_message = create_message(message->type, MSG_ERR_INVALID_BOARD_SIZE_ARGC);
-        put_string_arg(new_message, MSG_FALSE);
-        put_string_arg(new_message, MSG_ERR_INVALID_BOARD_SIZE);
-        put_byte_arg(new_message, MIN_BOARD_SIZE);
-        put_byte_arg(new_message, MAX_BOARD_SIZE);
-        
-        return new_message;
-    }
-    
     if (!is_game_player_count_valid(player_count)) {
         unlock_game_list(false);
         new_message = create_message(message->type, MSG_ERR_INVALID_PLAYER_COUNT_ARGC);
@@ -167,6 +156,17 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
         put_string_arg(new_message, MSG_ERR_INVALID_PLAYER_COUNT);
         put_byte_arg(new_message, MIN_PLAYERS_SIZE);
         put_byte_arg(new_message, MAX_PLAYERS_SIZE);
+        
+        return new_message;
+    }
+    
+    if (!is_game_board_size_valid(board_size)) {
+        unlock_game_list(false);
+        new_message = create_message(message->type, MSG_ERR_INVALID_BOARD_SIZE_ARGC);
+        put_string_arg(new_message, MSG_FALSE);
+        put_string_arg(new_message, MSG_ERR_INVALID_BOARD_SIZE);
+        put_byte_arg(new_message, MIN_BOARD_SIZE);
+        put_byte_arg(new_message, MAX_BOARD_SIZE);
         
         return new_message;
     }
@@ -424,13 +424,22 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
  * @param player klient
  */
 void parse_received_message(player_t *player) {
-    message_t *request = receive_message(player->sock);
-    message_t *response = NULL;
+    bool success = true;
+    message_t *request = receive_message(player->sock, &success);
+    
+    // detekováno přerušení spojení - klient bude odstraněn
+    if (!success) {
+        player->connected = false;
+        
+        return;
+    }
     
     // příchozí zpráva neplatná - bude ignorována
     if (request == NULL) {
         return;
     }
+    
+    message_t *response = NULL;
     
     // příchozí zpráva je test odezvy - bude odeslána odpověď (prázdná zpráva)
     if (request->type == NULL) {
