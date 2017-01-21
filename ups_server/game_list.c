@@ -8,13 +8,14 @@
 #include "game_list.h"
 #include "global.h"
 #include "protocol.h"
-#include "printer.h"
+#include "logger.h"
 #include "tcp_server_control.h"
 #include "game_list_sender.h"
 #include "observable_list.h"
 #include "linked_list_iterator.h"
 #include "broadcaster.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Pozoruje seznam her a v případě změny rozešle zprávu klientům.
@@ -56,7 +57,7 @@ void create_game_list() {
  */
 void delete_game_list() {
     pthread_mutex_destroy(&(g_game_list->lock));
-    delete_linked_list(g_game_list->list, delete_game);
+    delete_linked_list(g_game_list->list, (dispose_func_t) delete_game);
     free(g_game_list);
 }
 

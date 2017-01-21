@@ -96,7 +96,7 @@ public class MessageBackgroundReceiver implements Runnable {
     /**
      * Přijme a zpracuje zprávu serveru.
      */
-    private void handleReceivedMessage() {
+    private synchronized void handleReceivedMessage() {
         try {
             TcpMessage message = CLIENT.receiveMessage();
             
@@ -334,35 +334,6 @@ public class MessageBackgroundReceiver implements Runnable {
         }
         
         return false;
-    }
-    
-    /**
-     * Ověří platnost zprávy na základě přihlášení klienta.
-     * 
-     * @param message zpráva
-     * @param logged příznak přihlášení klienta
-     * @throws ClientAlreadyLoggedException
-     * @throws ClientNotLoggedException 
-     */
-    private void validateByLoginStatus(TcpMessage message, boolean logged)
-            throws ClientAlreadyLoggedException, ClientNotLoggedException {
-        if (logged) {
-            if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)) {
-                throw new ClientAlreadyLoggedException();
-            }
-            
-            return;
-        }
-        
-        if (message.isTypeOf(Protocol.MSG_LOGIN_CLIENT)
-                || message.isTypeOf(Protocol.MSG_PLAYER_LIST)
-                || message.isTypeOf(Protocol.MSG_PLAYER_LIST_ITEM)
-                || message.isTypeOf(Protocol.MSG_GAME_LIST)
-                || message.isTypeOf(Protocol.MSG_GAME_LIST_ITEM)) {
-            return;
-        }
-        
-        throw new ClientNotLoggedException();
     }
     
 }

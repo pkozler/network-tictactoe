@@ -9,9 +9,9 @@
 #include "global.h"
 #include "config.h"
 #include "console.h"
+#include "logger.h"
 #include "tcp_server_control.h"
 #include "message.h"
-#include "printer.h"
 #include "logger.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -23,6 +23,60 @@
 #include <arpa/inet.h>
 
 /**
+ * Načte potvrzení uživatele o ukončení programu.
+ * 
+ * @param buf buffer pro uložení načtené odpovědi
+ * @return true, pokud uživatel nezrušil příkaz k ukončení, jinak false
+ */
+bool enter_exit_answer(char *buf) {
+    if (!strcmp("y", buf)) {
+        stop_server();
+    }
+    else if (!strcmp("n", buf)) {
+        print_cmd_result(print_commands);
+        
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Provede příkaz uživatele.
+ * 
+ * @param buf buffer pro uložení načteného příkazu
+ * @return true, pokud uživatel zadal příkaz k ukončení programu, jinak false
+ */
+bool perform_server_cmd(char *buf) {
+    bool exiting = false;
+    
+    print_func_t print_func = NULL;
+
+    if (!strcmp(ARGS_CMD, buf)) {
+        print_func = print_args;
+    }
+    else if (!strcmp(STATS_CMD, buf)) {
+        print_func = print_stats;
+    }
+    else if (!strcmp(HELP_CMD, buf)) {
+        print_func = print_commands;
+    }
+    else if (!strcmp(EXIT_CMD, buf)) {
+        print_func = print_exit_question;
+        exiting = true;
+    }
+    else {
+        print_func = print_unknown_cmd;
+    }
+
+    if (print_func != NULL) {
+        print_cmd_result(print_func);
+    }
+    
+    return exiting;
+}
+
+/**
  * Vstupní bod vlákna pro čtení příkazů uživatele. Periodicky načítá a spouští
  * příkazy z konzole, dokud není čtecí vlákno ukončeno hlavním vláknem
  * při zastavení serveru.
@@ -30,6 +84,9 @@
  * @param arg argument
  */
 void *run_prompt(void *arg) {
+    bool exiting = false;
+    print_cmd_result(print_commands);
+    
     while (is_server_running()) {
         char buf[CMD_MAX_LENGTH];
         fgets(buf, CMD_MAX_LENGTH, stdin);
@@ -39,25 +96,17 @@ void *run_prompt(void *arg) {
             *pos = '\0';
         }
         
-        if (!strcmp(ARGS_CMD, buf)) {
-            print_args();
-        }
-        else if (!strcmp(STATS_CMD, buf)) {
-            print_stats();
-        }
-        /*else if (!strcmp(RESET_CMD, buf)) {
-            stop_server();
-        }*/
-        else if (!strcmp(HELP_CMD, buf)) {
-            print_commands();
-        }
-        else if (!strcmp(EXIT_CMD, buf)) {
-            prompt_exit();
+        if (exiting) {
+            exiting = enter_exit_answer(buf);
         }
         else {
-            printf("Neznámý příkaz.\n");
+            exiting = perform_server_cmd(buf);
         }
     }
+    
+    
+    print_cmd_result(print_stats);
+    print_out("Ukončuji server");
     
     return NULL;
 }
@@ -67,8 +116,6 @@ void *run_prompt(void *arg) {
  * příkazů uživatele z konzole.
  */
 void start_prompt() {
-    print_commands();
-    
     if (pthread_create(&g_cmd_thread, NULL, run_prompt, NULL) < 0) {
         print_err("Chyba při vytváření vlákna pro čtení příkazů");
     }

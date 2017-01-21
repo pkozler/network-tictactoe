@@ -17,7 +17,7 @@ public final class Config {
     public static final String DEFAULT_HOST = "localhost"; // výchozí adresa serveru
     public static final int MIN_PORT = 0; // nejnižší povolené číslo portu
     public static final int MAX_PORT = 65535; // nejvyšší povolené číslo portu
-    public static final int DEFAULT_PORT = 10001; // výchozí port pro naslouchání
+    public static final int DEFAULT_PORT = 10000; // výchozí port pro naslouchání
     public static final int SOCKET_TIMEOUT_MILLIS = 5000; // timeout příjmu/odeslání zprávy klienta v milisekundách
     public static final int PING_PERIOD_MILLIS = 1000; // perioda pro testování odezvy serveru
     public static final int MAX_MESSAGE_LENGTH = 65535; // maximální povolená délka zprávy
@@ -35,5 +35,12 @@ public final class Config {
 
     public static final int DEFAULT_WINDOW_WIDTH = 1200; // výchozí šířka okna
     public static final int DEFAULT_WINDOW_HEIGHT = 700; // výchozí výška okna
+    
+    /**
+     * Privátní konstruktor pro zamezení vytvoření instance.
+     */
+    private Config() {
+        // žádný kód
+    }
     
 }

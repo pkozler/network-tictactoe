@@ -88,7 +88,7 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
      */
     @Override
     public String toString() {
-        return String.format("<html>%d: %s</html>", ID, NICK);
+        return String.format("<html>%d: %s<br />skóre: %d</html>", ID, NICK, totalScore);
     }
 
     /**

@@ -223,8 +223,8 @@ message_t *handle_join_game_request(message_t *message, player_t *player) {
     lock_game(game);
     
     if (game == player->current_game) {
-        unlock_game(game, false);
-        unlock_game_list(false);
+        unlock_game(game, true);
+        unlock_game_list(true);
         
         return create_err_message(message, MSG_ERR_ALREADY_IN_ROOM, player);
     }
@@ -324,7 +324,7 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_POSITION, player);
     }
     
-    if (is_cell_in_board(player->current_game, x, y)) {
+    if (!is_cell_in_board(player->current_game, x, y)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
@@ -341,6 +341,49 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
     play(player->current_game, player->current_game_index, x, y);
     unlock_game(player->current_game, true);
     unlock_game_list(true);
+    
+    return create_ack_message(message, player);
+}
+
+/**
+ * Zpracuje požadavek na zahájení kola hry.
+ * 
+ * @param message
+ * @param player
+ * @return 
+ */
+message_t *handle_start_game_request(message_t *message, player_t *player) {
+    if (message->argc != MSG_START_GAME_ARGC) {
+        return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
+    }
+    
+    lock_game_list();
+    
+    if (player->current_game == NULL) {
+        unlock_game_list(false);
+        
+        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
+    }
+    
+    lock_game(player->current_game);
+    
+    if (is_round_started(player->current_game)) {
+        unlock_game(player->current_game, false);
+        unlock_game_list(false);
+        
+        return create_err_message(message, MSG_ERR_ROUND_ALREADY_STARTED, player);
+    }
+    
+    if (player->current_game->player_counter < 2) {
+        unlock_game(player->current_game, false);
+        unlock_game_list(false);
+        
+        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
+    }
+    
+    unlock_game(player->current_game, true);
+    unlock_game_list(true);
+    start_next_round(player->current_game);
     
     return create_ack_message(message, player);
 }
@@ -406,6 +449,10 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
         // požadavek na opuštění herní místnosti
         else if (!strcmp(message->type, MSG_LEAVE_GAME)) {
             return handle_leave_game_request(message, player);
+        }
+        // požadavek na zahájení nové hry
+        else if (!strcmp(message->type, MSG_START_GAME)) {
+            return handle_start_game_request(message, player);
         }
         // požadavek na herní tah v místnosti
         else if (!strcmp(message->type, MSG_PLAY_GAME)) {

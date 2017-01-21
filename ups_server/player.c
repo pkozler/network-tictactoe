@@ -8,7 +8,6 @@
 #include "player.h"
 #include "global.h"
 #include "protocol.h"
-#include "printer.h"
 #include "logger.h"
 #include "config.h"
 #include "checker.h"
@@ -41,13 +40,14 @@ void *run_player(void *arg) {
         unlock_player(player);
     }
     
-    print_out("Zrušeno spojení s klientem s číslem socketu %d", player->sock);
-    append_log("Odpojen klient s číslem socketu %d", player->sock);
+    print_out("Klient %d: Odpojen", player->sock);
     
+    lock_player_list();
     if (is_player_logged(player)) {
         remove_player_from_game(player);
         remove_player_by_id(player->id);
     }
+    unlock_player_list(true);
     
     remove_element(g_client_list, player);
     delete_player(player);
@@ -90,9 +90,6 @@ void delete_player(player_t *player) {
     pthread_cancel(player->thread);
     pthread_mutex_destroy(&(player->lock));
     close(player->sock);
-    
-    print_out("Spojení s klientem s číslem socketu %d zrušeno");
-    
     free(player);
 }
 

@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <pthread.h>
+#include "linked_list.h"
 
 /**
  * Struktura pozorovatelného spojového seznamu.

@@ -31,7 +31,6 @@
         <itemPath>cmd_arg.h</itemPath>
         <itemPath>console.h</itemPath>
         <itemPath>logger.h</itemPath>
-        <itemPath>printer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
@@ -82,7 +81,6 @@
         <itemPath>cmd_arg.c</itemPath>
         <itemPath>console.c</itemPath>
         <itemPath>logger.c</itemPath>
-        <itemPath>printer.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
@@ -122,6 +120,7 @@
       <compileType>
         <cTool>
           <standard>10</standard>
+          <commandLine>-D_BSD_SOURCE</commandLine>
         </cTool>
         <linkerTool>
           <linkerLibItems>
@@ -211,10 +210,6 @@
       </item>
       <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="printer.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="printer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="protocol.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="request_parser.c" ex="false" tool="0" flavor2="0">
@@ -248,6 +243,7 @@
         <cTool>
           <developmentMode>5</developmentMode>
           <standard>10</standard>
+          <commandLine>-D_BSD_SOURCE</commandLine>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
@@ -258,6 +254,11 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
       <item path="broadcaster.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -340,10 +341,6 @@
       <item path="player_list_sender.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="printer.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="printer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="protocol.h" ex="false" tool="3" flavor2="0">
       </item>

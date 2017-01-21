@@ -10,17 +10,15 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 
 /**
  * Třída ConnectionBarPanel představuje panel pro zobrazení stavu
@@ -28,7 +26,7 @@ import javax.swing.SpinnerNumberModel;
  * 
  * @author Petr Kozler
  */
-public class ConnectionBarPanel extends JPanel {
+public class ConnectionBarPanel extends JPanel implements Observer {
     
     /**
      * popisek se stavem připojení
@@ -182,27 +180,8 @@ public class ConnectionBarPanel extends JPanel {
      * Zpracuje stisk tlačítka pro připojení k serveru.
      */
     private void connectActionPerformed() {
-        JTextField hostTF = new JTextField(CMD_ARG_HANDLER.getHost());
-        JSpinner portSpinner = new JSpinner(new SpinnerNumberModel(
-                CMD_ARG_HANDLER.getPort(), Config.MIN_PORT, Config.MAX_PORT, 1));
-        
-        // PO ODLADĚNÍ ODKOMENTOVAT !!!
-        
-        /*final JComponent[] inputs = new JComponent[] {
-                new JLabel("Adresa serveru:"),
-                hostTF,
-                new JLabel("Port:"),
-                portSpinner
-        };
-        
-        int result = JOptionPane.showConfirmDialog(null, inputs, "Připojení", JOptionPane.CANCEL_OPTION);
-        
-        if (result == JOptionPane.OK_OPTION) {*/
-            CMD_ARG_HANDLER.setHost(hostTF.getText());
-            CMD_ARG_HANDLER.setPort((int) portSpinner.getValue());
-            startConnectionTimer();
-            setButtons(true);
-        //}
+        startConnectionTimer();
+        setButtons(true);
     }
 
     /**
@@ -318,7 +297,7 @@ public class ConnectionBarPanel extends JPanel {
     /**
      * Nastaví hlášení v popisku podle stavu připojení.
      * 
-     * @param connected TRUE, pokud je klient připojen, jinak FALSE
+     * @param connected true, pokud je klient připojen, jinak false
      */
     private void setLabel(boolean connected) {
         CONNECTION_LABEL.setText(connected ? String.format("Připojeno k serveru na adrese %s:%d",
@@ -335,6 +314,11 @@ public class ConnectionBarPanel extends JPanel {
     private void setButtons(boolean connected) {
         CONNECT_BUTTON.setEnabled(!connected);
         DISCONNECT_BUTTON.setEnabled(connected);
+    }
+
+    @Override
+    public void update(Observable o, Object o1) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

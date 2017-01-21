@@ -34,7 +34,7 @@ void start_next_round(game_t *game) {
     
     game->current_round++;
     game->round_finished = false;
-    game->current_playing = 0;
+    game->current_playing = 1;
     game->last_playing = 0;
     game->last_cell_x = 0;
     game->last_cell_y = 0;
@@ -55,7 +55,7 @@ void set_next_player(game_t *game) {
         i++;
         i %= game->player_count;
     }
-    while (game->players[i] == NULL || game->players[i]->playing);
+    while (game->players[i] == NULL || !(game->players[i]->playing));
 
     game->current_playing = i + 1;
 }
@@ -332,12 +332,12 @@ void play(game_t *game, int8_t player_pos, int8_t x, int8_t y) {
     game->last_cell_x = x;
     game->last_cell_y = y;
     game->occupied_cell_counter++;
+    
     set_next_player(game);
-
     game->current_winner = get_winner(game, player_pos, x, y);
     
     if (game->current_winner > 0) {
-        player_t *winner = game->current_winner - 1;
+        player_t *winner = game->players[game->current_winner - 1];
         winner->current_game_score++;
         winner->total_score++;
     }

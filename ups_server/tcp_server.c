@@ -12,7 +12,6 @@
 #include "game.h"
 #include "console.h"
 #include "logger.h"
-#include "printer.h"
 #include "broadcaster.h"
 #include "game_list.h"
 #include "player_list.h"
@@ -24,51 +23,85 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 
 /**
- * Zpracuje IP adresu ze zadaného řetězce.
+ * Vytvoří strukturu adresy serveru z předaných parametrů.
  * 
- * @param ip řetězec IP
- * @return IP v binární podobě
+ * @param host IP adresa pro naslouchání
+ * @param port číslo portu pro naslouchání
+ * @return struktura adresy
  */
-in_addr_t parse_ip(char *ip) {
-    struct in_addr ipvalue;
+struct sockaddr_in parse_addr(char *host, int32_t port) {
+    struct sockaddr_in srv_addr;
     
-    if (inet_pton(AF_INET, ip, &ipvalue) == 1) {
-        print_err("Chyba při parsování IP adresy");
-        
-        return 0;
+    // naplnění struktury adresy
+    memset(&srv_addr, 0, sizeof(srv_addr));
+    srv_addr.sin_family = AF_INET;
+    srv_addr.sin_port = htons((short) port);
+    
+    if (inet_aton(host, &srv_addr.sin_addr)) {
+        return srv_addr;
+    }
+    
+    printf("Neplatná IP adresa pro naslouchání, bude použita výchozí hodnota\n");
+    
+    if (inet_aton(DEFAULT_HOST, &srv_addr.sin_addr)) {
+        return srv_addr;
+    }
+    
+    printf("Nelze použít výchozí IP adresu %s\n", DEFAULT_HOST);
+    
+    exit(EXIT_FAILURE);
+}
+
+/**
+ * Vytvoří řetězeczovou reprezentaci zadané adresy.
+ * 
+ * @param addr struktura adresy
+ * @return řetězcová reprezentace
+ */
+char* build_string_from_addr(struct sockaddr_in addr) {
+    const int max_ip_len = (4 * 3 + 3 * 1) + (1 + 5) + 1;
+    char *str = (char *) calloc(max_ip_len , sizeof(char));
+    int port_no = (int) htons(addr.sin_port);
+    
+    if (ntohl(addr.sin_addr.s_addr) == INADDR_ANY) {
+        snprintf(str, max_ip_len, "INADDR_ANY:%d", port_no);
     }
     else {
-        print_out("Parsování IP adresy proběhlo úspěšně");
-        
-        return ipvalue.s_addr;
+        char *ip_str = inet_ntoa(addr.sin_addr);
+        snprintf(str, max_ip_len, "%s:%d", ip_str, port_no);
     }
+    
+    return str;
 }
 
 /**
  * Vytvoří socket serveru.
  * 
- * @param host adresa serveru
- * @param port port
- * @param queue_length délka fronty pro čekání na příchozí spojení
+ * @param srv_addr struktura adresy serveru
  * @return deskriptor socketu serveru
  */
-int create_serversocket(char *host, int32_t port, int32_t queue_length) {
+int create_serversocket(struct sockaddr_in srv_addr) {
     int srv_sock;
-    struct sockaddr_in srv_addr;
     
     // vytvoření TCP socketu
     srv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (srv_sock < 0) {
-        print_err("Chyba při vytváření socketu serveru");
+        return -1;
     }
-    else {
-        print_out("Socket serveru byl úspěšně vytvořen");
+    
+    struct timeval timeout;      
+    timeout.tv_sec = SOCKET_TIMEOUT_SEC;
+    timeout.tv_usec = 0;
+
+    if (setsockopt(srv_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
+                sizeof(timeout)) < 0) {
+        return -1;
     }
 
     // nastavení znovupoužití adresy
@@ -76,36 +109,23 @@ int create_serversocket(char *host, int32_t port, int32_t queue_length) {
     
     if (setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &optval,
             sizeof(optval)) < 0) {
-        print_err("Chyba při nastavování znovupoužití adresy");
-    }
-    else {
-        print_out("Znovupoužití adresy bylo úspěšně nastaveno");
+        return -1;
     }
     
-    // naplnění struktury adresy
-    memset(&srv_addr, 0, sizeof(srv_addr));
-    srv_addr.sin_family = AF_INET;
-    srv_addr.sin_port = htons((short) port);
-    inet_aton(host, &srv_addr.sin_addr);
-
     // provázání socketu s adresou
     if (bind(srv_sock, (struct sockaddr*) &srv_addr, sizeof(srv_addr)) < 0) {
-        print_err("Chyba při propojování socketu serveru s adresou pro naslouchání");
-    }
-    else {
-        print_out("Socket serveru byl úspěšně propojen s adresou pro naslouchání");
+        return -1;
     }
 
     // nastavení režimu čekání na příchozí spojení
-    if (listen(srv_sock, queue_length) < 0) {
-        print_err("Chyba při spouštění naslouchání příchozím spojením");
+    if (listen(srv_sock, QUEUE_LENGTH) < 0) {
+        return -1;
     }
-    else {
-        char *ip_str = inet_ntoa(srv_addr.sin_addr);
-        int port_no = (int) htons(srv_addr.sin_port);
-        print_out("Naslouchání příchozím spojením na adrese %s:%d spuštěno",
-                ip_str, port_no);
-    }
+    
+    char *addr_str = build_string_from_addr(srv_addr);
+    print_out("Spuštěno naslouchání na adrese \"%s\", číslo socketu: %d",
+        addr_str, srv_sock);
+    free(addr_str);
 
     return srv_sock;
 }
@@ -122,38 +142,25 @@ int accept_socket(int srv_sock) {
     socklen_t addr_len;
     addr_len = sizeof(addr);
 
-    do {
-        sock = accept(srv_sock, (struct sockaddr *) &addr, &addr_len);
-        
-        if (sock < 0) {
-            print_err("Chyba při navazování spojení s klientem");
-            
-            continue;
-        }
-        
-        char *ip_str = inet_ntoa(addr.sin_addr);
-        int port_no = (int) htons(addr.sin_port);
-        print_out("Navázáno spojení s klientem na adrese %s:%d s číslem socketu %d",
-            ip_str, port_no, sock);
-        
-        struct timeval timeout;
-        timeout.tv_sec = SOCKET_TIMEOUT_SEC;
-        timeout.tv_usec = 0;
+    sock = accept(srv_sock, (struct sockaddr *) &addr, &addr_len);
 
-        if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
-                    sizeof(timeout)) < 0) {
-            print_err("Chyba při nastavování timeoutu pro příjem zpráv");
-            close(sock);
-            sock = -1;
-            
-            continue;
-        }
-        
-        print_out("Timeout pro příjem zpráv byl úspěšně nastaven na %d sekund",
-                SOCKET_TIMEOUT_SEC);
+    if (sock < 0) {
+        return -1;
     }
-    while (sock < 0);
-    
+
+    struct timeval timeout;
+    timeout.tv_sec = SOCKET_TIMEOUT_SEC;
+    timeout.tv_usec = 0;
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
+                sizeof(timeout)) < 0) {
+        return -1;
+    }
+
+    char *addr_str = build_string_from_addr(addr);
+    print_out("Příchozí spojení na adrese \"%s\"", addr_str);
+    free(addr_str);
+
     return sock;
 }
 
@@ -162,23 +169,26 @@ int accept_socket(int srv_sock) {
  * 
  * @param host adresa pro naslouchání
  * @param port port pro naslouchání
- * @param log_file logovací soubor
- * @param queue_length délka fronty
  * @return deskriptor socketu serveru
  */
-int setup_connection(char *host, int32_t port, char *log_file, int32_t queue_length) {
-    clear_stats();
-    start_server();
+int setup_connection(char *host, int32_t port) {
+    struct sockaddr_in srv_addr = parse_addr(host, port);
+    int srv_sock = create_serversocket(srv_addr);
     
-    start_logging(log_file);
+    if (srv_sock < 0) {
+        print_err("Chyba při vytváření socketu serveru");
+        
+        return -1;
+    }
+    
     g_client_list = create_linked_list();
     create_player_list();
     create_game_list();
-    int srv_sock = create_serversocket(host, port, queue_length);
-    start_prompt();
+    clear_stats();
+    start_server();
     
-    append_log("Start serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
-    print_out("Server spuštěn");
+    print_out("Server spuštěn - číslo socketu: %d", srv_sock);
+    start_prompt();
     
     return srv_sock;
 }
@@ -196,8 +206,8 @@ void run_connection(int srv_sock) {
             continue;
         }
         
+        print_out("Klient %d: Připojen", cli_sock);
         inc_stats_connections_established();
-        append_log("Připojen klient s číslem socketu %d", cli_sock);
         player_t *player = create_player(cli_sock);
         add_element(g_client_list, player);
     }
@@ -212,30 +222,27 @@ void shutdown_connection(int srv_sock) {
     close(srv_sock);
     delete_game_list();
     delete_player_list();
-    delete_linked_list(g_client_list, delete_player);
-    append_log("Ukončení serveru - adresa %s:%d", g_server_info.args.host, g_server_info.args.port);
-    shutdown_logging();
-    
-    print_out("Server ukončen");
-    print_stats();
+    delete_linked_list(g_client_list, (dispose_func_t) delete_player);
+    print_out("Server ukončen - číslo socketu: %d", srv_sock);
 }
 
 /**
  * Spustí hlavní cyklus programu se zadanými argumenty.
  * 
  * @param args struktura argumentů příkazové řádky
+ * @return výsledek běhu
  */
-void initialize(args_t args) {
+int initialize(args_t args) {
     g_server_info.args.host = args.host;
     g_server_info.args.port = args.port;
-    g_server_info.args.log_file = args.log_file;
-    g_server_info.args.queue_length = args.queue_length;
+    int srv_sock = setup_connection(g_server_info.args.host, g_server_info.args.port);
     
-    while (true) {
-        int srv_sock = setup_connection(g_server_info.args.host, g_server_info.args.port,
-                g_server_info.args.log_file, g_server_info.args.queue_length);
-        run_connection(srv_sock);
-        shutdown_connection(srv_sock);
-        scan_args();
+    if (srv_sock < 0) {
+        return -1;
     }
+    
+    run_connection(srv_sock);
+    shutdown_connection(srv_sock);
+    
+    return 0;
 }

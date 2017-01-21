@@ -23,7 +23,7 @@ linked_list_iterator_t *create_iterator(linked_list_t *list) {
     
     iterator->list = list;
     iterator->current = list->first;
-    iterator->recent = (linked_list_t *) malloc(sizeof(linked_list_t));
+    iterator->recent = (linked_list_node_t *) malloc(sizeof(linked_list_node_t));
     
     return iterator;
 }

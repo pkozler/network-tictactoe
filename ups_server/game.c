@@ -11,7 +11,7 @@
 #include "global.h"
 #include "config.h"
 #include "protocol.h"
-#include "printer.h"
+#include "logger.h"
 #include "message.h"
 #include "game_list.h"
 #include "player_list.h"

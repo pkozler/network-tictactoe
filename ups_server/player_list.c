@@ -11,7 +11,7 @@
 #include "observable_list.h"
 #include "linked_list_iterator.h"
 #include "broadcaster.h"
-#include "printer.h"
+#include "logger.h"
 #include "player_list_sender.h"
 #include "tcp_server_control.h"
 #include <stdlib.h>

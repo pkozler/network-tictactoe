@@ -13,8 +13,6 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
-        <gdb_signals>
-        </gdb_signals>
         <gdb_options>
           <DebugOptions>
           </DebugOptions>
@@ -26,13 +24,18 @@
       </nativedebugger>
       <runprofile version="9">
         <runcommandpicklist>
-          <runcommandpicklistitem>"${OUTPUT_PATH}" -?</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" - h 127.0.0.1 -p 10001</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" -h 127.0.0.1 -p 10001</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}" -h 127.0.0.1 -p 12345</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -?</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -p 127.0.0.1</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -p 10001</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -h 127.0.0.1</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -h 127.0.0.1 -p 10000</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}" -p 10000</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <runcommand>"${OUTPUT_PATH}" -p 10000</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <console-type>2</console-type>

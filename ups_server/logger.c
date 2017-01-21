@@ -1,114 +1,127 @@
 /* 
- * Modul logger definuje funkce pro logování do souboru.
+ * Modul printer definuje funkce pro výpis logů na konzoli.
  * 
  * Author: Petr Kozler
  */
 
 #include "logger.h"
 #include "config.h"
-#include "global.h"
-#include "tcp_server_control.h"
-#include "printer.h"
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <error.h>
+#include <errno.h>
 #include <string.h>
-#include <unistd.h>
-#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 /**
- * Vloží zadaný formátovaný řetězec, představující záznam logu,
- * do fronty pro zápis do logovacího souboru.
- * Slouží k zaznamenávání činnosti pracovních vláken serveru
- * a trasování síťové komunikace.
+ * Vypíše aktuální datum a čas.
  * 
- * @param format formát řetězce záznamu logu
- * @param ... argumenty řetězce záznamu logu
+ * @param buf buffer pro uložení formátovaného řetězce s časovým údajem
+ * @param success true v případě běžného záznamu, false v případě záznamu o chybě
  */
-void append_log(const char *format, ...) { 
+void print_datetime(char *buf, bool success) {
+    time_t timer;
+    struct tm* tm_info;
+
+    time(&timer);
+    tm_info = localtime(&timer);
+
+    strftime(buf, MAX_STR_LENGHT, "%Y-%m-%d %H:%M:%S", tm_info);
+    
+    if (!success) {
+        fprintf(stderr, "[%s] ", buf);
+        
+        return;
+    }
+    
+    printf("[%s] ", buf);
+}
+
+/**
+ * Vypíše na obrazovku zadanou hlášku a ukončí řádek.
+ * 
+ * @param format formát řetězce hlášky
+ * @param ... argumenty řetězce hlášky
+ */
+void print_out(const char *format, ...) {
+    char buf[MAX_STR_LENGHT];
+    print_datetime(buf, true);
+    
     va_list vargs;
     va_start(vargs, format);
-    char *log_str = (char *) malloc(sizeof(char) * MAX_STR_LENGHT);
-    vsnprintf(log_str, sizeof(char) * MAX_STR_LENGHT, format, vargs);
+    vsnprintf(buf, sizeof(char) * MAX_STR_LENGHT, format, vargs);
     va_end(vargs);
     
-    // vložení záznamu do fronty (atomická operace)
-    pthread_mutex_lock(&(g_logger->lock));
-    enqueue_element(g_logger->log_queue, log_str);
-    pthread_mutex_unlock(&(g_logger->lock));
+    printf("%s\n", buf);
 }
 
 /**
- * Postupně vybere všechny záznamy logu aktuálně čekající ve frontě a provede
- * jejich zápis do logovacího souboru v pořadí, v jakém byly vloženy.
+ * Vypíše záznam o zprávě přijaté od klienta.
+ * 
+ * @param msg řetězec zprávy
+ * @param sock socket klienta
+ * @param success true, pokud přenos proběhl v pořádku, jinak false
  */
-void write_logs() {
-    while (!is_linked_list_empty(g_logger->log_queue)) {
-        // výběr záznamu z fronty (atomická operace)
-        pthread_mutex_lock(&(g_logger->lock));
-        char *log_str = dequeue_element(g_logger->log_queue);
-        pthread_mutex_unlock(&(g_logger->lock));
+void print_recv(const char *msg, int sock, bool success) {
+    char buf[MAX_STR_LENGHT];
+    
+    if (!success) {
+        print_datetime(buf, success);
+        fprintf(stderr, "Server <-- Klient %d - Chyba příjmu: \"%s\"\n",
+                sock, msg == NULL ? strerror(errno) : msg);
         
-        // zápis a odstranění řetězce
-        fputs(log_str, g_logger->log_file);
-        free(log_str);
+        return;
     }
+    
+    if (msg[0] == '\0') {
+        return;
+    }
+    
+    print_datetime(buf, success);
+    printf("Server <-- Klient %d: \"%s\"\n", sock, msg);
 }
 
 /**
- * Vstupní bod logovacího vlákna. Periodicky spouští zápis záznamů vkládaných
- * pracovními vlákny do souboru logu, dokud není logovací vlákno ukončeno
- * hlavním vláknem při zastavení serveru.
+ * Vypíše záznam o zprávě zaslané klientovi.
  * 
- * @param arg argument
+ * @param msg řetězec zprávy
+ * @param sock socket klienta
+ * @param success true, pokud přenos proběhl v pořádku, jinak false
  */
-void *run_logging(void *arg) {
-    while (is_server_running()) {
-        write_logs();
+void print_send(const char *msg, int sock, bool success) {
+    char buf[MAX_STR_LENGHT];
+    
+    if (!success) {
+        print_datetime(buf, success);
+        fprintf(stderr, "Server --> Klient %d - Chyba odesílání: \"%s\"\n",
+                sock, msg == NULL ? strerror(errno) : msg);
+        
+        return;
     }
     
-    return NULL;
+    if (msg[0] == '\0') {
+        return;
+    }
+    
+    print_datetime(buf, success);
+    printf("Server --> Klient %d: \"%s\"\n", sock, msg);
 }
 
 /**
- * Inicializuje strukturu loggeru, vytvoří logovací soubor na zadané cestě
- * (nebo otevře již existující) a spustí vlákno pro logování.
- * Vkládání řetězců logu probíhá v ostatních vláken programu, jejich následný
- * výběr v odpovídajícím pořadí a samotný zápis do logovacího souboru pak 
- * obstarává logovací vlákno (model producent-konzument). To zajišťuje, že
- * zápis logů nezpůsobuje zpoždění síťové komunikace a dalších operací serveru.
+ * Vypíše na obrazovku zadanou chybovou hlášku spolu s popisem chyby podle čísla
+ * uloženého v konstantě errno a ukončí řádek.
  * 
- * @param log_file_name cesta k souboru pro logování
+ * @param format formát řetězce chybové hlášky
+ * @param ... argumenty řetězce chybové hlášky
  */
-void start_logging(char *log_file_name) {
-    g_logger = (logger_t *) malloc(sizeof(logger_t));
-    g_logger->log_file = fopen(log_file_name, "a");
+void print_err(const char *format, ...) {
+    char buf[MAX_STR_LENGHT];
+    print_datetime(buf, false);
     
-    if (g_logger->log_file == NULL) {
-        print_err("Chyba při otevírání souboru pro zápis logů");
-    }
-
-    g_logger->log_queue = create_linked_list();
+    va_list vargs;
+    va_start(vargs, format);
+    vsnprintf(buf, sizeof(char) * MAX_STR_LENGHT, format, vargs);
+    va_end(vargs);
     
-    if (pthread_mutex_init(&(g_logger->lock), NULL) < 0) {
-        print_err("Chyba při vytváření zámku pro zápis logů");
-    }
-    
-    if (pthread_create(&(g_logger->thread), NULL, run_logging, NULL) < 0) {
-        print_err("Chyba při vytváření vlákna pro zápis logů");
-    }
-}
-
-/**
- * Dokončí zápis logů aktuálně uložených ve frontě, ukončí logovací vlákno
- * a uzavře logovací soubor.
- */
-void shutdown_logging() {
-    pthread_mutex_destroy(&(g_logger->lock));
-    
-    // výpis zbylých logů ve frontě po ukončení serveru
-    write_logs();
-    delete_linked_list(g_logger->log_queue, NULL);
-    fclose(g_logger->log_file);
-    free(g_logger);
+    fprintf(stderr, "%s: \"%s\"\n", buf, strerror(errno));
 }

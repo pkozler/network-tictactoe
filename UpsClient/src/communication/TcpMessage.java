@@ -298,6 +298,13 @@ public class TcpMessage {
         return null;
     }
     
+    /**
+     * Spojí argumenty zprávy do řetězce.
+     * 
+     * @param separator oddělovač argumentů
+     * @param args argumenty
+     * @return řetězec
+     */
     private static String joinArgs(String separator, String[] args) {
         if (args.length < 1) {
             return "";

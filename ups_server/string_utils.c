@@ -7,6 +7,8 @@
 #include "string_utils.h"
 #include "config.h"
 #include "protocol.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 

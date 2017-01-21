@@ -18,7 +18,11 @@
  */
 int main(int argc, char **argv) {
     args_t args = parse_args(argc, argv);
-    initialize(args);
+    int status = initialize(args);
+    
+    if (status < 0) {
+        return EXIT_FAILURE;
+    }
     
     return EXIT_SUCCESS;
 }

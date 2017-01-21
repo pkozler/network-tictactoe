@@ -10,7 +10,6 @@
 
 #include "cmd_arg.h"
 #include "com_stats.h"
-#include "logger.h"
 #include "observable_list.h"
 #include "linked_list.h"
 #include <pthread.h>
@@ -26,8 +25,6 @@ struct {
 
 // vlákno pro načítání příkazů uživatele z konzole při probíhající komunikaci
 pthread_t g_cmd_thread;
-// instance loggeru
-logger_t *g_logger;
 // seznam vytvořených her
 observable_list_t *g_game_list;
 // seznam přihlášených hráčů

@@ -1,5 +1,5 @@
 /* 
- * Hlavičkový soubor logger deklaruje funkce pro logování do souboru.
+ * Hlavičkový soubor printer deklaruje funkce pro výpis logů do konzole.
  * 
  * Author: Petr Kozler
  */
@@ -7,25 +7,13 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include "linked_list.h"
-#include <stdio.h>
 #include <stdarg.h>
-#include <pthread.h>
+#include <stdbool.h>
 
-/**
- * Struktura loggeru pro uchovávání záznamů o činnosti pracovních vláken
- * programu a jejich postupný zápis vyhrazeným vláknem do zvoleného souboru.
- */
-typedef struct {
-    linked_list_t *log_queue; // fronta pro ukládání logů
-    pthread_t thread; // logovací vlákno pro výběr a zápis záznamů
-    pthread_mutex_t lock; // zámek fronty záznamů
-    FILE *log_file; // logovací soubor
-} logger_t;
-
-void append_log(const char *format, ...);
-void start_logging(char *log_file_name);
-void shutdown_logging();
+void print_out(const char *format, ...);
+void print_recv(const char *msg, int sock, bool success);
+void print_send(const char *msg, int sock, bool success);
+void print_err(const char *format, ...);
 
 #endif /* LOGGER_H */
 

@@ -91,8 +91,9 @@ public class MainWindow extends JFrame {
         CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, cmdArgHandler,
                 messageBackgroundSender, messageBackgroundReceiver,
                 PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL, STATUS_PANEL);
-        contentPane.add(CONNECTION_PANEL, BorderLayout.NORTH);
+        CLIENT.addObserver(CONNECTION_PANEL);
         
+        contentPane.add(CONNECTION_PANEL, BorderLayout.NORTH);
         setContentPane(contentPane);
         
         addWindowListener(new java.awt.event.WindowAdapter() {

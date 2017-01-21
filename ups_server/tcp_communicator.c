@@ -80,7 +80,7 @@ int write_bytes(int sock, void *buf, unsigned int len) {
  * (testování odezvy) vrací pouze nulový znak. V případě chyby vrací hodnotu NULL.
  * 
  * @param sock deskriptor socketu klienta - odesílatele
- * @param příznak průběhu přenosu (uloží se true, je-li spojení v pořádku, jinak true)
+ * @param příznak průběhu přenosu (uloží se true, pokud byl přenos úspěšný, jinak false)
  * @return zpráva v textové formě (standardní řetězec, délka smí být nulová) nebo NULL
  */
 char *read_from_socket(int sock, bool *success) {
@@ -89,6 +89,10 @@ char *read_from_socket(int sock, bool *success) {
     int n = read_bytes(sock, &str_len, sizeof(int32_t));
     if (n < 1) {
         *success = false;
+        
+        if (n < 0) {
+            print_recv(NULL, sock, false);
+        }
         
         return NULL;
     }
@@ -101,25 +105,35 @@ char *read_from_socket(int sock, bool *success) {
     
     if (str_len < 0 || str_len > MAX_MESSAGE_LENGTH) {
         *success = false;
+        print_recv("Neplatná délka řetězce zprávy.", sock, false);
         
         return NULL;
     }
     
     char *msg_str = (char *) malloc(sizeof(char) * (str_len + 1));
     
-    if (str_len > 0) {
-        n = read_bytes(sock, msg_str, str_len);
+    if (str_len == 0) {
+        msg_str[0] = '\0';
+        print_recv(msg_str, sock, true);
         
-        if (n < 1) {
-            *success = false;
-            
-            return NULL;
+        return msg_str;
+    }
+        
+    n = read_bytes(sock, msg_str, str_len);
+
+    if (n < 1) {
+        *success = false;
+        
+        if (n < 0) {
+            print_recv(NULL, sock, false);
         }
         
-        inc_stats_bytes_transferred((int32_t) n);
+        return NULL;
     }
-    
+
     msg_str[str_len] = '\0';
+    print_recv(msg_str, sock, true);
+    inc_stats_bytes_transferred((int32_t) n);
     
     return msg_str;
 }
@@ -132,15 +146,23 @@ char *read_from_socket(int sock, bool *success) {
  * 
  * @param msg_str zpráva v textové formě (standardní řetězec, délka smí být nulová)
  * @param sock deskriptor socketu klienta - příjemce
- * @return true v případě úspěchu, false v případě chyby
+ * @return true, pokud byl přenos úspěšný, jinak false
  */
 bool write_to_socket(char *msg_str, int sock) {
+    if (msg_str == NULL) {
+        print_send("Předána neplatná struktura zprávy.", sock, false);
+        
+        return false;
+    }
+    
     int32_t str_len = (int32_t) strlen(msg_str); 
     // převod pořadí bajtů čísla délky
     str_len = htonl(str_len);
     int n = write_bytes(sock, &str_len, sizeof(int32_t));
     
     if (n < 0) {
+        print_send(NULL, sock, false);
+        
         return false;
     }
     
@@ -148,20 +170,27 @@ bool write_to_socket(char *msg_str, int sock) {
     inc_stats_bytes_transferred((int32_t) n);
     n = 0;
     
-    if (str_len < 0) {
+    if (str_len < 0 || str_len > MAX_MESSAGE_LENGTH) {
+        print_send("Neplatná délka řetězce zprávy.", sock, false);
+        
         return false;
     }
     
     if (str_len == 0) {
+        print_send(msg_str, sock, true);
+        
         return true;
     }
     
     n = write_bytes(sock, msg_str, str_len);
     
     if (n < 0) {
+        print_send(NULL, sock, false);
+        
         return false;
     }
     
+    print_send(msg_str, sock, true);
     inc_stats_bytes_transferred((int32_t) n);
     
     return true;
@@ -174,23 +203,23 @@ bool write_to_socket(char *msg_str, int sock) {
  * hodnotu NULL.
  * 
  * @param sock deskriptor socketu klienta - odesílatele
- * @param příznak průběhu přenosu (uloží se true, je-li spojení v pořádku, jinak true)
+ * @param příznak průběhu přenosu (uloží se true, pokud se podařilo přenést zprávu, jinak false)
  * @return přijatá platná zpráva ve formě struktury nebo NULL
  */
 message_t *receive_message(int sock, bool *success) {
     *success = true;
     char *msg_str = read_from_socket(sock, success);
     
+    // došlo k chybě při přenosu řetězce zprávy
     if (msg_str == NULL) {
         inc_stats_transfers_failed();
-        //append_log("Chyba při příjmu zprávy od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
         
         return NULL;
     }
     
     inc_stats_messages_transferred();
-    //append_log("Přijata zpráva od klienta s číslem socketu %d: \"%s\"", sock, msg_str);
     
+    // řetezec má nulovou délku (test odezvy)
     if (strlen(msg_str) == 0) {
         free(msg_str);
         
@@ -198,7 +227,6 @@ message_t *receive_message(int sock, bool *success) {
     }
     
     int32_t delim_cnt = 0;
-    
     char *pch = strpbrk(msg_str, SEPARATOR);
     
     while (pch != NULL) {
@@ -207,10 +235,10 @@ message_t *receive_message(int sock, bool *success) {
     }
     
     char *saveptr;
-    
     pch = __strtok_r(msg_str, SEPARATOR, &saveptr);
     msg_str = saveptr;
     
+    // nepodařilo se načíst argument z řetězce - neplatný formát zprávy
     if (pch == NULL || strlen(pch) == 0) {
         return NULL;
     }
@@ -218,6 +246,7 @@ message_t *receive_message(int sock, bool *success) {
     message_t *message = create_message(pch, delim_cnt);
     
     while (pch = __strtok_r(msg_str, SEPARATOR, &saveptr)) {
+        // prázdný argument - neplatný formát zprávy
         if (strlen(pch) == 0) {
             return NULL;
         }
@@ -226,6 +255,7 @@ message_t *receive_message(int sock, bool *success) {
         msg_str = saveptr;
     }
     
+    // zpráva byla úspěšně přijata
     message->argc = message->counter;
     
     return message;
@@ -242,6 +272,7 @@ message_t *receive_message(int sock, bool *success) {
 bool send_message(message_t *msg, int sock) {
     char *msg_str;
     
+    // zpráva má typ
     if (msg->type != NULL) {
         int32_t str_len = strlen(msg->type) + msg->argc;
         
@@ -252,36 +283,38 @@ bool send_message(message_t *msg, int sock) {
         
         msg_str = (char *) malloc(sizeof(char) * (str_len + 1));
         msg_str[0] = '\0';
-        strcat(msg_str, msg->type);
+        strncat(msg_str, msg->type, str_len);
         
         for (i = 0; i < msg->argc; i++) {
-            strcat(msg_str, SEPARATOR);
-            strcat(msg_str, msg->argv[i]);
-            
+            strncat(msg_str, SEPARATOR, str_len);
+            strncat(msg_str, msg->argv[i], str_len);
         }
-        
-        printf("%s\n", msg_str);
     }
+    // zpráva nemá typ ani argumenty (odpověď na test odezvy)
     else if (msg->type == NULL && msg->argc == 0) {
         msg_str = (char *) malloc(sizeof(char));
         msg_str[0] = '\0';
     }
+    // zpráva nemá typ, ale má argumenty - neplatná zpráva
     else {
+        msg_str = NULL;
+    }
+    
+    bool success = write_to_socket(msg_str, sock);
+    
+    if (msg_str != NULL) {
+        free(msg_str);
+    }
+    
+    // došlo k chybě při přenosu řetězce zprávy
+    if (!success) {
+        inc_stats_transfers_failed();
+        
         return false;
     }
     
-    bool result = write_to_socket(msg_str, sock);
+    // zpráva byla úspěšně odeslána
+    inc_stats_messages_transferred();
     
-    if (result) {
-        inc_stats_messages_transferred();
-        //append_log("Odeslána zpráva klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
-    }
-    else {
-        inc_stats_transfers_failed();
-        //append_log("Chyba při odesílání zprávy klientovi s číslem socketu %d: \"%s\"", sock, msg_str);
-    }
-    
-    free(msg_str);
-    
-    return result;
+    return true;
 }

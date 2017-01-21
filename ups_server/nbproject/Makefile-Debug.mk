@@ -54,7 +54,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/player.o \
 	${OBJECTDIR}/player_list.o \
 	${OBJECTDIR}/player_list_sender.o \
-	${OBJECTDIR}/printer.o \
 	${OBJECTDIR}/request_parser.o \
 	${OBJECTDIR}/string_utils.o \
 	${OBJECTDIR}/tcp_communicator.o \
@@ -63,7 +62,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=
+CFLAGS=-D_BSD_SOURCE
 
 # CC Compiler Flags
 CCFLAGS=
@@ -180,11 +179,6 @@ ${OBJECTDIR}/player_list_sender.o: player_list_sender.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list_sender.o player_list_sender.c
-
-${OBJECTDIR}/printer.o: printer.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printer.o printer.c
 
 ${OBJECTDIR}/request_parser.o: request_parser.c 
 	${MKDIR} -p ${OBJECTDIR}

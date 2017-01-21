@@ -105,4 +105,12 @@ public final class Protocol {
     public static final String MSG_TRUE = "true"; // logická pravda, značí mj. pozitivní přijetí zprávy (požadavek klienta je v pořádku)
     public static final String MSG_FALSE = "false"; // logická nepravda, značí mj. negativní přijetí zprávy (v požadavku klienta je chyba)
     public static final String SEPARATOR = ";"; // 1znakový oddělovač tokenů (označení typu a argumentů) zprávy
+    
+    /**
+     * Privátní konstruktor pro zamezení vytvoření instance.
+     */
+    private Protocol() {
+        // žádný kód
+    }
+    
 }

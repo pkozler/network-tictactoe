@@ -22,83 +22,71 @@
  * @return návratová hodnota programu
  */
 args_t parse_args(int argc, char** argv) {
+    if (argc <= 1) {
+        usage();
+    }
+    
     args_t args;
     args.host = DEFAULT_HOST;
-    args.port = DEFAULT_PORT;
-    args.log_file = DEFAULT_LOG_FILE;
-    args.queue_length = DEFAULT_QUEUE_LENGTH;
+    bool has_port = false;
     
     int i = 1;
     char *arg;
-    char *tmp;
 
     while (i < argc && starts_with(argv[i], "-")) {
         arg = argv[i++];
         
-        if (!strcmp(HELP_OPTION, arg)) {
-            usage();
-        }
-        else if (!strcmp(HOST_OPTION, arg)) {
+        if (!strcmp(HOST_OPTION, arg)) {
             if (i < argc) {
                 args.host = argv[i++];
-            } else {
-                printf("%s vyžaduje IP adresu serveru", HOST_OPTION);
+            }
+            else {
+                printf("%s vyžaduje IP adresu pro naslouchání, použita výchozí hodnota\n", HOST_OPTION);
             }
         }
         else if (!strcmp(PORT_OPTION, arg)) {
+            int port = 0;
+            
             if (i < argc) {
-                tmp = argv[i++];
-
-                if (is_integer(tmp)) {
-                    args.port = strtol(tmp, NULL, 10);
+                if (is_integer(argv[i])) {
+                    port = strtol(argv[i], NULL, 10);
+                    
+                    if (port < MIN_PORT || port > MAX_PORT) {
+                        printf("%s není v rozsahu %d - %d\n",
+                                PORT_OPTION, MIN_PORT, MAX_PORT);
+                    }
+                    else {
+                        has_port = true;
+                    }
                 }
                 else {
-                    printf("%s není číslo, nastavena výchozí hodnota %d",
-                            PORT_OPTION, DEFAULT_PORT);
-                    args.port = DEFAULT_PORT;
+                    printf("%s není číslo\n", PORT_OPTION);
                 }
-
-                if (args.port > MAX_PORT || args.port < MIN_PORT) {
-                    printf("%s není v rozsahu %d - %d", PORT_OPTION, MIN_PORT, MAX_PORT);
-                }
+                
+                i++;
             }
             else {
-                printf("%s vyžaduje číslo portu (%d - %d)", PORT_OPTION, MIN_PORT, MAX_PORT);
+                printf("%s vyžaduje číslo portu v rozsahu %d - %d\n",
+                        PORT_OPTION, MIN_PORT, MAX_PORT);
             }
-        }
-        else if (!strcmp(QUEUE_OPTION, arg)) {
-            if (i < argc) {
-                tmp = argv[i++];
 
-                if (is_integer(tmp)) {
-                    args.queue_length = strtol(tmp, NULL, 10);
-                }
-                else {
-                    printf("%s není číslo, nastavena výchozí hodnota %d",
-                            QUEUE_OPTION, DEFAULT_QUEUE_LENGTH);
-                    args.queue_length = DEFAULT_QUEUE_LENGTH;
-                }
-
-                if (args.queue_length > MAX_QUEUE_LENGTH || args.queue_length < MIN_QUEUE_LENGTH) {
-                    printf("%s není v rozsahu %d - %d", QUEUE_OPTION, MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
-                }
+            if (has_port) {
+                args.port = port;
             }
             else {
-                printf("%s vyžaduje délku fronty (%d - %d)", QUEUE_OPTION, MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
-            }
-        }
-        else if (!strcmp(LOG_OPTION, arg)) {
-            if (i < argc) {
-                args.log_file = argv[i++];
-            }
-            else {
-                printf("%s vyžaduje název souboru pro logování včetně cesty",
-                        LOG_OPTION);
+                args.port = DEFAULT_PORT;
+                printf("Použita výchozí hodnota %d\n", DEFAULT_PORT);
+                has_port = true;
             }
         }
         else {
-            printf("server: neplatný argument %s", arg);
+            printf("Neplatný parametr %s\n", arg);
         }
+    }
+    
+    if (!has_port) {
+        printf("Nebyl zadán parametr %s\n", PORT_OPTION);
+        usage();
     }
     
     return args;
@@ -108,20 +96,24 @@ args_t parse_args(int argc, char** argv) {
  * Vypíše nápovědu ke spuštění programu.
  */
 void usage() {
+    const char *name = "server";
+    
+    printf("\n");
     printf("TCP server hry \"Piškvorky pro více hráčů\" (Verze 2.0)\n");
     printf("Seminární práce z předmětu \"Úvod do počítačových sítí\" (KIV/UPS)\n");
-    printf("Autor: Petr Kozler (A13B0359P), 2017\n\n");
-    printf("Použití:   server [%s <host>] [%s <port>] [%s <délka fronty>] [%s <logovací soubor>]\n",
-            HOST_OPTION, PORT_OPTION, LOG_OPTION, QUEUE_OPTION);
+    printf("Autor: Petr Kozler (A13B0359P), 2017\n");
+    printf("\n");
+    printf("Použití:    %s [%s <host>] %s <port>\n",
+            name, HOST_OPTION, PORT_OPTION);
     printf("Popis parametrů:\n");
-    printf("   <host> ... IP adresa pro naslouchání (\"%s\"  pro naslouchání na všech adresách)\n",
+    printf("    <host> ... IP adresa pro naslouchání\n");
+    printf("        (výchozí hodnota: \"%s\" - naslouchání na všech IP)\n",
             DEFAULT_HOST);
-    printf("   <port> ... celé číslo v rozsahu %d - %d\n",
+    printf("    <port> ... celé číslo v rozsahu %d - %d\n",
             MIN_PORT, MAX_PORT);
-    printf("   <logovací soubor> ... název souboru pro logování včetně cesty\n");
-    printf("   <délka fronty> ... délka fronty pro příchozí spojení v rozsahu %d - %d\n",
-            MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
-    printf("Příklad:   server %s %s %s %d\n",
-            HOST_OPTION, DEFAULT_HOST, PORT_OPTION, DEFAULT_PORT);
+    printf("Příklad:    %s %s %d\n",
+            name, PORT_OPTION, DEFAULT_PORT);
+    printf("\n");
+    
     exit(EXIT_SUCCESS);
 }

@@ -10,6 +10,7 @@
 #include "config.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -48,7 +49,6 @@ void print_commands() {
     printf("Dostupné příkazy:\n");
     printf("   %s ... výpis nastavení\n", ARGS_CMD);
     printf("   %s ... výpis statistik\n", STATS_CMD);
-    // printf("   %s ... restart serveru\n", RESET_CMD);
     printf("   %s ... nápověda příkazů\n", HELP_CMD);
     printf("   %s ... ukončení programu\n", EXIT_CMD);
 }
@@ -60,8 +60,6 @@ void print_args() {
     printf("Nastavené parametry serveru:\n");
     printf("IP adresa pro naslouchání: %s\n", g_server_info.args.host);
     printf("Císlo portu pro naslouchání: %d\n", g_server_info.args.port);
-    printf("Cesta k logovacímu souboru: %s\n", g_server_info.args.log_file);
-    printf("Délka fronty pro příchozí spojení: %d\n", g_server_info.args.queue_length);
 }
 
 /**
@@ -83,47 +81,28 @@ void print_stats() {
 }
 
 /**
- * Načte nové parametry při restartu serveru.
+ * Zobrazí dialog pro ukončení serveru.
  */
-void scan_args() {
-    char *host;
-    int32_t port;
-    char *log_file;
-    int32_t queue_length;
-    
-    printf("Zadejte IP adresu pro naslouchání (\"%s\"  pro naslouchání na všech adresách)\n",
-            DEFAULT_HOST);
-    scanf("%s", &host);
-    printf("Zadejte číslo portu v rozsahu %d - %d\n",
-            MIN_PORT, MAX_PORT);
-    scanf("%d", &port);
-    printf("Zadejte název souboru pro logování včetně cesty\n");
-    scanf("%s", &log_file);
-    printf("Zadejte délku fronty v rozsahu %d - %d\n",
-            MIN_QUEUE_LENGTH, MAX_QUEUE_LENGTH);
-    scanf("%d", &queue_length);
-    
-    g_server_info.args.host = host;
-    g_server_info.args.port = port;
-    g_server_info.args.log_file = log_file;
-    g_server_info.args.queue_length = queue_length;
+void print_exit_question() {
+    printf("Opravdu chcete ukončit server? (y/n)\n");
 }
 
 /**
- * Zobrazí dialog pro ukončení serveru.
+ * Vypíše hlášení o zadání neznámého příkazu do konzole.
  */
-void prompt_exit() {
-    printf("Opravdu chcete ukončit server? (y/n)\n");
-    
-    while (true) {
-        int c = getchar();
-        
-        if ((char) c == 'n') {
-            break;
-        }
+void print_unknown_cmd() {
+    printf("Neznámý příkaz.\n");
+}
 
-        if ((char) c == 'y') {
-            exit(EXIT_SUCCESS);
-        }
-    }
+/**
+ * Zavolá předanou funkci pro výpis do konzole, který ohraničí znaky za účelem
+ * vizuálního oddělení výpisu výsledků zpracování uživatelských příkazů
+ * a automaticky zapisovaných logů o probíhající komunikaci s klienty.
+ * 
+ * @param print_func funkce pro výpis
+ */
+void print_cmd_result(print_func_t print_func) {
+    printf("========================================\n");
+    print_func();
+    printf("========================================\n");
 }

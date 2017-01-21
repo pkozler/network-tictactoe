@@ -1,6 +1,8 @@
 package interaction;
 
 import configuration.Config;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Třída CmdArg slouží ke zpracování argumentů příkazové řádky.
@@ -12,65 +14,123 @@ public class CmdArg {
     /**
      * Číslo portu serveru.
      */
-    private int port = Config.DEFAULT_PORT;
+    private Integer port;
     
     /**
      * Hostname nebo adresa serveru.
      */
-    private String host = Config.DEFAULT_HOST;
- 
+    private InetAddress host;
+    
     /**
      * Zpracuje předané argumenty.
      * 
      * @param args argumenty příkazové řádky
      */
     public CmdArg(String[] args) {
+        if (args.length < 1) {
+            usage();
+        }
+        
         int i = 0;
         String arg;
-
+        
         while (i < args.length && args[i].startsWith("-")) {
             arg = args[i++];
             
             switch (arg) {
-                case Config.HELP_OPTION:
-                    usage();
-                    break;
                 case Config.HOST_OPTION:
+                    InetAddress host = null;
+                    
                     if (i < args.length) {
-                        host = args[i++];
+                        try {
+                            host = InetAddress.getByName(args[i++]);
+                        }
+                        catch (UnknownHostException e) {
+                            System.out.printf("%s je neznámý hostname nebo adresa\n",
+                                    Config.HOST_OPTION);
+                        }
                     }
                     else {
-                        System.out.printf("%s vyžaduje hostname nebo IP adresu serveru",
+                        System.out.printf("%s vyžaduje hostname nebo IP adresu serveru\n",
                                 Config.HOST_OPTION);
+                    }
+                    
+                    if (host != null) {
+                        this.host = host;
+                    }
+                    else {
+                        try {
+                            this.host = InetAddress.getByName(Config.DEFAULT_HOST);
+                            System.out.printf("Použita výchozí hodnota %s\n", Config.DEFAULT_HOST);
+                        }
+                        catch (UnknownHostException ex) {
+                            System.out.printf("Chyba při nastavování %s na výchozí hodnotu %s\n",
+                                    Config.HOST_OPTION, Config.DEFAULT_HOST);
+                            
+                            System.exit(1);
+                        }
                     }
                     break;
                 case Config.PORT_OPTION:
+                    Integer port = null;
+                    
                     if (i < args.length) {
                         try {
                             port = Integer.parseInt(args[i++]);
+                            
+                            if (port < Config.MIN_PORT || port > Config.MAX_PORT) {
+                                System.out.printf("%s není v rozsahu %d - %d\n",
+                                        Config.PORT_OPTION, Config.MIN_PORT, Config.MAX_PORT);
+                                port = null;
+                            }
                         }
                         catch (NumberFormatException e) {
-                            System.out.printf("%s není číslo, nastavena výchozí hodnota %d",
-                                    Config.PORT_OPTION, Config.DEFAULT_PORT);
-                            port = Config.DEFAULT_PORT;
-                        }
-                        finally {
-                            if (port > Config.MAX_PORT || port < Config.MIN_PORT) {
-                                System.out.printf("%s není v rozsahu %d - %d",
-                                        Config.PORT_OPTION, Config.MIN_PORT, Config.MAX_PORT);
-                            }
+                            System.out.printf("%s není číslo\n", Config.PORT_OPTION);
                         }
                     }
                     else {
-                        System.out.printf("%s vyžaduje číslo portu (%d - %d)",
+                        System.out.printf("%s vyžaduje číslo portu v rozsahu %d - %d\n",
                                 Config.PORT_OPTION, Config.MIN_PORT, Config.MAX_PORT);
+                    }
+                    
+                    if (port != null) {
+                        this.port = port;
+                    }
+                    else {
+                        this.port = Config.DEFAULT_PORT;
+                        System.out.printf("Použita výchozí hodnota %d\n", Config.DEFAULT_PORT);
                     }
                     break;
                 default:
-                    System.out.printf("Client.jar: neplatný argument %s\n" + arg);
+                    System.out.printf("Neplatný parametr %s\n", arg);
                     break;
             }
         }
+        
+        boolean hasParams = true;
+        
+        if (this.host == null) {
+            hasParams = false;
+            System.out.printf("Nebyl zadán parametr %s\n", Config.HOST_OPTION);
+        }
+        
+        if (this.port == null) {
+            hasParams = false;
+            System.out.printf("Nebyl zadán parametr %s\n", Config.PORT_OPTION);
+        }
+        
+        if (!hasParams) {
+            usage();
+        }
+    }
+    
+    /**
+     * Vrátí adresu nebo název serveru.
+     * 
+     * @return adresa nebo název serveru
+     */
+    public InetAddress getHost() {
+        return host;
     }
     
     /**
@@ -78,52 +138,31 @@ public class CmdArg {
      * 
      * @return port serveru
      */
-    public int getPort() {
-        return port;
+    public Integer getPort() {
+        return (int) port;
     }
     
-    /**
-     * Nastaví port serveru.
-     * 
-     * @param port port serveru
-     */
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    /**
-     * Vrátí adresu nebo název serveru.
-     * 
-     * @return adresa nebo název serveru
-     */
-    public String getHost() {
-        return host;
-    }
-    
-    /**
-     * Nastaví adresu nebo název serveru.
-     * 
-     * @param host adresa nebo název serveru
-     */
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     /**
      * Vypíše nápovědu ke spuštění programu.
      */
-    public static void usage() {
-        System.out.println("TCP klient hry \"Piškvorky pro více hráčů\" (Verze 2.0)");
-        System.out.println("Seminární práce z předmětu \"Úvod do počítačových sítí\" (KIV/UPS)");
-        System.out.println("Autor: Petr Kozler (A13B0359P), 2017\n");
-        System.out.println(String.format("Použití:   Client.jar [%s <host>] [%s <port>]",
-                Config.HOST_OPTION, Config.PORT_OPTION));
-        System.out.println("Popis parametrů:");
-        System.out.println("   <host> ... IP adresa nebo název serveru");
-        System.out.println(String.format("   <port> ... celé číslo v rozsahu %d - %d",
-                Config.MIN_PORT, Config.MAX_PORT));
-        System.out.println(String.format("Příklad:   Client.jar %s %s %s %d",
-                Config.HOST_OPTION, Config.DEFAULT_HOST, Config.PORT_OPTION, Config.DEFAULT_PORT));
+    private void usage() {
+        final String name = "Client.jar";
+        
+        System.out.printf("\n");
+        System.out.printf("TCP klient hry \"Piškvorky pro více hráčů\" (Verze 2.0)\n");
+        System.out.printf("Seminární práce z předmětu \"Úvod do počítačových sítí\" (KIV/UPS)\n");
+        System.out.printf("Autor: Petr Kozler (A13B0359P), 2017\n");
+        System.out.printf("\n");
+        System.out.printf("Použití:    %s %s <host> %s <port>\n",
+                name, Config.HOST_OPTION, Config.PORT_OPTION);
+        System.out.printf("Popis parametrů:\n");
+        System.out.printf("    <host> ... IP adresa nebo název serveru\n");
+        System.out.printf("    <port> ... celé číslo v rozsahu %d - %d\n",
+                Config.MIN_PORT, Config.MAX_PORT);
+        System.out.printf("Příklad:    %s %s %s %s %d\n",
+                name, Config.HOST_OPTION, Config.DEFAULT_HOST, Config.PORT_OPTION, Config.DEFAULT_PORT);
+        System.out.printf("\n");
+        
         System.exit(0);
     }
     

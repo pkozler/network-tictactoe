@@ -1,7 +1,7 @@
 /*
  * Hlavičkový soubor linked_list definuje strukturu spojového seznamu
  * používanou pro uchovávání dat v různých částech programu
- * (hry, hráči, nepřihlášení klienti, záznamy logu).
+ * (hry, hráči, nepřihlášení klienti).
  * 
  * Author: Petr Kozler
  */

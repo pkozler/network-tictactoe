@@ -16,7 +16,7 @@ public class StartGameRequestBuilder extends ARequestBuilder {
      * Sestaví požadavek klienta na zahájení herního kola.
      */
     public StartGameRequestBuilder() {
-        message = new TcpMessage(Protocol.MSG_LEAVE_GAME.KEYWORD);
+        message = new TcpMessage(Protocol.MSG_START_GAME.KEYWORD);
     }
     
     /**

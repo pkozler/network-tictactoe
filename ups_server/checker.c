@@ -99,6 +99,7 @@ bool is_game_cell_count_valid(int8_t cell_count) {
  * @return true, pokud je hráč na tahu, jinak false
  */
 bool is_current_player(game_t *game, player_t *player) {
+    
     return player->current_game_index == game->current_playing;
 }
 

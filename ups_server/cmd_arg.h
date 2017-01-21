@@ -14,10 +14,8 @@
  * Struktura s parametry serveru.
  */
 typedef struct {
-    char *host; // IP adresa pro naslouchání
+    char *host; // řetězec IP adresy pro naslouchání
     int32_t port; // port pro naslouchání
-    char *log_file; // název logovacího souboru
-    int32_t queue_length; // délka fronty pro příchozí spojení
 } args_t;
 
 args_t parse_args(int argc, char** argv);

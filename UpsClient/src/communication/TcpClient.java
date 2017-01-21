@@ -4,12 +4,14 @@ import communication.containers.GameInfo;
 import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
 import configuration.Config;
+import interaction.Logger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Observable;
 
 /**
  * Třída TcpClient představuje základní součást komunikační vrstvy aplikace.
@@ -20,12 +22,14 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author Petr Kozler
  */
-public class TcpClient {
+public class TcpClient extends Observable {
 
+    private final Logger LOGGER = Logger.getInstance();
+    
     /**
      * adresa
      */
-    private String host;
+    private InetAddress host;
     
     /**
      * port
@@ -70,12 +74,12 @@ public class TcpClient {
     /**
      * Provede pokus o navázání spojení se serverem.
      * 
-     * @param address adresa
+     * @param host adresa
      * @param port port
      * @throws IOException 
      */
-    public void connect(String address, int port) throws IOException {
-        host = InetAddress.getByName(address).getHostAddress();
+    public void connect(InetAddress host, int port) throws IOException {
+        this.host = host;
         this.port = port;
         
         socket = new Socket(host, port);
@@ -83,6 +87,9 @@ public class TcpClient {
 
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
+        
+        setChanged();
+        notifyObservers();
     }
     
     /**
@@ -98,7 +105,9 @@ public class TcpClient {
         }
         
         socket = null;
-        logOut();
+        
+        setChanged();
+        notifyObservers();
     }
     
     /**
@@ -115,7 +124,7 @@ public class TcpClient {
      * 
      * @return ID hráče
      */
-    public int getPlayerId() {
+    public synchronized int getPlayerId() {
         return playerId;
     }
 
@@ -124,7 +133,7 @@ public class TcpClient {
      * 
      * @param playerId ID hráče
      */
-    public void setPlayerId(int playerId) {
+    public synchronized void setPlayerId(int playerId) {
         this.playerId = playerId;
     }
 
@@ -133,7 +142,7 @@ public class TcpClient {
      * 
      * @return ID hry
      */
-    public int getGameId() {
+    public synchronized int getGameId() {
         return gameId;
     }
 
@@ -142,7 +151,7 @@ public class TcpClient {
      * 
      * @param gameId ID hry
      */
-    public void setGameId(int gameId) {
+    public synchronized void setGameId(int gameId) {
         this.gameId = gameId;
     }
     
@@ -151,19 +160,24 @@ public class TcpClient {
      * 
      * @param playerInfo údaje hráče
      */
-    public void logIn(PlayerInfo playerInfo) {
+    public synchronized void logIn(PlayerInfo playerInfo) {
         if (playerInfo != null) {
             this.playerInfo = playerInfo;
+            
+            setChanged();
+            notifyObservers();
         }
     }
     
     /**
      * Odstraní odkaz na položku seznamu hráčů (použito po odhlášení).
      */
-    public void logOut() {
+    public synchronized void logOut() {
         playerInfo = null;
         playerId = 0;
-        leaveGame();
+        
+        setChanged();
+        notifyObservers();
     }
     
     /**
@@ -171,7 +185,7 @@ public class TcpClient {
      * 
      * @return true, je-li klient přihlášen, jinak false
      */
-    public boolean isLogged() {
+    public synchronized boolean isLogged() {
         return playerInfo != null;
     }
     
@@ -180,7 +194,7 @@ public class TcpClient {
      * 
      * @return údaje hráče
      */
-    public PlayerInfo getPlayerInfo() {
+    public synchronized PlayerInfo getPlayerInfo() {
         return playerInfo;
     }
 
@@ -189,18 +203,24 @@ public class TcpClient {
      * 
      * @param gameInfo údaje hry
      */
-    public void joinGame(GameInfo gameInfo) {
+    public synchronized void joinGame(GameInfo gameInfo) {
         if (gameInfo != null) {
             this.gameInfo = gameInfo;
+            
+            setChanged();
+            notifyObservers();
         }
     }
     
     /**
      * Odstraní odkaz na položku seznamu her (použito po odchodu ze hry).
      */
-    public void leaveGame() {
+    public synchronized void leaveGame() {
         gameInfo = null;
         gameId = 0;
+        
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -208,7 +228,7 @@ public class TcpClient {
      * 
      * @return true, je-li klient v herní místnosti, jinak false
      */
-    public boolean isInGame() {
+    public synchronized boolean isInGame() {
         return gameInfo != null;
     }
     
@@ -217,7 +237,7 @@ public class TcpClient {
      * 
      * @return údaje hry
      */
-    public GameInfo getGameInfo() {
+    public synchronized GameInfo getGameInfo() {
         return gameInfo;
     }
     
@@ -236,6 +256,7 @@ public class TcpClient {
         }
         
         writeToSocket(msgStr);
+        LOGGER.printSend(msgStr);
     }
     
     /**
@@ -247,10 +268,7 @@ public class TcpClient {
      */
     public TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
-        
-        if (!msgStr.isEmpty()) {
-            System.out.println(msgStr);
-        }
+        LOGGER.printRecv(msgStr);
         
         return new TcpMessage(msgStr);
     }

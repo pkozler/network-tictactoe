@@ -10,6 +10,6 @@
 
 #include "cmd_arg.h"
 
-void initialize(args_t args);
+int initialize(args_t args);
 
 #endif /* TCP_SERVER_H */

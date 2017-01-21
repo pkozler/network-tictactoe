@@ -85,11 +85,16 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         GAME_LIST_MODEL = (GameListModel) GAME_LIST.getModel();
         CURRENT_GAME_PANEL = currentGamePanel;
         
-        GameInfo currentGameInfo = client.getGameInfo();
+        // nullpointerexception bugfix
+        GameInfo currentGameInfo;
+        do {
+            currentGameInfo = client.getGameInfo();
+        }
+        while (currentGameInfo == null);
         
         int currentRound = message.getNextIntArg(0);
         boolean roundFinished = message.getNextBoolArg();
-        byte currentPlaying = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
+        byte currentPlaying = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT));
         byte lastPlaying = message.getNextByteArg((byte) 0, (byte) (currentGameInfo.PLAYER_COUNT - 1));
         byte lastCellX = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
         byte lastCellY = message.getNextByteArg((byte) 0, Config.MAX_BOARD_SIZE);
