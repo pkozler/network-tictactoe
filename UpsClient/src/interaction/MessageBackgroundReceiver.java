@@ -69,7 +69,7 @@ public class MessageBackgroundReceiver implements Runnable {
     /**
      * Přijme a zpracuje zprávu serveru.
      */
-    private synchronized void handleReceivedMessage() {
+    private void handleReceivedMessage() {
         Message message;
         
         try {

@@ -6,11 +6,11 @@
  */
 
 #include "tcp_server.h"
-#include "tcp_server_control.h"
+#include "server_control.h"
 #include "config.h"
 #include "player.h"
 #include "game.h"
-#include "console.h"
+#include "prompt.h"
 #include "logger.h"
 #include "broadcaster.h"
 #include "game_list.h"

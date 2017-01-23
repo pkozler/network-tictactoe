@@ -7,7 +7,7 @@
 
 #include "broadcaster.h"
 #include "global.h"
-#include "tcp_communicator.h"
+#include "communicator.h"
 #include "linked_list.h"
 #include "linked_list_iterator.h"
 #include <stdlib.h>
@@ -22,7 +22,7 @@ void send_message_list_to_all(message_list_t *messages) {
     
     while (has_next_element(iterator)) {
         player_t *client = (player_t *) get_next_element(iterator);
-        send_message_list(messages, client->sock);
+        send_message_list(messages, client->socket);
     }
     
     delete_message_list(messages);
@@ -40,7 +40,7 @@ void send_message_list_to_selected(message_list_t *messages,
     int32_t i;
     for (i = 0; i < client_count; i++) {
         if (clients[i] != NULL) {
-            send_message_list(messages, clients[i]->sock);
+            send_message_list(messages, clients[i]->socket);
         }
     }
     

@@ -65,16 +65,8 @@ public class PlayGameResponseParser extends AResponseParser {
             return "Hráč nemůže táhnout před zahájením kola";
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_IN_ROUND.KEYWORD)) {
-            return "Hráč již nemůže táhnout v tomto kole";
-        }
-        
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_CANNOT_PLAY_NOW.KEYWORD)) {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_ON_TURN.KEYWORD)) {
             return "Hráč není na tahu";
-        }
-        
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_POSITION.KEYWORD)) {
-            return "Hráč provedl tah na neplatnou pozici";
         }
         
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_CELL_OUT_OF_BOARD.KEYWORD)) {

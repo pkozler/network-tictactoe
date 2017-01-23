@@ -9,7 +9,7 @@
 #define GLOBAL_H
 
 #include "cmd_arg.h"
-#include "com_stats.h"
+#include "server_stats.h"
 #include "observable_list.h"
 #include "linked_list.h"
 #include <pthread.h>

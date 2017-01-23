@@ -21,6 +21,7 @@ import interaction.receiving.responses.StartGameResponseParser;
 import interaction.sending.ARequestBuilder;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -37,6 +38,8 @@ public class RequestResponseHandler {
      * fronta požadavků
      */
     private final Queue<ARequestBuilder> PENDING_REQUEST_QUEUE = new LinkedList<>();
+    
+    private final ReentrantLock lock = new ReentrantLock();
     
     public RequestResponseHandler(TcpClient client) {
         CLIENT = client;
@@ -89,21 +92,36 @@ public class RequestResponseHandler {
     }
     
     public void addPendingRequest(ARequestBuilder requestBuilder) {
-        if (requestBuilder != null) {
-            PENDING_REQUEST_QUEUE.add(requestBuilder);
+        lock.lock();
+        try {
+            if (requestBuilder != null) {
+                PENDING_REQUEST_QUEUE.add(requestBuilder);
+            }
+        }
+        finally {
+            lock.unlock();
         }
     }
     
     public void clearPendingRequests() {
-        PENDING_REQUEST_QUEUE.clear();
+        lock.lock();
+        try {
+            PENDING_REQUEST_QUEUE.clear();
+        }
+        finally {
+            lock.unlock();
+        }
     }
     
     private ARequestBuilder getPendingRequest() {
-        if (PENDING_REQUEST_QUEUE.isEmpty()) {
-            return null;
+        lock.lock();
+        try {
+            return PENDING_REQUEST_QUEUE.isEmpty() ?
+                    null : PENDING_REQUEST_QUEUE.poll();
         }
-        
-        return PENDING_REQUEST_QUEUE.poll();
+        finally {
+            lock.unlock();
+        }
     }
     
 }

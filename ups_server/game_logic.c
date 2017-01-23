@@ -23,8 +23,6 @@ void set_players_as_playing(game_t *game) {
             continue;
         }
         
-        game->players[i]->playing_in_round = true;
-        
         if (game->current_player_on_turn == 0) {
             game->current_player_on_turn = i + 1;
         }
@@ -98,7 +96,7 @@ void set_player_on_turn(game_t *game) {
         i++;
         i %= game->player_count;
     }
-    while (game->players[i] == NULL || !(game->players[i]->playing_in_round));
+    while (game->players[i] == NULL);
 
     game->current_player_on_turn = i + 1;
 }
@@ -110,18 +108,39 @@ void set_player_on_turn(game_t *game) {
  * @param player hráč
  */
 void add_player_to_game(game_t *game, player_t *player) {
-    int8_t i;
+    int8_t i = 0;
     for (i = 0; i < game->player_count; i++) {
         if (game->players[i] == NULL) {
-            player->current_game = game;
             player->current_game_index = i + 1;
-            player->playing_in_round = false;
+            player->current_game_score = 0;
+            player->current_game = game;
+            
             game->players[i] = player;
             game->player_counter++;
             
-            break;
+            return;
         }
     }
+}
+
+/**
+ * Nastaví pořadí vítěze daného herního kola a to označí jako ukončené,
+ * případnému vítězi zároveň přičte body ke skóre ve hře i k celkovému skóre.
+ * 
+ * @param game hra
+ * @param winner_index pořadí vítěze
+ */
+void set_round_as_finished(game_t *game, int8_t winner_index) {
+    game->current_winner = winner_index;
+    
+    if (game->current_winner > 0) {
+        player_t *winner = game->players[game->current_winner - 1];
+        winner->current_game_score++;
+        winner->total_score++;
+    }
+    
+    game->current_player_on_turn = 0;
+    game->round_finished = true;
 }
 
 /**
@@ -135,23 +154,36 @@ void remove_player_from_game(player_t *player) {
     if (game == NULL) {
         return;
     }
-       
+    
     int8_t i;
     for (i = 0; i < game->player_count; i++) {
-        if (game->players[i] != player) {
-            continue;
+        if (game->players[i] == player) {
+            int8_t player_index = player->current_game_index;
+            
+            game->players[i] = NULL;
+            game->player_counter--;
+            
+            // v místnosti nezbyl žádný hráč - místnost zanikne
+            if (game->player_counter < 1) {
+                game->played = false;
+                
+                return;
+            }
+            
+            // v místnosti zbyl jediný hráč - aktuální kolo skončí remízou
+            if (game->player_counter == 1) {
+                set_round_as_finished(game, 0);
+                
+                return;
+            }
+            
+            // odebraný hráč byl právě na tahu - táhnout bude následující hráč
+            if (game->current_player_on_turn == player_index) {
+                set_player_on_turn(game);
+            }
+            
+            return;
         }
-        
-        if (game->current_player_on_turn == player->current_game_index) {
-            set_player_on_turn(game);
-        }
-
-        player->playing_in_round = false;
-        player->current_game_index = 0;
-        player->current_game = NULL;
-        player->current_game_score = 0;
-        game->players[i] = NULL;
-        game->player_counter--;
     }
 }
 
@@ -410,26 +442,6 @@ void set_last_turn(game_t *game, int8_t player_index, int8_t x, int8_t y) {
     game->last_cell_x = x;
     game->last_cell_y = y;
     game->occupied_cell_counter++;
-}
-
-/**
- * Nastaví pořadí vítěze daného herního kola a to označí jako ukončené,
- * případnému vítězi zároveň přičte body ke skóre ve hře i k celkovému skóre.
- * 
- * @param game hra
- * @param winner_index pořadí vítěze
- */
-void set_round_as_finished(game_t *game, int8_t winner_index) {
-    game->current_winner = winner_index;
-    
-    if (game->current_winner > 0) {
-        player_t *winner = game->players[game->current_winner - 1];
-        winner->current_game_score++;
-        winner->total_score++;
-    }
-    
-    game->current_player_on_turn = 0;
-    game->round_finished = true;
 }
 
 /**

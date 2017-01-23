@@ -25,6 +25,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import visualisation.listmodels.PlayerListModel;
 
 /**
@@ -188,27 +189,35 @@ public class PlayerListPanel extends JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
-        TcpClient client = (TcpClient) o;
+        final TcpClient client = (TcpClient) o;
         ArrayList<PlayerInfo> playerList = client.getPlayerList();
         
         if (playerList == null) {
             playerList = new ArrayList<>();
         }
         
-        PlayerListModel playerListModel = new PlayerListModel();
+        final PlayerListModel playerListModel = new PlayerListModel();
         playerListModel.setListWithSorting(playerList);
-        PLAYER_LIST_VIEW.setModel(playerListModel);
         
-        if (client.isConnected() && client.hasPlayerInfo()) {
-            PLAYER_LABEL.setText(String.format(
-                "<html>Přihlášen jako:<br />%s (ID %d)</html>",
-                client.getPlayerInfo().NICK, client.getPlayerInfo().ID));
-        }
-        else {
-            PLAYER_LABEL.setText("Nepřihlášen");
-        }
-        
-        setButtons(client.isConnected(), client.hasPlayerInfo());
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
+                PLAYER_LIST_VIEW.setModel(playerListModel);
+
+                if (client.isConnected() && client.hasPlayerInfo()) {
+                    PLAYER_LABEL.setText(String.format(
+                        "<html>Přihlášen jako:<br />%s (ID %d)</html>",
+                        client.getPlayerInfo().NICK, client.getPlayerInfo().ID));
+                }
+                else {
+                    PLAYER_LABEL.setText("Nepřihlášen");
+                }
+
+                setButtons(client.isConnected(), client.hasPlayerInfo());
+            }
+            
+        });
     }
 
 }

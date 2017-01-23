@@ -9,7 +9,7 @@
 #include "global.h"
 #include "protocol.h"
 #include "logger.h"
-#include "tcp_server_control.h"
+#include "server_control.h"
 #include "game_list_sender.h"
 #include "observable_list.h"
 #include "linked_list_iterator.h"
@@ -25,11 +25,7 @@
  */
 void *run_game_list_observer(void *arg) {
     while (is_server_running()) {
-        if (g_game_list->changed) {
-            lock_game_list();
-            broadcast_game_list();
-            unlock_game_list(false);
-        }
+        broadcast_game_list();
     }
     
     return NULL;
@@ -41,7 +37,7 @@ void *run_game_list_observer(void *arg) {
 void create_game_list() {
     g_game_list = (observable_list_t *) malloc(sizeof(observable_list_t));
     g_game_list->list = create_linked_list();
-    g_game_list->changed = true;
+    g_game_list->changed = false;
     
     if (pthread_mutex_init(&(g_game_list->lock), NULL) < 0) {
         print_err("Chyba při vytváření zámku pro seznam her");
@@ -59,23 +55,6 @@ void delete_game_list() {
     pthread_mutex_destroy(&(g_game_list->lock));
     delete_linked_list(g_game_list->list, (dispose_func_t) delete_game);
     free(g_game_list);
-}
-
-/**
- * Uzamkne seznam her.
- */
-void lock_game_list() {
-    pthread_mutex_lock(&(g_game_list->lock));
-}
-
-/**
- * Odemkne seznam her.
- * 
- * @param changed příznak změny
- */
-void unlock_game_list(bool changed) {
-    g_game_list->changed = changed;
-    pthread_mutex_unlock(&(g_game_list->lock));
 }
 
 /**
@@ -168,4 +147,36 @@ game_t *remove_game_by_id(int32_t id) {
     }
     
     return NULL;
+}
+
+/**
+ * Uzamkne seznam her.
+ */
+void lock_game_list() {
+    pthread_mutex_lock(&(g_game_list->lock));
+}
+
+/**
+ * Odemkne seznam her.
+ */
+void unlock_game_list() {
+    pthread_mutex_unlock(&(g_game_list->lock));
+}
+
+/**
+ * Vrátí příznak změny v seznamu her.
+ * 
+ * @return příznak změny
+ */
+bool is_game_list_changed() {
+    return g_game_list->changed;
+}
+
+/**
+ * Nastaví příznak změny v seznamu her.
+ * 
+ * @param changed příznak změny
+ */
+void set_game_list_changed(bool changed) {
+    g_game_list->changed = changed;
 }

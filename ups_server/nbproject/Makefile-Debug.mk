@@ -36,10 +36,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/broadcaster.o \
-	${OBJECTDIR}/checker.o \
+	${OBJECTDIR}/client_socket.o \
 	${OBJECTDIR}/cmd_arg.o \
-	${OBJECTDIR}/com_stats.o \
-	${OBJECTDIR}/console.o \
+	${OBJECTDIR}/communicator.o \
 	${OBJECTDIR}/game.o \
 	${OBJECTDIR}/game_list.o \
 	${OBJECTDIR}/game_list_sender.o \
@@ -54,11 +53,14 @@ OBJECTFILES= \
 	${OBJECTDIR}/player.o \
 	${OBJECTDIR}/player_list.o \
 	${OBJECTDIR}/player_list_sender.o \
+	${OBJECTDIR}/prompt.o \
+	${OBJECTDIR}/request_checker.o \
 	${OBJECTDIR}/request_parser.o \
+	${OBJECTDIR}/server_control.o \
+	${OBJECTDIR}/server_stats.o \
+	${OBJECTDIR}/status_cleaner.o \
 	${OBJECTDIR}/string_utils.o \
-	${OBJECTDIR}/tcp_communicator.o \
-	${OBJECTDIR}/tcp_server.o \
-	${OBJECTDIR}/tcp_server_control.o
+	${OBJECTDIR}/tcp_server.o
 
 
 # C Compiler Flags
@@ -90,25 +92,20 @@ ${OBJECTDIR}/broadcaster.o: broadcaster.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/broadcaster.o broadcaster.c
 
-${OBJECTDIR}/checker.o: checker.c 
+${OBJECTDIR}/client_socket.o: client_socket.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/checker.o checker.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/client_socket.o client_socket.c
 
 ${OBJECTDIR}/cmd_arg.o: cmd_arg.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/cmd_arg.o cmd_arg.c
 
-${OBJECTDIR}/com_stats.o: com_stats.c 
+${OBJECTDIR}/communicator.o: communicator.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/com_stats.o com_stats.c
-
-${OBJECTDIR}/console.o: console.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/console.o console.c
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/communicator.o communicator.c
 
 ${OBJECTDIR}/game.o: game.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -180,30 +177,45 @@ ${OBJECTDIR}/player_list_sender.o: player_list_sender.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/player_list_sender.o player_list_sender.c
 
+${OBJECTDIR}/prompt.o: prompt.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/prompt.o prompt.c
+
+${OBJECTDIR}/request_checker.o: request_checker.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/request_checker.o request_checker.c
+
 ${OBJECTDIR}/request_parser.o: request_parser.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/request_parser.o request_parser.c
+
+${OBJECTDIR}/server_control.o: server_control.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/server_control.o server_control.c
+
+${OBJECTDIR}/server_stats.o: server_stats.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/server_stats.o server_stats.c
+
+${OBJECTDIR}/status_cleaner.o: status_cleaner.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/status_cleaner.o status_cleaner.c
 
 ${OBJECTDIR}/string_utils.o: string_utils.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/string_utils.o string_utils.c
 
-${OBJECTDIR}/tcp_communicator.o: tcp_communicator.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_communicator.o tcp_communicator.c
-
 ${OBJECTDIR}/tcp_server.o: tcp_server.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server.o tcp_server.c
-
-${OBJECTDIR}/tcp_server_control.o: tcp_server_control.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/tcp_server_control.o tcp_server_control.c
 
 # Subprojects
 .build-subprojects:

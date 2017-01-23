@@ -1,12 +1,12 @@
 /* 
- * Hlavičkový soubor com_stats deklaruje funkce pro počítání statistik
+ * Hlavičkový soubor server_stats deklaruje funkce pro počítání statistik
  * běhu serveru.
  * 
  * Author: Petr Kozler
  */
 
-#ifndef COM_STATS_H
-#define COM_STATS_H
+#ifndef SERVER_STATS_H
+#define SERVER_STATS_H
 
 #include <stdint.h>
 #include <sys/time.h>
@@ -28,5 +28,5 @@ void inc_stats_messages_transferred();
 void inc_stats_transfers_failed();
 void clear_stats();
 
-#endif /* COM_STATS_H */
+#endif /* SERVER_STATS_H */
 

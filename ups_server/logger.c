@@ -1,5 +1,5 @@
 /* 
- * Modul printer definuje funkce pro výpis logů na konzoli.
+ * Modul logger definuje funkce pro výpis logů na konzoli.
  * 
  * Author: Petr Kozler
  */

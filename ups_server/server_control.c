@@ -1,11 +1,11 @@
 /* 
- * Modul tcp_server_control definuje funkce pro ovládání aktuální
+ * Modul server_control definuje funkce pro ovládání aktuální
  * instance serveru a výpis informací.
  * 
  * Author: Petr Kozler
  */
 
-#include "tcp_server_control.h"
+#include "server_control.h"
 #include "global.h"
 #include "config.h"
 #include <stdint.h>

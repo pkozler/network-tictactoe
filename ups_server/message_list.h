@@ -8,6 +8,7 @@
 #define MESSAGE_LIST_H
 
 #include "message.h"
+#include "client_socket.h"
 #include <stdint.h>
 
 /**
@@ -21,6 +22,6 @@ typedef struct {
 
 message_list_t *create_message_list(message_t *head, int32_t msgc);
 void delete_message_list(message_list_t *msg_list);
-void send_message_list(message_list_t *messages, int sock);
+void send_message_list(message_list_t *messages, client_socket_t *socket);
 
 #endif /* MESSAGE_LIST_H */

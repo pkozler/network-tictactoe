@@ -30,6 +30,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import visualisation.listmodels.GameListModel;
 
 /**
@@ -221,27 +222,36 @@ public class GameListPanel extends JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
-        TcpClient client = (TcpClient) o;
+        final TcpClient client = (TcpClient) o;
         ArrayList<GameInfo> gameList = client.getGameList();
         
         if (gameList == null) {
             gameList = new ArrayList<>();
         }
         
-        GameListModel gameListModel = new GameListModel();
+        final GameListModel gameListModel = new GameListModel();
         gameListModel.setListWithSorting(gameList);
-        GAME_LIST_VIEW.setModel(gameListModel);
         
-        if (client.isConnected() && client.hasPlayerInfo() && client.hasGameInfo()) {
-            GAME_LABEL.setText(String.format(
-                "<html>Zvolená místnost:<br />%s (ID %d)</html>",
-                client.getGameInfo().NAME, client.getGameInfo().ID));
-        }
-        else {
-            GAME_LABEL.setText("Místnost nevybrána");
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
+                GAME_LIST_VIEW.setModel(gameListModel);
+
+                if (client.isConnected() && client.hasPlayerInfo() && client.hasGameInfo()) {
+                    GAME_LABEL.setText(String.format(
+                        "<html>Zvolená místnost:<br />%s (ID %d)</html>",
+                        client.getGameInfo().NAME, client.getGameInfo().ID));
+                }
+                else {
+                    GAME_LABEL.setText("Místnost nevybrána");
+                }
+
+                setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo());
+            }
+            
+        });
         
-        setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo());
     }
 
 }

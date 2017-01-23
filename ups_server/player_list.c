@@ -13,7 +13,7 @@
 #include "broadcaster.h"
 #include "logger.h"
 #include "player_list_sender.h"
-#include "tcp_server_control.h"
+#include "server_control.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -25,11 +25,7 @@
  */
 void *run_player_list_observer(void *arg) {
     while (is_server_running()) {
-        if (g_player_list->changed) {
-            lock_player_list();
-            broadcast_player_list();
-            unlock_player_list(false);
-        }
+        broadcast_player_list();
     }
     
     return NULL;
@@ -41,7 +37,7 @@ void *run_player_list_observer(void *arg) {
 void create_player_list() {
     g_player_list = (observable_list_t *) malloc(sizeof(observable_list_t));
     g_player_list->list = create_linked_list();
-    g_player_list->changed = true;
+    g_player_list->changed = false;
     
     if (pthread_mutex_init(&(g_player_list->lock), NULL) < 0) {
         print_err("Chyba při vytváření zámku pro seznam hráčů");
@@ -59,23 +55,6 @@ void delete_player_list() {
     pthread_mutex_destroy(&(g_player_list->lock));
     delete_linked_list(g_player_list->list, NULL);
     free(g_player_list);
-}
-
-/**
- * Uzamkne seznam hráčů.
- */
-void lock_player_list() {
-    pthread_mutex_lock(&(g_player_list->lock));
-}
-
-/**
- * Odemkne seznam hráčů.
- * 
- * @param changed příznak změny
- */
-void unlock_player_list(bool changed) {
-    g_player_list->changed = changed;
-    pthread_mutex_unlock(&(g_player_list->lock));
 }
 
 /**
@@ -169,4 +148,36 @@ player_t *remove_player_by_id(int32_t id) {
     }
     
     return NULL;
+}
+
+/**
+ * Uzamkne seznam hráčů.
+ */
+void lock_player_list() {
+    pthread_mutex_lock(&(g_player_list->lock));
+}
+
+/**
+ * Odemkne seznam hráčů.
+ */
+void unlock_player_list() {
+    pthread_mutex_unlock(&(g_player_list->lock));
+}
+
+/**
+ * Vrátí příznak změny v seznamu hráčů.
+ * 
+ * @return příznak změny
+ */
+bool is_player_list_changed() {
+    return g_player_list->changed;
+}
+
+/**
+ * Nastaví příznak změny v seznamu hráčů.
+ * 
+ * @param changed příznak změny
+ */
+void set_player_list_changed(bool changed) {
+    g_player_list->changed = changed;
 }

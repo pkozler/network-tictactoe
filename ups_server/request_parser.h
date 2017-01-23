@@ -10,7 +10,6 @@
 
 #include "player.h"
 
-void parse_received_message(player_t *player);
-void handle_disconnect(player_t *player);
+void handle_received_message(player_t *player);
 
 #endif /* REQUEST_PARSER_H */

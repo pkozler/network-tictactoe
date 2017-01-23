@@ -1,12 +1,12 @@
 /* 
- * Hlavičkový soubor tcp_server_control deklaruje funkce pro ovládání aktuální
+ * Hlavičkový soubor server_control deklaruje funkce pro ovládání aktuální
  * instance serveru a výpis informací.
  * 
  * Author: Petr Kozler
  */
 
-#ifndef TCP_SERVER_CONTROL_H
-#define TCP_SERVER_CONTROL_H
+#ifndef SERVER_CONTROL_H
+#define SERVER_CONTROL_H
 
 #include <stdbool.h>
 
@@ -24,5 +24,5 @@ void print_exit_question();
 void print_unknown_cmd();
 void print_cmd_result(print_func_t print_func);
 
-#endif /* TCP_SERVER_CONTROL_H */
+#endif /* SERVER_CONTROL_H */
 

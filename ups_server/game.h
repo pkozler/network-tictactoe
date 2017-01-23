@@ -23,6 +23,7 @@ typedef struct GAME {
     pthread_t thread; // vlákno pro pozorování stavu hry
     pthread_mutex_t lock; // zámek struktury hry
     bool changed; // příznak změny stavu hry
+    bool played; // příznak obsazení hry (zpočátku true, po opuštění všemi hráči se přepne na false)
     
     /*
      * základní informace o herní místnosti odesílané v položkách seznamu her:
@@ -59,6 +60,8 @@ game_t *create_game(struct PLAYER *player, char *name,
         int8_t board_size, int8_t player_count, int8_t cell_count);
 void delete_game(game_t *);
 void lock_game(game_t *game);
-void unlock_game(game_t *game, bool changed);
+void unlock_game(game_t *game);
+bool is_game_changed(game_t *game);
+void set_game_changed(game_t *game, bool changed);
 
 #endif /* GAME_H */

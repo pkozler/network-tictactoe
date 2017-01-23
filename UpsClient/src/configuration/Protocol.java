@@ -69,16 +69,12 @@ public final class Protocol {
             "round-already-started"); // typ chyby: kolo bylo již zahájeno
     public static final ClientMessageErrorArg MSG_ERR_ROUND_NOT_STARTED = new ClientMessageErrorArg(
             "round-not-started"); // typ chyby: hra ještě nebyla zahájena
-    public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_IN_ROUND = new ClientMessageErrorArg(
-            "cannot-play-in-round"); // typ chyby: hráč nemůže v daném kole hrát
-    public static final ClientMessageErrorArg MSG_ERR_CANNOT_PLAY_NOW = new ClientMessageErrorArg(
-            "cannot-play-now"); // typ chyby: hráč není na řadě
+    public static final ClientMessageErrorArg MSG_ERR_NOT_ON_TURN = new ClientMessageErrorArg(
+            "not_on_turn"); // typ chyby: hráč není na řadě
     public static final ClientMessageErrorArg MSG_ERR_CELL_OCCUPIED = new ClientMessageErrorArg(
             "cell-occupied"); // typ chyby: tah na obsazenou pozici
     public static final ClientMessageErrorArg MSG_ERR_CELL_OUT_OF_BOARD = new ClientMessageErrorArg(
             "cell-out-of-board"); // typ chyby: tah mimo hranice herního pole
-    public static final ClientMessageErrorArg MSG_ERR_INVALID_POSITION = new ClientMessageErrorArg(
-            "invalid-position"); // typ chyby: tah na neplatnou pozici
 
     /*
      * Dostupné odpovědi serveru a počty argumentů:
@@ -93,9 +89,9 @@ public final class Protocol {
     public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType(
             "game-item", 6); // typ zprávy: položka seznamu her
     public static final ServerMessageType MSG_GAME_DETAIL = new ServerMessageType(
-            "game-detail", 15, true); // typ zprávy: změna ve stavu hry
+            "game-detail", 14, true); // typ zprávy: změna ve stavu hry
     public static final ServerMessageType MSG_GAME_PLAYER = new ServerMessageType(
-            "game-player", 5); // typ zprávy: položka seznamu aktuálních hráčů hry
+            "game-player", 4); // typ zprávy: položka seznamu aktuálních hráčů hry
 
     /*
      * Ostatní konstanty aplikačního protokolu:

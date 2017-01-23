@@ -1,12 +1,12 @@
 /* 
- * Hlavičkový soubor console deklaruje funkce pro zpracování konzolových
+ * Hlavičkový soubor prompt deklaruje funkce pro zpracování konzolových
  * příkazů uživatele.
  * 
  * Author: Petr Kozler
  */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef PROMPT_H
+#define PROMPT_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -14,4 +14,4 @@
 
 void start_prompt();
 
-#endif /* CONSOLE_H */
+#endif /* PROMPT_H */

@@ -47,7 +47,6 @@ char *build_board_string(game_t *game) {
 message_t *game_board_to_message(game_t *game) {
     message_t *new_message = create_message(MSG_GAME_DETAIL, MSG_GAME_DETAIL_ARGC);
     
-    put_int_arg(new_message, game->id);
     put_byte_arg(new_message, game->player_counter);
     put_byte_arg(new_message, game->board_size);
     put_int_arg(new_message, game->current_round);
@@ -85,7 +84,6 @@ message_t *game_board_to_message(game_t *game) {
 message_t *joined_player_to_message(player_t *player) {
     message_t *new_message = create_message(MSG_GAME_PLAYER, MSG_GAME_PLAYER_ARGC);
     put_int_arg(new_message, player->id);
-    put_bool_arg(new_message, player->playing_in_round);
     put_string_arg(new_message, player->nick);
     put_byte_arg(new_message, player->current_game_index);
     put_int_arg(new_message, player->current_game_score);
@@ -121,6 +119,11 @@ message_list_t *game_status_to_message_list(game_t *game) {
  * @param game hra
  */
 void broadcast_game_status(game_t *game) {
-    send_message_list_to_selected(game_status_to_message_list(game),
-            game->players, game->player_count);
+    if (is_game_changed(game)) {
+        lock_game(game);
+        message_list_t *messages = game_status_to_message_list(game);
+        set_game_changed(game, false);
+        unlock_game(game);
+        send_message_list_to_selected(messages, game->players, game->player_count);
+    }
 }

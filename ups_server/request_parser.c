@@ -11,11 +11,11 @@
 #include "global.h"
 #include "player.h"
 #include "game.h"
-#include "checker.h"
+#include "request_checker.h"
 #include "player_list.h"
 #include "game_list.h"
 #include "game_logic.h"
-#include "tcp_communicator.h"
+#include "communicator.h"
 #include <string.h>
 #include <sys/socket.h>
 
@@ -50,18 +50,6 @@ message_t *create_err_message(message_t *message, char *err_msg, player_t *playe
 }
 
 /**
- * Zpracuje testování odezvy.
- * 
- * @param player klient
- * @return odpověď
- */
-message_t *handle_ping(player_t *player) {
-    message_t *new_message = create_message(NULL, 0);
-    
-    return new_message;
-}
-
-/**
  * Zpracuje požadavek na přihlášení.
  * 
  * @param message požadavek
@@ -84,14 +72,15 @@ message_t *handle_login_request(message_t *message, player_t *player) {
     lock_player_list();
     
     if (get_player_by_name(nick) != NULL) {
-        unlock_player_list(false);
+        unlock_player_list();
         
         return create_err_message(message, MSG_ERR_EXISTING_NAME, player);
     }
     
     player->nick = nick;
     add_player_to_list(player);
-    unlock_player_list(true);
+    set_player_list_changed(true);
+    unlock_player_list();
     
     message_t *new_message = create_message(message->type, MSG_LOGIN_CLIENT_ID_ARGC);
     put_string_arg(new_message, MSG_TRUE);
@@ -115,30 +104,27 @@ message_t *handle_logout_request(message_t *message, player_t *player) {
     lock_player_list();
     
     if (!is_player_logged(player)) {
-        unlock_player_list(false);
+        unlock_player_list();
         
         return create_err_message(message, MSG_ERR_NOT_LOGGED, player);
     }
     
-    unlock_player_list(false);
-    lock_game_list();
+    unlock_player_list();
     
     if (is_player_in_game_room(player)) {
         lock_game(player->current_game);
         
         game_t *game = player->current_game;
         remove_player_from_game(player);
-        unlock_game(game, true);
         
-        unlock_game_list(true);
-    }
-    else {
-        unlock_game_list(false);
+        set_game_changed(game, true);
+        unlock_game(game);
     }
     
     lock_player_list();
     remove_player_by_id(player->id);
-    unlock_player_list(true);
+    set_player_list_changed(true);
+    unlock_player_list();
     
     return create_ack_message(message, player);
 }
@@ -170,13 +156,14 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     
     // existující jméno
     if (get_game_by_name(name) != NULL) {
-        unlock_game_list(false);
+        unlock_game_list();
         
         return create_err_message(message, MSG_ERR_EXISTING_NAME, player);
     }
     
+    unlock_game_list();
+    
     if (!is_game_player_count_valid(player_count)) {
-        unlock_game_list(false);
         new_message = create_message(message->type, MSG_ERR_INVALID_PLAYER_COUNT_ARGC);
         put_string_arg(new_message, MSG_FALSE);
         put_string_arg(new_message, MSG_ERR_INVALID_PLAYER_COUNT);
@@ -187,7 +174,6 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     }
     
     if (!is_game_board_size_valid(board_size)) {
-        unlock_game_list(false);
         new_message = create_message(message->type, MSG_ERR_INVALID_BOARD_SIZE_ARGC);
         put_string_arg(new_message, MSG_FALSE);
         put_string_arg(new_message, MSG_ERR_INVALID_BOARD_SIZE);
@@ -198,7 +184,6 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     }
     
     if (!is_game_cell_count_valid(cell_count)) {
-        unlock_game_list(false);
         new_message = create_message(message->type, MSG_ERR_INVALID_CELL_COUNT_ARGC);
         put_string_arg(new_message, MSG_FALSE);
         put_string_arg(new_message, MSG_ERR_INVALID_CELL_COUNT);
@@ -209,8 +194,15 @@ message_t *handle_create_game_request(message_t *message, player_t *player) {
     }
     
     game_t *game = create_game(player, name, board_size, player_count, cell_count);
+    lock_game(game);
+    add_player_to_game(game, player);
+    set_game_changed(game, true);
+    unlock_game(game);
+    
+    lock_game_list();
     add_game_to_list(game);
-    unlock_game_list(true);
+    set_game_list_changed(true);
+    unlock_game_list();
 
     new_message = create_message(message->type, MSG_CREATE_GAME_ID_ARGC);
     put_string_arg(new_message, MSG_TRUE);
@@ -241,30 +233,33 @@ message_t *handle_join_game_request(message_t *message, player_t *player) {
     game_t *game = get_game_by_id(game_id);
     
     if (game == NULL) {
-        unlock_game_list(false);
+        unlock_game_list();
         
         return create_err_message(message, MSG_ERR_ID_NOT_FOUND, player);
     }
     
+    unlock_game_list();
     lock_game(game);
     
     if (is_player_in_game_room(player)) {
-        unlock_game(game, false);
-        unlock_game_list(false);
+        unlock_game(game);
         
         return create_err_message(message, MSG_ERR_ALREADY_IN_ROOM, player);
     }
     
     if (is_game_full(game)) {
-        unlock_game(game, false);
-        unlock_game_list(false);
+        unlock_game(game);
         
         return create_err_message(message, MSG_ERR_ROOM_FULL, player);
     }
     
     add_player_to_game(game, player);
-    unlock_game(game, true);
-    unlock_game_list(true);
+    set_game_changed(game, true);
+    unlock_game(game);
+    
+    lock_game_list();
+    set_game_list_changed(true);
+    unlock_game_list();
     
     return create_ack_message(message, player);
 }
@@ -281,21 +276,56 @@ message_t *handle_leave_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
     }
     
-    lock_game_list();
+    if (!is_player_in_game_room(player)) {
+        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
+    }
     
-    if (player->current_game == NULL) {
-        unlock_game_list(false);
-        
+    lock_game(player->current_game);
+    game_t *game = player->current_game;
+    remove_player_from_game(player);
+    set_game_changed(game, true);
+    unlock_game(game);
+    
+    lock_game_list();
+    set_game_list_changed(true);
+    unlock_game_list();
+    
+    return create_ack_message(message, player);
+}
+
+/**
+ * Zpracuje požadavek na zahájení kola hry.
+ * 
+ * @param message požadavek
+ * @param player klient
+ * @return odpověď
+ */
+message_t *handle_start_game_request(message_t *message, player_t *player) {
+    if (message->argc != MSG_START_GAME_ARGC) {
+        return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
+    }
+    
+    if (!is_player_in_game_room(player)) {
         return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
     }
     
     lock_game(player->current_game);
     
-    game_t *game = player->current_game;
-    remove_player_from_game(player);
-    unlock_game(game, true);
+    if (is_round_started(player->current_game)) {
+        unlock_game(player->current_game);
         
-    unlock_game_list(true);
+        return create_err_message(message, MSG_ERR_ROUND_ALREADY_STARTED, player);
+    }
+    
+    if (!has_game_enough_players(player->current_game)) {
+        unlock_game(player->current_game);
+        
+        return create_err_message(message, MSG_ERR_NOT_ENOUGH_PLAYERS, player);
+    }
+    
+    start_next_round(player->current_game);
+    set_game_changed(player->current_game, true);
+    unlock_game(player->current_game);
     
     return create_ack_message(message, player);
 }
@@ -315,106 +345,46 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
     int8_t x = get_byte_arg(message);
     int8_t y = get_byte_arg(message);
     
-    lock_game_list();
-    
-    if (player->current_game == NULL) {
-        unlock_game_list(false);
-        
+    if (!is_player_in_game_room(player)) {
         return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
     }
     
     lock_game(player->current_game);
     
     if (!is_round_started(player->current_game)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
+        unlock_game(player->current_game);
         
         return create_err_message(message, MSG_ERR_ROUND_NOT_STARTED, player);
     }
     
-    if (!is_playing_in_round(player)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
-        
-        return create_err_message(message, MSG_ERR_CANNOT_PLAY_IN_ROUND, player);
-    }
-    
     if (!is_current_player(player->current_game, player)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
+        unlock_game(player->current_game);
         
-        return create_err_message(message, MSG_ERR_CANNOT_PLAY_NOW, player);
-    }
-    
-    if (!is_valid_cell_position(x, y)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
-        
-        return create_err_message(message, MSG_ERR_INVALID_POSITION, player);
+        return create_err_message(message, MSG_ERR_NOT_ON_TURN, player);
     }
     
     if (!is_in_board_size(player->current_game, x, y)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
+        unlock_game(player->current_game);
         
         return create_err_message(message, MSG_ERR_CELL_OUT_OF_BOARD, player);
     }
     
     if (!can_play(player->current_game, x, y)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
+        unlock_game(player->current_game);
         
         return create_err_message(message, MSG_ERR_CELL_OCCUPIED, player);
     }
     
-    lock_player_list();
     play(player->current_game, player->current_game_index, x, y);
-    unlock_game(player->current_game, true);
-    unlock_game_list(true);
-    unlock_player_list(true);
+    int8_t winner = player->current_game->current_winner;
+    set_game_changed(player->current_game, true);
+    unlock_game(player->current_game);
     
-    return create_ack_message(message, player);
-}
-
-/**
- * Zpracuje požadavek na zahájení kola hry.
- * 
- * @param message
- * @param player
- * @return 
- */
-message_t *handle_start_game_request(message_t *message, player_t *player) {
-    if (message->argc != MSG_START_GAME_ARGC) {
-        return create_err_message(message, MSG_ERR_INVALID_ARG_COUNT, player);
+    if (winner > 0) {
+        lock_player_list();
+        set_player_list_changed(true);
+        unlock_player_list();
     }
-    
-    lock_game_list();
-    
-    if (player->current_game == NULL) {
-        unlock_game_list(false);
-        
-        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
-    }
-    
-    lock_game(player->current_game);
-    
-    if (is_round_started(player->current_game)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
-        
-        return create_err_message(message, MSG_ERR_ROUND_ALREADY_STARTED, player);
-    }
-    
-    if (!has_game_enough_players(player->current_game)) {
-        unlock_game(player->current_game, false);
-        unlock_game_list(false);
-        
-        return create_err_message(message, MSG_ERR_NOT_ENOUGH_PLAYERS, player);
-    }
-    
-    start_next_round(player->current_game);
-    unlock_game(player->current_game, true);
-    unlock_game_list(true);
     
     return create_ack_message(message, player);
 }
@@ -434,13 +404,25 @@ message_t *handle_unknown_request(message_t *message, player_t *player) {
 }
 
 /**
+ * Zpracuje testování odezvy.
+ * 
+ * @param player klient
+ * @return odpověď
+ */
+message_t *handle_ping(player_t *player) {
+    message_t *new_message = create_message(NULL, 0);
+    
+    return new_message;
+}
+
+/**
  * Provede pokus o přihlášení klienta.
  * 
  * @param message požadavek
  * @param player klient
  * @return odpověď
  */
-message_t *try_handle_login_request(message_t *message, player_t *player) {
+message_t *handle_unlogged_client_message(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud je klient již aktivní
     if (is_player_logged(player)) {
         return create_err_message(message, MSG_ERR_ALREADY_LOGGED, player);
@@ -458,7 +440,7 @@ message_t *try_handle_login_request(message_t *message, player_t *player) {
  * @param player klient
  * @return odpověď
  */
-message_t *try_handle_client_request(message_t *message, player_t *player) {
+message_t *handle_logged_player_message(message_t *message, player_t *player) {
     // odeslána chybová odpověď, pokud klient není aktivní
     if (!is_player_logged(player)) {
         return create_err_message(message, MSG_ERR_NOT_LOGGED, player);
@@ -501,14 +483,11 @@ message_t *try_handle_client_request(message_t *message, player_t *player) {
  * 
  * @param player klient
  */
-void parse_received_message(player_t *player) {
-    bool success = true;
-    message_t *request = receive_message(player->sock, &success);
+void handle_received_message(player_t *player) {
+    message_t *request = receive_message(player->socket);
     
     // detekováno přerušení spojení - klient bude odstraněn
-    if (!success) {
-        player->connected = false;
-        
+    if (!player->socket->connected) {
         return;
     }
     
@@ -527,53 +506,18 @@ void parse_received_message(player_t *player) {
     else {
         // požadavek na aktivaci klienta
         if (!strcmp(request->type, MSG_LOGIN_CLIENT)) {
-            response = try_handle_login_request(request, player);
+            response = handle_unlogged_client_message(request, player);
         }
         // jiný požadavek
         else {
-            response = try_handle_client_request(request, player);
+            response = handle_logged_player_message(request, player);
         }
     }
     
-    send_message(response, player->sock);
+    send_message(response, player->socket);
     delete_message(request);
     
     if (response != NULL) {
         delete_message(response);
     }
-}
-
-/**
- * Zpracuje odpojení klienta.
- * 
- * @param player klient
- */
-void handle_disconnect(player_t *player) {
-    lock_game_list();
-    
-    if (is_player_in_game_room(player)) {
-        lock_game(player->current_game);
-        game_t *game = player->current_game;
-        remove_player_from_game(player);
-        unlock_game(game, true);
-        
-        unlock_game_list(true);
-    }
-    else {
-        unlock_game_list(false);
-    }
-    
-    lock_player_list();
-    
-    if (is_player_logged(player)) {
-        remove_player_by_id(player->id);
-        
-        unlock_player_list(true);
-    }
-    else {
-        unlock_player_list(false);
-    }
-    
-    remove_element(g_client_list, player);
-    delete_player(player);
 }

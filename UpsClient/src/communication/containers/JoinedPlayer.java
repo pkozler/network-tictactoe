@@ -14,11 +14,6 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
     private int id;
     
     /**
-     * příznak účasti v aktuálním kole
-     */
-    private boolean playing;
-    
-    /**
      * přezdívka hráče
      */
     private String nickname;
@@ -37,14 +32,12 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
      * Vytvoří seznam hráčů v herní místnosti.
      * 
      * @param id ID hráče
-     * @param playing příznak účasti v aktuálním kole
      * @param nickname přezdívka hráče
      * @param currentGameIndex pořadí v aktuální hře
      * @param currentGameScore skóre v aktuální hře
      */
-    public JoinedPlayer(int id, boolean playing, String nickname, byte currentGameIndex, int currentGameScore) {
+    public JoinedPlayer(int id, String nickname, byte currentGameIndex, int currentGameScore) {
         this.id = id;
-        this.playing = playing;
         this.nickname = nickname;
         this.currentGameIndex = currentGameIndex;
         this.currentGameScore = currentGameScore;
@@ -57,15 +50,6 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
      */
     public int getId() {
         return id;
-    }
-    
-    /**
-     * Vrátí příznak účasti v aktuálním kole.
-     * 
-     * @return příznak účasti v aktuálním kole
-     */
-    public boolean isPlaying() {
-        return playing;
     }
     
     /**

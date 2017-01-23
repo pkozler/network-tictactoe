@@ -41,7 +41,6 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, message);
         
-        int id = message.getNextIntArg(0);
         byte playerCounter = message.getNextByteArg((byte) 0, (byte) (Config.MAX_PLAYERS_SIZE));
         byte boardSize = message.getNextByteArg((byte) 0, (byte) (Config.MAX_BOARD_SIZE));
         int currentRound = message.getNextIntArg(0);
@@ -57,7 +56,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
         byte lastWinnerCellY = message.getNextByteArg((byte) 0, (byte) (Config.MAX_BOARD_SIZE - 1));
         byte[][] board = parseBoard(boardSize, message.getNextArg());
         
-        CURRENT_GAME_BOARD = new GameBoard(id, playerCounter, boardSize, currentRound, roundFinished,
+        CURRENT_GAME_BOARD = new GameBoard(playerCounter, boardSize, currentRound, roundFinished,
                 currentPlaying, lastPlaying, lastCellX, lastCellY, currentWinner,
                 firstWinnerCellX, firstWinnerCellY, lastWinnerCellX, lastWinnerCellY, board);
         JOINED_PLAYER_LIST = new ArrayList<>();
@@ -121,13 +120,12 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
     public void parseNextItemMessage(Message itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         int id = itemMessage.getNextIntArg(0);
-        boolean playing = itemMessage.getNextBoolArg();
         String nickname = itemMessage.getNextArg();
         byte currentGameIndex = itemMessage.getNextByteArg(
                 (byte) 1, Config.MAX_PLAYERS_SIZE);
         int currentGameScore = itemMessage.getNextIntArg(0);
         
-        JOINED_PLAYER_LIST.add(new JoinedPlayer(id, playing, nickname, currentGameIndex, currentGameScore));
+        JOINED_PLAYER_LIST.add(new JoinedPlayer(id, nickname, currentGameIndex, currentGameScore));
     }
 
     /**

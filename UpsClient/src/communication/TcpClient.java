@@ -134,11 +134,11 @@ public class TcpClient extends Observable {
         return socket != null && !socket.isClosed();
     }
     
-    public synchronized boolean hasPlayerInfo() {
+    public boolean hasPlayerInfo() {
         return playerInfo != null;
     }
 
-    public synchronized boolean hasGameInfo() {
+    public boolean hasGameInfo() {
         return gameInfo != null;
     }
 
@@ -146,7 +146,7 @@ public class TcpClient extends Observable {
         return playerInfo;
     }
 
-    public synchronized void setCurrentPlayerId(int playerId) {
+    public void setCurrentPlayerId(int playerId) {
         this.playerId = playerId;
     }
     
@@ -154,15 +154,15 @@ public class TcpClient extends Observable {
         return gameInfo;
     }
     
-    public synchronized void setCurrentGameId(int gameId) {
+    public void setCurrentGameId(int gameId) {
         this.gameId = gameId;
     }
 
-    public synchronized ArrayList<PlayerInfo> getPlayerList() {
+    public ArrayList<PlayerInfo> getPlayerList() {
         return playerList;
     }
 
-    public synchronized void setPlayerList(ArrayList<PlayerInfo> playerList) {
+    public void setPlayerList(ArrayList<PlayerInfo> playerList) {
         this.playerList = playerList;
         
         if (playerId < 1) {
@@ -185,11 +185,11 @@ public class TcpClient extends Observable {
         notifyObservers();
     }
 
-    public synchronized ArrayList<GameInfo> getGameList() {
+    public ArrayList<GameInfo> getGameList() {
         return gameList;
     }
 
-    public synchronized void setGameList(ArrayList<GameInfo> gameList) {
+    public void setGameList(ArrayList<GameInfo> gameList) {
         this.gameList = gameList;
 
         if (gameId < 1) {
@@ -211,11 +211,11 @@ public class TcpClient extends Observable {
         notifyObservers();
     }
 
-    public synchronized CurrentGameDetail getGameDetail() {
+    public CurrentGameDetail getGameDetail() {
         return gameDetail;
     }
 
-    public synchronized void setGameDetail(CurrentGameDetail gameDetail) {
+    public void setGameDetail(CurrentGameDetail gameDetail) {
         if (gameDetail != null) {
             gameDetail.setCurrentInfo(playerId);
         }

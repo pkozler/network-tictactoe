@@ -1,5 +1,5 @@
 /* 
- * Hlavičkový soubor printer deklaruje funkce pro výpis logů do konzole.
+ * Hlavičkový soubor logger deklaruje funkce pro výpis logů do konzole.
  * 
  * Author: Petr Kozler
  */

@@ -1,10 +1,10 @@
 /* 
- * Modul checker definuje funkce pro validaci požadavků klienta.
+ * Modul request_checker definuje funkce pro validaci požadavků klienta.
  * 
  * Author: Petr Kozler
  */
 
-#include "checker.h"
+#include "request_checker.h"
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
@@ -68,7 +68,20 @@ bool is_player_logged(player_t *player) {
  * @return true, pokud je hráč v herní místnosti, jinak false
  */
 bool is_player_in_game_room(player_t *player) {
-    return player->current_game != NULL;
+    game_t *game = player->current_game;
+    
+    if (game == NULL) {
+        return false;
+    }
+    
+    int8_t i;
+    for (i = 0; i < game->player_count; i++) {
+        if (game->players[i] == player) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 /**
@@ -102,16 +115,6 @@ bool is_game_cell_count_valid(int8_t cell_count) {
 }
 
 /**
- * Otestuje, zda se hráč účastní aktuálního kola hry.
- * 
- * @param player hráč
- * @return true, pokud se hráč účastní aktuálního kola hry, jinak false
- */
-bool is_playing_in_round(player_t *player) {
-    return player->playing_in_round;
-}
-
-/**
  * Otestuje, zda je daný hráč právě na tahu.
  * 
  * @param game hra
@@ -123,17 +126,6 @@ bool is_current_player(game_t *game, player_t *player) {
 }
 
 /**
- * Otestuje, zda jsou dané souřadnice herního políčka platné.
- * 
- * @param x souřadnice X
- * @param y souřadnice Y
- * @return true, pokud jsou souřadnice platné, jinak false
- */
-bool is_valid_cell_position(int8_t x, int8_t y) {
-    return x >= 0 && y >= 0;
-}
-
-/**
  * Otestuje, zda se políčko o daných souřadnicích nachází v herním poli.
  * 
  * @param game hra
@@ -142,7 +134,7 @@ bool is_valid_cell_position(int8_t x, int8_t y) {
  * @return true, pokud je políčko v herním poli, jinak false
  */
 bool is_in_board_size(game_t *game, int8_t x, int8_t y) {
-    return x < game->board_size && y < game->board_size;
+    return x >= 0 && y >= 0 && x < game->board_size && y < game->board_size;
 }
 
 /**

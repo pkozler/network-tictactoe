@@ -1,5 +1,5 @@
 /* 
- * Modul tcp_server definuje funkce pro zpracování příkazů uživatele
+ * Modul prompt definuje funkce pro zpracování příkazů uživatele
  * z konzole.
  * 
  * Author: Petr Kozler
@@ -8,9 +8,9 @@
 #include "tcp_server.h"
 #include "global.h"
 #include "config.h"
-#include "console.h"
+#include "prompt.h"
 #include "logger.h"
-#include "tcp_server_control.h"
+#include "server_control.h"
 #include "message.h"
 #include "logger.h"
 #include <stdint.h>

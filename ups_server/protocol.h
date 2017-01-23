@@ -53,11 +53,9 @@
 #define MSG_ERR_NOT_ENOUGH_PLAYERS "not-enough-players" // typ chyby: nedostatek hráčů pro zahájení kola
 #define MSG_ERR_ROUND_ALREADY_STARTED "round-already-started" // typ chyby: kolo bylo již zahájeno
 #define MSG_ERR_ROUND_NOT_STARTED "round-not-started" // typ chyby: hra ještě nebyla zahájena
-#define MSG_ERR_CANNOT_PLAY_IN_ROUND "cannot-play-in-round" // typ chyby: hráč nemůže v daném kole hrát
-#define MSG_ERR_CANNOT_PLAY_NOW "cannot-play-now" // typ chyby: hráč není na řadě
+#define MSG_ERR_NOT_ON_TURN "not_on_turn" // typ chyby: hráč není na řadě
 #define MSG_ERR_CELL_OCCUPIED "cell-occupied" // typ chyby: tah na obsazenou pozici
 #define MSG_ERR_CELL_OUT_OF_BOARD "cell-out-of-board" // typ chyby: tah mimo hranice herního pole
-#define MSG_ERR_INVALID_POSITION "invalid-position" // typ chyby: tah na neplatnou pozici
 
 /*
  * Dostupné odpovědi serveru a počty argumentů:
@@ -72,9 +70,9 @@
 #define MSG_GAME_LIST_ITEM "game-item" // typ zprávy: položka seznamu her
 #define MSG_GAME_LIST_ITEM_ARGC 6 // počet argumentů: položka seznamu her
 #define MSG_GAME_DETAIL "game-detail" // typ zprávy: změna ve stavu hry
-#define MSG_GAME_DETAIL_ARGC 15 // počet argumentů: změna ve stavu hry
+#define MSG_GAME_DETAIL_ARGC 14 // počet argumentů: změna ve stavu hry
 #define MSG_GAME_PLAYER "game-player" // typ zprávy: položka seznamu aktuálních hráčů hry
-#define MSG_GAME_PLAYER_ARGC 5 // počet argumentů: položka seznamu aktuálních hráčů hry
+#define MSG_GAME_PLAYER_ARGC 4 // počet argumentů: položka seznamu aktuálních hráčů hry
 
 /*
  * Ostatní konstanty aplikačního protokolu:

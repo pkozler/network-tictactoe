@@ -10,41 +10,44 @@
         <itemPath>linked_list_node.h</itemPath>
         <itemPath>string_utils.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f5" displayName="console" projectFiles="true">
+        <itemPath>cmd_arg.h</itemPath>
+        <itemPath>logger.h</itemPath>
+        <itemPath>prompt.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.h</itemPath>
           <itemPath>game_list.h</itemPath>
-          <itemPath>game_list_sender.h</itemPath>
           <itemPath>game_logic.h</itemPath>
-          <itemPath>game_status_sender.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
-          <itemPath>client_socket.h</itemPath>
           <itemPath>player.h</itemPath>
           <itemPath>player_list.h</itemPath>
-          <itemPath>player_list_sender.h</itemPath>
-          <itemPath>request_parser.h</itemPath>
         </logicalFolder>
-        <itemPath>checker.h</itemPath>
         <itemPath>observable_list.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f5" displayName="io" projectFiles="true">
-        <itemPath>cmd_arg.h</itemPath>
-        <itemPath>console.h</itemPath>
-        <itemPath>logger.h</itemPath>
+      <logicalFolder name="f2" displayName="handling" projectFiles="true">
+        <itemPath>game_list_sender.h</itemPath>
+        <itemPath>game_status_sender.h</itemPath>
+        <itemPath>player_list_sender.h</itemPath>
+        <itemPath>request_checker.h</itemPath>
+        <itemPath>request_parser.h</itemPath>
+        <itemPath>status_cleaner.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
+          <itemPath>client_socket.h</itemPath>
+          <itemPath>server_control.h</itemPath>
+          <itemPath>server_stats.h</itemPath>
           <itemPath>tcp_server.h</itemPath>
-          <itemPath>tcp_server_control.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcaster.h</itemPath>
+          <itemPath>communicator.h</itemPath>
           <itemPath>message.h</itemPath>
           <itemPath>message_list.h</itemPath>
-          <itemPath>tcp_communicator.h</itemPath>
         </logicalFolder>
-        <itemPath>com_stats.h</itemPath>
       </logicalFolder>
       <itemPath>config.h</itemPath>
       <itemPath>global.h</itemPath>
@@ -62,39 +65,43 @@
         <itemPath>linked_list_iterator.c</itemPath>
         <itemPath>string_utils.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f5" displayName="console" projectFiles="true">
+        <itemPath>cmd_arg.c</itemPath>
+        <itemPath>logger.c</itemPath>
+        <itemPath>prompt.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f6" displayName="gameplay" projectFiles="true">
         <logicalFolder name="f2" displayName="game" projectFiles="true">
           <itemPath>game.c</itemPath>
           <itemPath>game_list.c</itemPath>
-          <itemPath>game_list_sender.c</itemPath>
           <itemPath>game_logic.c</itemPath>
-          <itemPath>game_status_sender.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
           <itemPath>player.c</itemPath>
           <itemPath>player_list.c</itemPath>
-          <itemPath>player_list_sender.c</itemPath>
         </logicalFolder>
-        <itemPath>checker.c</itemPath>
-        <itemPath>request_parser.c</itemPath>
       </logicalFolder>
-      <logicalFolder name="f5" displayName="io" projectFiles="true">
-        <itemPath>cmd_arg.c</itemPath>
-        <itemPath>console.c</itemPath>
-        <itemPath>logger.c</itemPath>
+      <logicalFolder name="f2" displayName="handling" projectFiles="true">
+        <itemPath>game_list_sender.c</itemPath>
+        <itemPath>game_status_sender.c</itemPath>
+        <itemPath>player_list_sender.c</itemPath>
+        <itemPath>request_checker.c</itemPath>
+        <itemPath>request_parser.c</itemPath>
+        <itemPath>status_cleaner.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="network" projectFiles="true">
         <logicalFolder name="f3" displayName="connection" projectFiles="true">
+          <itemPath>client_socket.c</itemPath>
+          <itemPath>server_control.c</itemPath>
+          <itemPath>server_stats.c</itemPath>
           <itemPath>tcp_server.c</itemPath>
-          <itemPath>tcp_server_control.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="messaging" projectFiles="true">
           <itemPath>broadcaster.c</itemPath>
+          <itemPath>communicator.c</itemPath>
           <itemPath>message.c</itemPath>
           <itemPath>message_list.c</itemPath>
-          <itemPath>tcp_communicator.c</itemPath>
         </logicalFolder>
-        <itemPath>com_stats.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>
@@ -133,9 +140,7 @@
       </item>
       <item path="broadcaster.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="checker.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="checker.h" ex="false" tool="3" flavor2="0">
+      <item path="client_socket.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="client_socket.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -143,15 +148,11 @@
       </item>
       <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="com_stats.c" ex="false" tool="0" flavor2="0">
+      <item path="communicator.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="com_stats.h" ex="false" tool="3" flavor2="0">
+      <item path="communicator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="console.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="console.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="game.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -213,27 +214,39 @@
       </item>
       <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="prompt.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="prompt.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="protocol.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="request_checker.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="request_checker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="request_parser.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="request_parser.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="server_control.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="server_control.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="server_stats.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="server_stats.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="status_cleaner.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="status_cleaner.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="string_utils.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="tcp_communicator.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tcp_communicator.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="tcp_server_control.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tcp_server_control.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -267,9 +280,7 @@
       </item>
       <item path="broadcaster.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="checker.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="checker.h" ex="false" tool="3" flavor2="0">
+      <item path="client_socket.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="client_socket.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -277,15 +288,11 @@
       </item>
       <item path="cmd_arg.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="com_stats.c" ex="false" tool="0" flavor2="0">
+      <item path="communicator.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="com_stats.h" ex="false" tool="3" flavor2="0">
+      <item path="communicator.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="config.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="console.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="console.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="game.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -347,27 +354,39 @@
       </item>
       <item path="player_list_sender.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="prompt.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="prompt.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="protocol.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="request_checker.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="request_checker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="request_parser.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="request_parser.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="server_control.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="server_control.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="server_stats.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="server_stats.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="status_cleaner.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="status_cleaner.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="string_utils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="string_utils.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="tcp_communicator.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tcp_communicator.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="tcp_server.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="tcp_server.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="tcp_server_control.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tcp_server_control.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

@@ -9,11 +9,6 @@ package communication.containers;
 public class GameBoard {
 
     /**
-     * ID hry
-     */
-    private int id;
-    
-    /**
      * aktuální počet hráčů
      */
     private byte playerCounter;
@@ -86,7 +81,6 @@ public class GameBoard {
     /**
      * Vytvoří přepravku stavu herního pole.
      * 
-     * @param id ID hry
      * @param playerCounter aktuální počet hráčů
      * @param boardSize rozměr herního pole
      * @param currentRound aktuální kolo hry
@@ -102,11 +96,10 @@ public class GameBoard {
      * @param lastWinnerCellY souřadnice Y posledního vítězného políčka
      * @param cells herní pole
      */
-    public GameBoard(int id, byte playerCounter, byte boardSize, int currentRound, boolean roundFinished,
+    public GameBoard(byte playerCounter, byte boardSize, int currentRound, boolean roundFinished,
             byte currentPlaying, byte lastPlaying, byte lastCellX, byte lastCellY,
             byte currentWinner, byte firstWinnerCellX, byte firstWinnerCellY,
             byte lastWinnerCellX, byte lastWinnerCellY, byte[][] cells) {
-        this.id = id;
         this.playerCounter = playerCounter;
         this.boardSize = boardSize;
         this.currentRound = currentRound;
@@ -121,15 +114,6 @@ public class GameBoard {
         this.lastWinnerCellX = lastWinnerCellX;
         this.lastWinnerCellY = lastWinnerCellY;
         this.board = cells;
-    }
-
-    /**
-     * Vrátí ID hry.
-     * 
-     * @return ID hry
-     */
-    public int getId() {
-        return id;
     }
 
     /**

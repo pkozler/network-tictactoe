@@ -10,6 +10,7 @@
 #include "broadcaster.h"
 #include "message_list.h"
 #include "linked_list_iterator.h"
+#include "game_list.h"
 
 /**
  * Sestaví zprávu představující hlavičku seznamu her.
@@ -65,5 +66,11 @@ message_list_t *game_list_to_message_list() {
  * Rozešle seznam her.
  */
 void broadcast_game_list() {
-    send_message_list_to_all(game_list_to_message_list());
+    if (is_game_list_changed()) {
+        lock_game_list();
+        message_list_t *messages = game_list_to_message_list();
+        set_game_list_changed(false);
+        unlock_game_list();
+        send_message_list_to_all(messages);
+    }
 }

@@ -1,10 +1,10 @@
 /* 
- * Modul com_stats definuje funkce pro počítání statistik běhu serveru.
+ * Modul server_stats definuje funkce pro počítání statistik běhu serveru.
  * 
  * Author: Petr Kozler
  */
 
-#include "com_stats.h"
+#include "server_stats.h"
 #include "global.h"
 #include <stdint.h>
 

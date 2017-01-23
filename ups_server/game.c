@@ -15,6 +15,7 @@
 #include "message.h"
 #include "game_list.h"
 #include "player_list.h"
+#include "status_cleaner.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,18 +29,11 @@
 void *run_game(void *arg) {
     game_t *game = (game_t *) arg;
     
-    while (game->player_counter > 0) {
-        if (game->changed) {
-            lock_game_list();
-            lock_game(game);
-            broadcast_game_status(game);
-            unlock_game(game, false);
-            unlock_game_list(false);
-        }
+    while (game->played) {
+        broadcast_game_status(game);
     }
     
-    remove_game_by_id(game->id);
-    delete_game(game);
+    handle_empty_game(game);
     
     return NULL;
 }
@@ -83,8 +77,8 @@ game_t *create_game(player_t *player, char *name,
     game->current_round = 0;
     game->round_finished = true;
     
-    add_player_to_game(game, player);
-    game->changed = true;
+    game->played = true;
+    game->changed = false;
     
     if (pthread_create(&(game->thread), NULL, run_game, game) < 0) {
         print_err("Chyba při spouštění vlákna pro rozesílání stavu hry");
@@ -105,6 +99,9 @@ void delete_game(game_t *game) {
     }
 
     free(game->board);
+    free(game->players);
+    free(game->winner_cells_x);
+    free(game->winner_cells_y);
     pthread_cancel(game->thread);
     pthread_mutex_destroy(&(game->lock));
     
@@ -124,9 +121,25 @@ void lock_game(game_t *game) {
  * Odemkne herní místnost.
  * 
  * @param game herní místnost
- * @param changed příznak změny
  */
-void unlock_game(game_t *game, bool changed) {
-    game->changed = changed;
+void unlock_game(game_t *game) {
     pthread_mutex_unlock(&(game->lock));
+}
+
+/**
+ * Vrátí příznak změny v herní místnosti.
+ * 
+ * @return příznak změny
+ */
+bool is_game_changed(game_t *game) {
+    return game->changed;
+}
+
+/**
+ * Nastaví příznak změny v herní místnosti.
+ * 
+ * @return příznak změny
+ */
+void set_game_changed(game_t *game, bool changed) {
+    game->changed = changed;
 }

@@ -6,7 +6,7 @@
  */
 
 #include "message_list.h"
-#include "tcp_communicator.h"
+#include "communicator.h"
 #include <stdlib.h>
 
 /**
@@ -49,13 +49,13 @@ void delete_message_list(message_list_t *msg_list) {
  * Odešle seznam zpráv klientovi.
  * 
  * @param messages seznam zpráv
- * @param sock deskriptor socketu klienta
+ * @param socket socket klienta
  */
-void send_message_list(message_list_t *messages, int sock) {
-    send_message(messages->head, sock);
+void send_message_list(message_list_t *messages, client_socket_t *socket) {
+    send_message(messages->head, socket);
 
     int32_t i;
     for (i = 0; i < messages->msgc; i++) {
-        send_message(messages->msgv[i], sock);
+        send_message(messages->msgv[i], socket);
     }
 }

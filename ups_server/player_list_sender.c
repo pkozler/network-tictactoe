@@ -11,6 +11,7 @@
 #include "broadcaster.h"
 #include "message_list.h"
 #include "linked_list_iterator.h"
+#include "player_list.h"
 
 /**
  * Sestaví zprávu představující hlavičku seznamu hráčů.
@@ -63,5 +64,11 @@ message_list_t *player_list_to_message_list() {
  * Rozešle seznam hráčů.
  */
 void broadcast_player_list() {
-    send_message_list_to_all(player_list_to_message_list());
+    if (is_player_list_changed()) {
+        lock_player_list();
+        message_list_t *messages = player_list_to_message_list();
+        set_player_list_changed(false);
+        unlock_player_list();
+        send_message_list_to_all(messages);
+    }
 }

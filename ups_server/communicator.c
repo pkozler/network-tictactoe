@@ -1,14 +1,14 @@
 /* 
- * Modul tcp_communicator definuje funkce pro komunikace serveru s klienty.
+ * Modul communicator definuje funkce pro komunikace serveru s klienty.
  * 
  * Author: Petr Kozler
  */
 
-#include "tcp_communicator.h"
+#include "communicator.h"
 #include "config.h"
 #include "protocol.h"
 #include "logger.h"
-#include "com_stats.h"
+#include "server_stats.h"
 #include "string_utils.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -79,19 +79,18 @@ int write_bytes(int sock, void *buf, unsigned int len) {
  * volající funkci v návratové hodnotě. V případě, že délka zprávy má hodnotu 0
  * (testování odezvy) vrací pouze nulový znak. V případě chyby vrací hodnotu NULL.
  * 
- * @param sock deskriptor socketu klienta - odesílatele
- * @param příznak průběhu přenosu (uloží se true, pokud byl přenos úspěšný, jinak false)
+ * @param socket socket klienta - odesílatele
  * @return zpráva v textové formě (standardní řetězec, délka smí být nulová) nebo NULL
  */
-char *read_from_socket(int sock, bool *success) {
+char *read_from_socket(client_socket_t *socket) {
     int32_t str_len;
     
-    int n = read_bytes(sock, &str_len, sizeof(int32_t));
+    int n = read_bytes(socket->sock, &str_len, sizeof(int32_t));
     if (n < 1) {
-        *success = false;
+        socket->connected = false;
         
         if (n < 0) {
-            print_recv(NULL, sock, false);
+            print_recv(NULL, socket->sock, false);
         }
         
         return NULL;
@@ -104,8 +103,8 @@ char *read_from_socket(int sock, bool *success) {
     str_len = ntohl(str_len);
     
     if (str_len < 0 || str_len > MAX_MESSAGE_LENGTH) {
-        *success = false;
-        print_recv("Neplatná délka řetězce zprávy.", sock, false);
+        socket->connected = false;
+        print_recv("Neplatná délka řetězce zprávy.", socket->sock, false);
         
         return NULL;
     }
@@ -114,25 +113,25 @@ char *read_from_socket(int sock, bool *success) {
     
     if (str_len == 0) {
         msg_str[0] = '\0';
-        print_recv(msg_str, sock, true);
+        print_recv(msg_str, socket->sock, true);
         
         return msg_str;
     }
         
-    n = read_bytes(sock, msg_str, str_len);
+    n = read_bytes(socket->sock, msg_str, str_len);
 
     if (n < 1) {
-        *success = false;
+        socket->connected = false;
         
         if (n < 0) {
-            print_recv(NULL, sock, false);
+            print_recv(NULL, socket->sock, false);
         }
         
         return NULL;
     }
 
     msg_str[str_len] = '\0';
-    print_recv(msg_str, sock, true);
+    print_recv(msg_str, socket->sock, true);
     inc_stats_bytes_transferred((int32_t) n);
     
     return msg_str;
@@ -145,12 +144,12 @@ char *read_from_socket(int sock, bool *success) {
  * s hodnotou 0 (testování odezvy).
  * 
  * @param msg_str zpráva v textové formě (standardní řetězec, délka smí být nulová)
- * @param sock deskriptor socketu klienta - příjemce
+ * @param socket socket klienta - příjemce
  * @return true, pokud byl přenos úspěšný, jinak false
  */
-bool write_to_socket(char *msg_str, int sock) {
+bool write_to_socket(char *msg_str, client_socket_t *socket) {
     if (msg_str == NULL) {
-        print_send("Předána neplatná struktura zprávy.", sock, false);
+        print_send("Předána neplatná struktura zprávy.", socket->sock, false);
         
         return false;
     }
@@ -159,10 +158,10 @@ bool write_to_socket(char *msg_str, int sock) {
     //printf("N = %d\n", str_len);
     // převod pořadí bajtů čísla délky
     str_len = htonl(str_len);
-    int n = write_bytes(sock, &str_len, sizeof(int32_t));
+    int n = write_bytes(socket->sock, &str_len, sizeof(int32_t));
     
     if (n < 0) {
-        print_send(NULL, sock, false);
+        print_send(NULL, socket->sock, false);
         
         return false;
     }
@@ -172,26 +171,26 @@ bool write_to_socket(char *msg_str, int sock) {
     n = 0;
     
     if (str_len < 0 || str_len > MAX_MESSAGE_LENGTH) {
-        print_send("Neplatná délka řetězce zprávy.", sock, false);
+        print_send("Neplatná délka řetězce zprávy.", socket->sock, false);
         
         return false;
     }
     
     if (str_len == 0) {
-        print_send(msg_str, sock, true);
+        print_send(msg_str, socket->sock, true);
         
         return true;
     }
     
-    n = write_bytes(sock, msg_str, str_len);
+    n = write_bytes(socket->sock, msg_str, str_len);
     
     if (n < 0) {
-        print_send(NULL, sock, false);
+        print_send(NULL, socket->sock, false);
         
         return false;
     }
     
-    print_send(msg_str, sock, true);
+    print_send(msg_str, socket->sock, true);
     inc_stats_bytes_transferred((int32_t) n);
     
     return true;
@@ -203,13 +202,11 @@ bool write_to_socket(char *msg_str, int sock) {
  * volající funkci v návratové hodnotě. V případě zjištění neplatné zprávy vrací
  * hodnotu NULL.
  * 
- * @param sock deskriptor socketu klienta - odesílatele
- * @param příznak průběhu přenosu (uloží se true, pokud se podařilo přenést zprávu, jinak false)
+ * @param socket socket klienta - odesílatele
  * @return přijatá platná zpráva ve formě struktury nebo NULL
  */
-message_t *receive_message(int sock, bool *success) {
-    *success = true;
-    char *msg_str = read_from_socket(sock, success);
+message_t *receive_message(client_socket_t *socket) {
+    char *msg_str = read_from_socket(socket);
     
     // došlo k chybě při přenosu řetězce zprávy
     if (msg_str == NULL) {
@@ -267,10 +264,10 @@ message_t *receive_message(int sock, bool *success) {
  * po síti a odešle ji v této podobě klientovi se zadaným číslem socketu.
  * 
  * @param msg odesílaná zpráva ve formě struktury
- * @param sock deskriptor socketu klienta - příjemce
+ * @param socket socket klienta - příjemce
  * @return true v případě úspěchu, false v případě chyby
  */
-bool send_message(message_t *msg, int sock) {
+bool send_message(message_t *msg, client_socket_t *socket) {
     char *msg_str;
     
     // zpráva má typ
@@ -302,7 +299,9 @@ bool send_message(message_t *msg, int sock) {
         msg_str = NULL;
     }
     
-    bool success = write_to_socket(msg_str, sock);
+    lock_socket(socket);
+    bool success = write_to_socket(msg_str, socket);
+    unlock_socket(socket);
     
     if (msg_str != NULL) {
         free(msg_str);

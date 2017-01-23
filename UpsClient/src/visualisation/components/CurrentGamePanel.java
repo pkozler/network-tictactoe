@@ -14,10 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import communication.containers.CurrentGameDetail;
-import communication.containers.JoinedPlayer;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.SwingUtilities;
 import visualisation.components.game.BoardPanel;
 import visualisation.components.game.JoinedPlayerListPanel;
 import visualisation.components.game.EventTextPanel;
@@ -152,19 +151,24 @@ public class CurrentGamePanel extends JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
-        TcpClient client = (TcpClient) o;
+        final TcpClient client = (TcpClient) o;
         CurrentGameDetail currentGameDetail = client.getGameDetail();
+        final CurrentGameDetail gameDetail = currentGameDetail == null ?
+                new CurrentGameDetail(null, null) : currentGameDetail;
         
-        if (currentGameDetail == null) {
-            currentGameDetail = new CurrentGameDetail(null, null);
-        }
-        
-        BOARD_PANEL.setGameDetail(currentGameDetail);
-        JOINED_PLAYER_LIST_PANEL.setGameDetail(currentGameDetail);
-        LAST_EVENT_TEXT_PANEL.setGameDetail(currentGameDetail);
-        
-        setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo(),
-                currentGameDetail.GAME_BOARD != null && currentGameDetail.GAME_BOARD.isRoundFinished());
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
+                BOARD_PANEL.setGameDetail(gameDetail);
+                JOINED_PLAYER_LIST_PANEL.setGameDetail(gameDetail);
+                LAST_EVENT_TEXT_PANEL.setGameDetail(gameDetail);
+
+                setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo(),
+                        gameDetail.GAME_BOARD != null && gameDetail.GAME_BOARD.isRoundFinished());
+            }
+            
+        });
     }
     
 }
