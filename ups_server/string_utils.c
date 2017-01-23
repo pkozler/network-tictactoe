@@ -23,13 +23,14 @@ char *copy_string(const char *s) {
         return NULL;
     }
     
-    char *d = malloc (strlen (s) + 1);
+    int len = strlen(s) + 1;
+    char *d = (char *) malloc(sizeof(char) * len);
     
     if (d == NULL) {
         return NULL;
     }
     
-    strcpy(d,s);
+    strncpy(d, s, len);
     
     return d;
 }

@@ -19,13 +19,14 @@
           <itemPath>game_status_sender.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="player" projectFiles="true">
+          <itemPath>client_socket.h</itemPath>
           <itemPath>player.h</itemPath>
           <itemPath>player_list.h</itemPath>
           <itemPath>player_list_sender.h</itemPath>
+          <itemPath>request_parser.h</itemPath>
         </logicalFolder>
         <itemPath>checker.h</itemPath>
         <itemPath>observable_list.h</itemPath>
-        <itemPath>request_parser.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="io" projectFiles="true">
         <itemPath>cmd_arg.h</itemPath>
@@ -135,6 +136,8 @@
       <item path="checker.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="checker.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="client_socket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -267,6 +270,8 @@
       <item path="checker.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="checker.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="client_socket.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="cmd_arg.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -41,6 +41,6 @@
 #define STATS_CMD "stats" // příkaz pro výpis statistik serveru
 #define HELP_CMD "help" // příkaz pro výpis všech dostupných příkazů
 #define EXIT_CMD "exit" // příkaz pro zastavení komunikace a ukončení programu
-#define MAX_STR_LENGHT 65535 // maximální délka jednoho logovaného řetězce
+#define MAX_STR_LENGHT 65536 // maximální délka jednoho logovaného řetězce
 
 #endif /* CONFIG_H */

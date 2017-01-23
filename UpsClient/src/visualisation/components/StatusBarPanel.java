@@ -35,20 +35,25 @@ public class StatusBarPanel extends JPanel {
     StyledDocument doc;
     
     /**
-     * atributy textu hlášení o odesílání
-     */
-    SimpleAttributeSet sendingStatusAttributes;
-    
-    /**
      * atributy textu hlášení o příjmu
      */
     SimpleAttributeSet receivingStatusAttributes;
+    
+    /**
+     * atributy textu hlášení o odesílání
+     */
+    SimpleAttributeSet sendingStatusAttributes;
     
     /**
      * atributy textu hlášení o chybě
      */
     SimpleAttributeSet errorStatusAttributes;
 
+    /**
+     * atributy textu hlášení o úspěšném průběhu operace
+     */
+    SimpleAttributeSet okStatusAttributes;
+    
     /**
      * Vytvoří panel stavového řádku.
      */
@@ -61,14 +66,17 @@ public class StatusBarPanel extends JPanel {
         textPane = new JTextPane();
         textPane.setEditable(false);
         textPane.setFont(new Font("Monospaced", Font.PLAIN, fontSize));
+        textPane.setBorder(BorderFactory.createLoweredBevelBorder());
         
         doc = textPane.getStyledDocument();
-        sendingStatusAttributes = new SimpleAttributeSet();
         receivingStatusAttributes = new SimpleAttributeSet();
+        sendingStatusAttributes = new SimpleAttributeSet();
         errorStatusAttributes = new SimpleAttributeSet();
-        StyleConstants.setForeground(sendingStatusAttributes, Color.BLUE);
+        okStatusAttributes = new SimpleAttributeSet();
         StyleConstants.setForeground(receivingStatusAttributes, Color.BLACK);
+        StyleConstants.setForeground(sendingStatusAttributes, Color.BLUE);
         StyleConstants.setForeground(errorStatusAttributes, Color.RED);
+        StyleConstants.setForeground(okStatusAttributes, Color.GREEN);
         
         JScrollPane scrollPane = new JScrollPane(textPane, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -113,6 +121,16 @@ public class StatusBarPanel extends JPanel {
     public void printErrorStatus(String format, Object... args) {
         appendToPane(errorStatusAttributes, format, args);
     }
+    
+    /**
+     * Vypíše úspěšné provedení operace.
+     * 
+     * @param format formátovací řetězec
+     * @param args argumenty řetězce
+     */
+    public void printOkStatus(String format, Object... args) {
+        appendToPane(okStatusAttributes, format, args);
+    }
 
     /**
      * Přidá text do textového pole.
@@ -126,7 +144,8 @@ public class StatusBarPanel extends JPanel {
 
         try {
             doc.insertString(doc.getLength(), msg, attributes);
-        } catch (BadLocationException ex) {
+        }
+        catch (BadLocationException ex) {
             // chyba - neplatná pozice v dokumentu
         }
     }

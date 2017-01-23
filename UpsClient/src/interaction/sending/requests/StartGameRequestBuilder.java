@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -16,7 +16,7 @@ public class StartGameRequestBuilder extends ARequestBuilder {
      * Sestaví požadavek klienta na zahájení herního kola.
      */
     public StartGameRequestBuilder() {
-        message = new TcpMessage(Protocol.MSG_START_GAME.KEYWORD);
+        message = new Message(Protocol.MSG_START_GAME.KEYWORD);
     }
     
     /**

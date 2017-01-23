@@ -1,7 +1,7 @@
 package interaction.receiving;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 
 /**
  * Abstraktní třída AParser představuje obecný parser zpráv
@@ -19,7 +19,7 @@ public abstract class AParser {
     /**
      * zpráva
      */
-    protected final TcpMessage MESSAGE;
+    protected final Message MESSAGE;
     
     /**
      * Vytvoří parser.
@@ -27,7 +27,7 @@ public abstract class AParser {
      * @param client objekt klienta
      * @param message zpráva
      */
-    public AParser(TcpClient client, TcpMessage message) {
+    public AParser(TcpClient client, Message message) {
         CLIENT = client;
         MESSAGE = message;
     }

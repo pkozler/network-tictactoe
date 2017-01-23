@@ -1,14 +1,15 @@
 package interaction.receiving.responses;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
+import communication.tokens.ResponseWithoutRequestException;
+import communication.tokens.WrongResponseTypeException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
-import visualisation.components.GameListPanel;
-import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
+import interaction.sending.ARequestBuilder;
+import interaction.sending.requests.CreateGameRequestBuilder;
 
 /**
  * Třída CreateGameResponseParser představuje parser odpovědi serveru
@@ -18,25 +19,24 @@ import visualisation.components.StatusBarPanel;
  */
 public class CreateGameResponseParser extends AResponseParser {
 
+    protected CreateGameRequestBuilder builder;
+    
+    protected int newGameId;
+    
     /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na vytvoření hry.
      * 
      * @param client objekt klienta
-     * @param playerListPanel panel seznamu hráčů
-     * @param gameListPanel panel seznamu her
-     * @param statusBarPanel panel stavového řádku
      * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public CreateGameResponseParser(TcpClient client, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
+    public CreateGameResponseParser(TcpClient client, Message message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
+        super(client, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            int id = MESSAGE.getNextIntArg(0);
-            client.setGameId(id);
+            newGameId = MESSAGE.getNextIntArg(0);
             
             return;
         }
@@ -68,10 +68,18 @@ public class CreateGameResponseParser extends AResponseParser {
      */
     @Override
     public String updateClient() {
-        if (messageErrorKeyword == null) {
-            return String.format("Hráč vytvořil herní místnost");
+        if (messageErrorKeyword != null) {
+            return getResponseError();
         }
         
+        CLIENT.setCurrentGameId(newGameId);
+        
+        return String.format("Hráč vytvořil herní místnost s ID %d, název místnosti: \"%s\"",
+                newGameId, builder.NAME);
+    }
+
+    @Override
+    public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME.KEYWORD)) {
             return "Zadaný název herní místnosti je neplatný";
         }
@@ -92,7 +100,19 @@ public class CreateGameResponseParser extends AResponseParser {
             return "Zadaný počet políček potřebných k obsazení je neplatný";
         }
         
-        return null;
+        return super.getResponseError();
+    }
+
+    @Override
+    public void assignRequest(ARequestBuilder builder)
+            throws ResponseWithoutRequestException, WrongResponseTypeException {
+        super.assignRequest(builder);
+        
+        if (!(builder instanceof CreateGameRequestBuilder)) {
+            throw new WrongResponseTypeException();
+        }
+        
+        this.builder = (CreateGameRequestBuilder) builder;
     }
 
 }

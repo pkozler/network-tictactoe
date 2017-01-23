@@ -1,7 +1,7 @@
 package interaction;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import interaction.sending.ARequestBuilder;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,27 +19,32 @@ public class MessageBackgroundSender implements Runnable {
     /**
      * objekt klienta
      */
-    public final TcpClient CLIENT;
+    private final TcpClient CLIENT;
     
     /**
      * fronta požadavků
      */
-    private final Queue<ARequestBuilder> requestQueue = new LinkedList<>();
+    private final Queue<ARequestBuilder> REQUEST_QUEUE = new LinkedList<>();
     
     /**
      * panel stavového řádku
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
+    private final RequestResponseHandler REQUEST_RESPONSE_HANDLER;
+    
     /**
      * Vytvoří vysílač zpráv.
      * 
      * @param client objekt klienta
      * @param statusBarPanel panel stavového řádku
+     * @param requestResponseHandler objekt pro zpracování odpovědí na požadavky
      */
-    public MessageBackgroundSender(TcpClient client, StatusBarPanel statusBarPanel) {
+    public MessageBackgroundSender(TcpClient client, StatusBarPanel statusBarPanel,
+            RequestResponseHandler requestResponseHandler) {
         CLIENT = client;
         STATUS_BAR_PANEL = statusBarPanel;
+        REQUEST_RESPONSE_HANDLER = requestResponseHandler;
     }
     
     /**
@@ -48,7 +53,7 @@ public class MessageBackgroundSender implements Runnable {
      * @param builder požadavek
      */
     public void enqueueMessageBuilder(ARequestBuilder builder) {
-        requestQueue.add(builder);
+        REQUEST_QUEUE.add(builder);
     }
     
     /**
@@ -60,25 +65,25 @@ public class MessageBackgroundSender implements Runnable {
             handleMessageToSend();
         }
         
-        requestQueue.clear();
+        REQUEST_QUEUE.clear();
+        REQUEST_RESPONSE_HANDLER.clearPendingRequests();
     }
     
     /**
      * Sestaví požadavek a odešle jej na server.
      */
     private void handleMessageToSend() {
-        if (requestQueue.isEmpty()) {
+        if (REQUEST_QUEUE.isEmpty()) {
             return;
         }
         
-        final ARequestBuilder builder = requestQueue.poll();
+        final ARequestBuilder builder = REQUEST_QUEUE.poll();
 
-        TcpMessage message;
+        Message message;
         final String status;
-        Runnable runnable;
         
         if (builder == null || builder.getMessage() == null) {
-            message = new TcpMessage();
+            message = new Message();
             status = null;
         }
         else {
@@ -86,10 +91,15 @@ public class MessageBackgroundSender implements Runnable {
             status = builder.getStatus();
         }
         
+        if (!CLIENT.isConnected()) {
+            return;
+        }
+        
         try {
             CLIENT.sendMessage(message);
-
-            runnable = new Runnable() {
+            REQUEST_RESPONSE_HANDLER.addPendingRequest(builder);
+            
+            SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
@@ -98,21 +108,20 @@ public class MessageBackgroundSender implements Runnable {
                     }
                 }
 
-            };
+            });
         }
         catch (final Exception e) {
-            runnable = new Runnable() {
+            SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
                     STATUS_BAR_PANEL.printErrorStatus(
                             "Chyba odesílání zprávy: %s", e.getClass().getSimpleName());
+                    e.printStackTrace();
                 }
 
-            };
+            });
         }
-        
-        SwingUtilities.invokeLater(runnable);
     }
     
 }

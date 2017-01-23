@@ -9,9 +9,19 @@ package communication.containers;
 public class JoinedPlayer implements Comparable<JoinedPlayer> {
     
     /**
-     * základní informace o hráči
+     * ID hráče
      */
-    public final PlayerInfo PLAYER_INFO;
+    private int id;
+    
+    /**
+     * příznak účasti v aktuálním kole
+     */
+    private boolean playing;
+    
+    /**
+     * přezdívka hráče
+     */
+    private String nickname;
     
     /**
      * pořadí v aktuální hře
@@ -26,14 +36,45 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
     /**
      * Vytvoří seznam hráčů v herní místnosti.
      * 
-     * @param playerInfo základní informace o hráči
+     * @param id ID hráče
+     * @param playing příznak účasti v aktuálním kole
+     * @param nickname přezdívka hráče
      * @param currentGameIndex pořadí v aktuální hře
      * @param currentGameScore skóre v aktuální hře
      */
-    public JoinedPlayer(PlayerInfo playerInfo, byte currentGameIndex, int currentGameScore) {
-        PLAYER_INFO = playerInfo;
+    public JoinedPlayer(int id, boolean playing, String nickname, byte currentGameIndex, int currentGameScore) {
+        this.id = id;
+        this.playing = playing;
+        this.nickname = nickname;
         this.currentGameIndex = currentGameIndex;
         this.currentGameScore = currentGameScore;
+    }
+
+    /**
+     * Vrátí ID hráče.
+     * 
+     * @return ID hráče
+     */
+    public int getId() {
+        return id;
+    }
+    
+    /**
+     * Vrátí příznak účasti v aktuálním kole.
+     * 
+     * @return příznak účasti v aktuálním kole
+     */
+    public boolean isPlaying() {
+        return playing;
+    }
+    
+    /**
+     * Vrátí přezdívku hráče.
+     * 
+     * @return přezdívka hráče
+     */
+    public String getNickname() {
+        return nickname;
     }
     
     /**
@@ -97,8 +138,8 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
      */
     @Override
     public String toString() {
-            return String.format("<html>%d: %s<br/>%d. na tahu<br/>skóre za hru / celkem: %d/%d</html>", 
-                            PLAYER_INFO.ID, PLAYER_INFO.NICK, currentGameIndex, currentGameScore, PLAYER_INFO.getTotalScore());
+            return String.format("<html>%d: %s<br/>skóre ve hře: %d</html>", 
+                            currentGameIndex, nickname, currentGameScore);
     }
     
     /**

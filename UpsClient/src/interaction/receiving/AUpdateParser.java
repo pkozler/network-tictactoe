@@ -1,7 +1,7 @@
 package interaction.receiving;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 
@@ -19,7 +19,7 @@ public abstract class AUpdateParser extends AParser {
      * @param client objekt klienta
      * @param message zpráva
      */
-    public AUpdateParser(TcpClient client, TcpMessage message) {
+    public AUpdateParser(TcpClient client, Message message) {
         super(client, message);
     }
     
@@ -37,12 +37,7 @@ public abstract class AUpdateParser extends AParser {
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public abstract void parseNextItemMessage(TcpMessage itemMessage)
+    public abstract void parseNextItemMessage(Message itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException;
-    
-    /**
-     * Aktualizuje GUI.
-     */
-    public abstract void updateGui();
     
 }

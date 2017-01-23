@@ -35,22 +35,11 @@ void *run_player(void *arg) {
     send_message_list(game_list_to_message_list(), player->sock);
     
     while (player->connected) {
-        lock_player(player);
         parse_received_message(player);
-        unlock_player(player);
     }
     
     print_out("Klient %d: Odpojen", player->sock);
-    
-    lock_player_list();
-    if (is_player_logged(player)) {
-        remove_player_from_game(player);
-        remove_player_by_id(player->id);
-    }
-    unlock_player_list(true);
-    
-    remove_element(g_client_list, player);
-    delete_player(player);
+    handle_disconnect(player);
     
     return NULL;
 }

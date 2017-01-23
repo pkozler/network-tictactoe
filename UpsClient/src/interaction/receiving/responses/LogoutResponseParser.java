@@ -1,14 +1,15 @@
 package interaction.receiving.responses;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
+import communication.tokens.ResponseWithoutRequestException;
+import communication.tokens.WrongResponseTypeException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
-import visualisation.components.GameListPanel;
-import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
+import interaction.sending.ARequestBuilder;
+import interaction.sending.requests.LogoutRequestBuilder;
 
 /**
  * Třída LogoutResponseParser představuje parser odpovědi serveru
@@ -18,21 +19,19 @@ import visualisation.components.StatusBarPanel;
  */
 public class LogoutResponseParser extends AResponseParser {
 
+    protected LogoutRequestBuilder builder;
+    
     /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na odhlášení.
      * 
      * @param client objekt klienta
-     * @param playerListPanel panel seznamu hráčů
-     * @param gameListPanel panel seznamu her
-     * @param statusBarPanel panel stavového řádku
      * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public LogoutResponseParser(TcpClient client, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
+    public LogoutResponseParser(TcpClient client, Message message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
+        super(client, message);
         
         if (MESSAGE.getNextBoolArg()) {
             return;
@@ -48,15 +47,34 @@ public class LogoutResponseParser extends AResponseParser {
      */
     @Override
     public String updateClient() {
-        if (messageErrorKeyword == null) {
-            return null;
+        if (messageErrorKeyword != null) {
+            return getResponseError();
         }
         
-        if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_LOGGED.KEYWORD)) {
+        CLIENT.setCurrentPlayerId(0);
+        
+        return "Hráč byl odhlášen ze serveru";
+    }
+
+    @Override
+    public String getResponseError() {
+        if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_LOGGED.KEYWORD)) {
             return "Hráč ještě není přihlášen";
         }
         
-        return "Hráč byl odhlášen ze serveru";
+        return super.getResponseError();
+    }
+
+    @Override
+    public void assignRequest(ARequestBuilder builder)
+            throws ResponseWithoutRequestException, WrongResponseTypeException {
+        super.assignRequest(builder);
+        
+        if (!(builder instanceof LogoutRequestBuilder)) {
+            throw new WrongResponseTypeException();
+        }
+        
+        this.builder = (LogoutRequestBuilder) builder;
     }
 
 }

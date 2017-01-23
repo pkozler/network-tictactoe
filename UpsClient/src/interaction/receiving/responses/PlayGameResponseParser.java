@@ -1,14 +1,15 @@
 package interaction.receiving.responses;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
+import communication.tokens.ResponseWithoutRequestException;
+import communication.tokens.WrongResponseTypeException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
-import visualisation.components.GameListPanel;
-import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
+import interaction.sending.ARequestBuilder;
+import interaction.sending.requests.PlayGameRequestBuilder;
 
 /**
  * Třída PlayGameResponseParser představuje parser odpovědi serveru
@@ -18,21 +19,19 @@ import visualisation.components.StatusBarPanel;
  */
 public class PlayGameResponseParser extends AResponseParser {
 
+    protected PlayGameRequestBuilder builder;
+    
     /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na provedení tahu.
      * 
      * @param client objekt klienta
-     * @param playerListPanel panel seznamu hráčů
-     * @param gameListPanel panel seznamu her
-     * @param statusBarPanel panel stavového řádku
      * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public PlayGameResponseParser(TcpClient client, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
+    public PlayGameResponseParser(TcpClient client, Message message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
+        super(client, message);
         
         if (MESSAGE.getNextBoolArg()) {
             return;
@@ -48,10 +47,16 @@ public class PlayGameResponseParser extends AResponseParser {
      */
     @Override
     public String updateClient() {
-        if (messageErrorKeyword == null) {
-            return String.format("Hráč provedl herní tah");
+        if (messageErrorKeyword != null) {
+            return getResponseError();
         }
         
+        return String.format("Hráč provedl herní tah na souřadnicích: [%d; %d]",
+                builder.X, builder.Y);
+    }
+
+    @Override
+    public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
             return "Hráč se nenachází v herní místnosti se zadaným ID";
         }
@@ -80,7 +85,19 @@ public class PlayGameResponseParser extends AResponseParser {
             return "Hráč se pokusil táhnout na již obsazené políčko";
         }
         
-        return null;
+        return super.getResponseError();
+    }
+
+    @Override
+    public void assignRequest(ARequestBuilder builder)
+            throws ResponseWithoutRequestException, WrongResponseTypeException {
+        super.assignRequest(builder);
+        
+        if (!(builder instanceof PlayGameRequestBuilder)) {
+            throw new WrongResponseTypeException();
+        }
+        
+        this.builder = (PlayGameRequestBuilder) builder;
     }
 
 }

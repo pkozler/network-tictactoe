@@ -1,5 +1,6 @@
 package communication;
 
+import communication.containers.CurrentGameDetail;
 import communication.containers.GameInfo;
 import communication.containers.PlayerInfo;
 import communication.tokens.InvalidMessageArgsException;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Observable;
 
 /**
@@ -56,32 +58,46 @@ public class TcpClient extends Observable {
      */
     private int playerId;
     
+    private PlayerInfo playerInfo;
+    
     /**
      * ID aktuální herní místnosti
      */
     private int gameId;
     
-    /**
-     * struktura s údaji přihlášeného hráče
-     */
-    private PlayerInfo playerInfo;
-    
-    /**
-     * struktura s údaji aktuální zvolené herní místnosti
-     */
     private GameInfo gameInfo;
     
+    private ArrayList<PlayerInfo> playerList;
+    
+    private ArrayList<GameInfo> gameList;
+    
+    private CurrentGameDetail gameDetail;
+
     /**
-     * Provede pokus o navázání spojení se serverem.
+     * Vytvoří objekt TCP klienta.
      * 
      * @param host adresa
      * @param port port
-     * @throws IOException 
      */
-    public void connect(InetAddress host, int port) throws IOException {
+    public TcpClient(InetAddress host, int port) {
         this.host = host;
         this.port = port;
-        
+    }
+    
+    public InetAddress getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * Provede pokus o navázání spojení se serverem.
+     * 
+     * @throws IOException 
+     */
+    public void connect() throws IOException {
         socket = new Socket(host, port);
         socket.setSoTimeout(Config.SOCKET_TIMEOUT_MILLIS);
 
@@ -105,9 +121,8 @@ public class TcpClient extends Observable {
         }
         
         socket = null;
-        
-        setChanged();
-        notifyObservers();
+        setCurrentPlayerId(0);
+        setPlayerList(null);
     }
     
     /**
@@ -119,126 +134,96 @@ public class TcpClient extends Observable {
         return socket != null && !socket.isClosed();
     }
     
-    /**
-     * Vrátí ID hráče.
-     * 
-     * @return ID hráče
-     */
-    public synchronized int getPlayerId() {
-        return playerId;
-    }
-
-    /**
-     * Nastaví ID hráče.
-     * 
-     * @param playerId ID hráče
-     */
-    public synchronized void setPlayerId(int playerId) {
-        this.playerId = playerId;
-    }
-
-    /**
-     * Vrátí ID hry.
-     * 
-     * @return ID hry
-     */
-    public synchronized int getGameId() {
-        return gameId;
-    }
-
-    /**
-     * Nastaví ID hry.
-     * 
-     * @param gameId ID hry
-     */
-    public synchronized void setGameId(int gameId) {
-        this.gameId = gameId;
-    }
-    
-    /**
-     * Propojí hráče s položkou seznamu hráčů (použito po přihlášení).
-     * 
-     * @param playerInfo údaje hráče
-     */
-    public synchronized void logIn(PlayerInfo playerInfo) {
-        if (playerInfo != null) {
-            this.playerInfo = playerInfo;
-            
-            setChanged();
-            notifyObservers();
-        }
-    }
-    
-    /**
-     * Odstraní odkaz na položku seznamu hráčů (použito po odhlášení).
-     */
-    public synchronized void logOut() {
-        playerInfo = null;
-        playerId = 0;
-        
-        setChanged();
-        notifyObservers();
-    }
-    
-    /**
-     * Otestuje, zda je klient přihlášen.
-     * 
-     * @return true, je-li klient přihlášen, jinak false
-     */
-    public synchronized boolean isLogged() {
+    public synchronized boolean hasPlayerInfo() {
         return playerInfo != null;
     }
-    
-    /**
-     * Vrátí údaje o hráči.
-     * 
-     * @return údaje hráče
-     */
-    public synchronized PlayerInfo getPlayerInfo() {
+
+    public synchronized boolean hasGameInfo() {
+        return gameInfo != null;
+    }
+
+    public PlayerInfo getPlayerInfo() {
         return playerInfo;
     }
 
-    /**
-     * Propojí hráče s položkou seznamu her (použito po vstupu do hry).
-     * 
-     * @param gameInfo údaje hry
-     */
-    public synchronized void joinGame(GameInfo gameInfo) {
-        if (gameInfo != null) {
-            this.gameInfo = gameInfo;
-            
-            setChanged();
-            notifyObservers();
-        }
+    public synchronized void setCurrentPlayerId(int playerId) {
+        this.playerId = playerId;
     }
     
-    /**
-     * Odstraní odkaz na položku seznamu her (použito po odchodu ze hry).
-     */
-    public synchronized void leaveGame() {
-        gameInfo = null;
-        gameId = 0;
+    public GameInfo getGameInfo() {
+        return gameInfo;
+    }
+    
+    public synchronized void setCurrentGameId(int gameId) {
+        this.gameId = gameId;
+    }
+
+    public synchronized ArrayList<PlayerInfo> getPlayerList() {
+        return playerList;
+    }
+
+    public synchronized void setPlayerList(ArrayList<PlayerInfo> playerList) {
+        this.playerList = playerList;
+        
+        if (playerId < 1) {
+            playerInfo = null;
+            setCurrentGameId(0);
+            setGameList(null);
+            
+            return;
+        }
+        
+        for (PlayerInfo p : playerList) {
+            if (p.ID == playerId) {
+                playerInfo = p;
+
+                break;
+            }
+        }
         
         setChanged();
         notifyObservers();
     }
 
-    /**
-     * Otestuje, zda je klient v herní místnosti.
-     * 
-     * @return true, je-li klient v herní místnosti, jinak false
-     */
-    public synchronized boolean isInGame() {
-        return gameInfo != null;
+    public synchronized ArrayList<GameInfo> getGameList() {
+        return gameList;
     }
-    
-    /**
-     * Vrátí údaje o hře.
-     * 
-     * @return údaje hry
-     */
-    public synchronized GameInfo getGameInfo() {
-        return gameInfo;
+
+    public synchronized void setGameList(ArrayList<GameInfo> gameList) {
+        this.gameList = gameList;
+
+        if (gameId < 1) {
+            gameInfo = null;
+            setGameDetail(null);
+            
+            return;
+        }
+        
+        for (GameInfo g : gameList) {
+            if (g.ID == gameId) {
+                gameInfo = g;
+                
+                break;
+            }
+        }
+        
+        setChanged();
+        notifyObservers();
+    }
+
+    public synchronized CurrentGameDetail getGameDetail() {
+        return gameDetail;
+    }
+
+    public synchronized void setGameDetail(CurrentGameDetail gameDetail) {
+        if (gameDetail != null) {
+            gameDetail.setCurrentInfo(playerId);
+        }
+        
+        this.gameDetail = gameDetail;
+        
+        setChanged();
+        notifyObservers();
     }
     
     /**
@@ -248,7 +233,7 @@ public class TcpClient extends Observable {
      * @throws IOException
      * @throws InvalidMessageArgsException 
      */
-    public void sendMessage(TcpMessage message) throws IOException, InvalidMessageArgsException {
+    public void sendMessage(Message message) throws IOException, InvalidMessageArgsException {
         String msgStr = message.toString();
         
         if (msgStr == null) {
@@ -266,11 +251,11 @@ public class TcpClient extends Observable {
      * @throws IOException
      * @throws InvalidMessageStringLengthException 
      */
-    public TcpMessage receiveMessage() throws IOException, InvalidMessageStringLengthException {
+    public Message receiveMessage() throws IOException, InvalidMessageStringLengthException {
         String msgStr = readFromSocket();
         LOGGER.printRecv(msgStr);
         
-        return new TcpMessage(msgStr);
+        return new Message(msgStr);
     }
     
     /**

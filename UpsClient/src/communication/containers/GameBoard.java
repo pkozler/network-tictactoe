@@ -7,11 +7,21 @@ package communication.containers;
  * @author Petr Kozler
  */
 public class GameBoard {
+
+    /**
+     * ID hry
+     */
+    private int id;
     
     /**
-     * základní informace o hře
+     * aktuální počet hráčů
      */
-    public final GameInfo GAME_INFO;
+    private byte playerCounter;
+    
+    /**
+     * rozměr herního pole
+     */
+    private byte boardSize;
     
     /**
      * aktuální kolo hry
@@ -76,7 +86,9 @@ public class GameBoard {
     /**
      * Vytvoří přepravku stavu herního pole.
      * 
-     * @param gameInfo základní informace o hře
+     * @param id ID hry
+     * @param playerCounter aktuální počet hráčů
+     * @param boardSize rozměr herního pole
      * @param currentRound aktuální kolo hry
      * @param roundFinished příznak dokončení kola
      * @param currentPlaying pořadí aktuálního hráče
@@ -90,11 +102,13 @@ public class GameBoard {
      * @param lastWinnerCellY souřadnice Y posledního vítězného políčka
      * @param cells herní pole
      */
-    public GameBoard(GameInfo gameInfo, int currentRound, boolean roundFinished,
+    public GameBoard(int id, byte playerCounter, byte boardSize, int currentRound, boolean roundFinished,
             byte currentPlaying, byte lastPlaying, byte lastCellX, byte lastCellY,
             byte currentWinner, byte firstWinnerCellX, byte firstWinnerCellY,
             byte lastWinnerCellX, byte lastWinnerCellY, byte[][] cells) {
-        GAME_INFO = gameInfo;
+        this.id = id;
+        this.playerCounter = playerCounter;
+        this.boardSize = boardSize;
         this.currentRound = currentRound;
         this.roundFinished = roundFinished;
         this.currentPlaying = currentPlaying;
@@ -107,6 +121,33 @@ public class GameBoard {
         this.lastWinnerCellX = lastWinnerCellX;
         this.lastWinnerCellY = lastWinnerCellY;
         this.board = cells;
+    }
+
+    /**
+     * Vrátí ID hry.
+     * 
+     * @return ID hry
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Vrátí aktuální počet hráčů.
+     * 
+     * @return aktuální počet hráčů
+     */
+    public byte getPlayerCounter() {
+        return playerCounter;
+    }
+
+    /**
+     * Vrátí rozměr herního pole.
+     * 
+     * @return rozměr herního pole
+     */
+    public byte getBoardSize() {
+        return boardSize;
     }
 
     /**

@@ -17,9 +17,10 @@ public class Main {
      * @param args argumenty příkazové řádky
      */
     public static void main(String[] args) {
-        TcpClient client = new TcpClient();
         CmdArg cmdArgHandler = new CmdArg(args);
-        new MainWindow(client, cmdArgHandler);
+        TcpClient client = new TcpClient(
+                cmdArgHandler.getHost(), cmdArgHandler.getPort());
+        new MainWindow(client);
     }
     
 }

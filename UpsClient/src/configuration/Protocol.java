@@ -93,9 +93,9 @@ public final class Protocol {
     public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType(
             "game-item", 6); // typ zprávy: položka seznamu her
     public static final ServerMessageType MSG_GAME_DETAIL = new ServerMessageType(
-            "game-detail", 12, true); // typ zprávy: změna ve stavu hry
+            "game-detail", 15, true); // typ zprávy: změna ve stavu hry
     public static final ServerMessageType MSG_GAME_PLAYER = new ServerMessageType(
-            "game-player", 3); // typ zprávy: položka seznamu aktuálních hráčů hry
+            "game-player", 5); // typ zprávy: položka seznamu aktuálních hráčů hry
 
     /*
      * Ostatní konstanty aplikačního protokolu:

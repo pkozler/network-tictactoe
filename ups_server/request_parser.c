@@ -8,6 +8,8 @@
 #include "request_parser.h"
 #include "config.h"
 #include "protocol.h"
+#include "global.h"
+#include "player.h"
 #include "game.h"
 #include "checker.h"
 #include "player_list.h"
@@ -15,6 +17,7 @@
 #include "game_logic.h"
 #include "tcp_communicator.h"
 #include <string.h>
+#include <sys/socket.h>
 
 /**
  * Vytvoří zprávu s potvrzením požadavku.
@@ -110,7 +113,30 @@ message_t *handle_logout_request(message_t *message, player_t *player) {
     }
     
     lock_player_list();
-    remove_player_from_game(player);
+    
+    if (!is_player_logged(player)) {
+        unlock_player_list(false);
+        
+        return create_err_message(message, MSG_ERR_NOT_LOGGED, player);
+    }
+    
+    unlock_player_list(false);
+    lock_game_list();
+    
+    if (is_player_in_game_room(player)) {
+        lock_game(player->current_game);
+        
+        game_t *game = player->current_game;
+        remove_player_from_game(player);
+        unlock_game(game, true);
+        
+        unlock_game_list(true);
+    }
+    else {
+        unlock_game_list(false);
+    }
+    
+    lock_player_list();
     remove_player_by_id(player->id);
     unlock_player_list(true);
     
@@ -222,9 +248,9 @@ message_t *handle_join_game_request(message_t *message, player_t *player) {
     
     lock_game(game);
     
-    if (game == player->current_game) {
-        unlock_game(game, true);
-        unlock_game_list(true);
+    if (is_player_in_game_room(player)) {
+        unlock_game(game, false);
+        unlock_game_list(false);
         
         return create_err_message(message, MSG_ERR_ALREADY_IN_ROOM, player);
     }
@@ -264,8 +290,11 @@ message_t *handle_leave_game_request(message_t *message, player_t *player) {
     }
     
     lock_game(player->current_game);
+    
+    game_t *game = player->current_game;
     remove_player_from_game(player);
-    unlock_game(player->current_game, true);
+    unlock_game(game, true);
+        
     unlock_game_list(true);
     
     return create_ack_message(message, player);
@@ -303,7 +332,7 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_ROUND_NOT_STARTED, player);
     }
     
-    if (!is_player_logged(player)) {
+    if (!is_playing_in_round(player)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
@@ -317,14 +346,14 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_CANNOT_PLAY_NOW, player);
     }
     
-    if (x < (int8_t) 0 || y < (int8_t) 0) {
+    if (!is_valid_cell_position(x, y)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
         return create_err_message(message, MSG_ERR_INVALID_POSITION, player);
     }
     
-    if (!is_cell_in_board(player->current_game, x, y)) {
+    if (!is_in_board_size(player->current_game, x, y)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
@@ -338,9 +367,11 @@ message_t *handle_play_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_CELL_OCCUPIED, player);
     }
     
+    lock_player_list();
     play(player->current_game, player->current_game_index, x, y);
     unlock_game(player->current_game, true);
     unlock_game_list(true);
+    unlock_player_list(true);
     
     return create_ack_message(message, player);
 }
@@ -374,16 +405,16 @@ message_t *handle_start_game_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_ROUND_ALREADY_STARTED, player);
     }
     
-    if (player->current_game->player_counter < 2) {
+    if (!has_game_enough_players(player->current_game)) {
         unlock_game(player->current_game, false);
         unlock_game_list(false);
         
-        return create_err_message(message, MSG_ERR_NOT_IN_ROOM, player);
+        return create_err_message(message, MSG_ERR_NOT_ENOUGH_PLAYERS, player);
     }
     
+    start_next_round(player->current_game);
     unlock_game(player->current_game, true);
     unlock_game_list(true);
-    start_next_round(player->current_game);
     
     return create_ack_message(message, player);
 }
@@ -510,4 +541,39 @@ void parse_received_message(player_t *player) {
     if (response != NULL) {
         delete_message(response);
     }
+}
+
+/**
+ * Zpracuje odpojení klienta.
+ * 
+ * @param player klient
+ */
+void handle_disconnect(player_t *player) {
+    lock_game_list();
+    
+    if (is_player_in_game_room(player)) {
+        lock_game(player->current_game);
+        game_t *game = player->current_game;
+        remove_player_from_game(player);
+        unlock_game(game, true);
+        
+        unlock_game_list(true);
+    }
+    else {
+        unlock_game_list(false);
+    }
+    
+    lock_player_list();
+    
+    if (is_player_logged(player)) {
+        remove_player_by_id(player->id);
+        
+        unlock_player_list(true);
+    }
+    else {
+        unlock_player_list(false);
+    }
+    
+    remove_element(g_client_list, player);
+    delete_player(player);
 }

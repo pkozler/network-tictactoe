@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -16,7 +16,7 @@ public class LogoutRequestBuilder extends ARequestBuilder {
      * Sestaví požadavek klienta na odhlášení.
      */
     public LogoutRequestBuilder() {
-        message = new TcpMessage(Protocol.MSG_LOGOUT_CLIENT.KEYWORD);
+        message = new Message(Protocol.MSG_LOGOUT_CLIENT.KEYWORD);
     }
     
     /**

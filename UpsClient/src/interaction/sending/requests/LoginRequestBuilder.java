@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -15,7 +15,7 @@ public class LoginRequestBuilder extends ARequestBuilder {
     /**
      * přezdívka hráče
      */
-    private final String NICKNAME;
+    public final String NICKNAME;
 
     /**
      * Sestaví požadavek klienta na přihlášení.
@@ -25,7 +25,7 @@ public class LoginRequestBuilder extends ARequestBuilder {
     public LoginRequestBuilder(String nickname) {
         this.NICKNAME = nickname;
         
-        message = new TcpMessage(Protocol.MSG_LOGIN_CLIENT.KEYWORD, NICKNAME);
+        message = new Message(Protocol.MSG_LOGIN_CLIENT.KEYWORD, NICKNAME);
     }
 
     /**
@@ -35,7 +35,7 @@ public class LoginRequestBuilder extends ARequestBuilder {
      */
     @Override
     public String getStatus() {
-        return String.format("Odeslán požadavek na přihlášení klienta pod přezdívkou %s", NICKNAME);
+        return String.format("Odeslán požadavek na přihlášení klienta pod přezdívkou: \"%s\"", NICKNAME);
     }
 
 }

@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -15,12 +15,12 @@ public class PlayGameRequestBuilder extends ARequestBuilder {
     /**
      * souřadnice X tahu
      */
-    private final byte X;
+    public final byte X;
     
     /**
      * souřadnice Y tahu
      */
-    private final byte Y;
+    public final byte Y;
     
     /**
      * Sestaví požadavek klienta na provedení tahu.
@@ -32,7 +32,7 @@ public class PlayGameRequestBuilder extends ARequestBuilder {
         X = x;
         Y = y;
         
-        message = new TcpMessage(Protocol.MSG_PLAY_GAME.KEYWORD,
+        message = new Message(Protocol.MSG_PLAY_GAME.KEYWORD,
             Byte.toString(X), Byte.toString(Y));
     }
     
@@ -43,7 +43,7 @@ public class PlayGameRequestBuilder extends ARequestBuilder {
      */
     @Override
     public String getStatus() {
-        return String.format("Odeslán požadavek na herní tah na souřadnicích [%d; %d]", X, Y);
+        return String.format("Odeslán požadavek na herní tah na souřadnicích: [%d; %d]", X, Y);
     }
 
 }

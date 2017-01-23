@@ -6,9 +6,9 @@ import communication.tokens.AMessageStringToken;
 import configuration.Protocol;
 
 /**
- * Třída TcpMessage slouží jako přepravka pro uchovávání zpráv vyměňovaných mezi serverem
- * a klientem v rámci textového aplikačního protokolu postaveného nad transportním
- * protokolem TCP, a pro usnadnění manipulace s těmito zprávami.
+ * Třída Message slouží jako přepravka pro uchovávání zpráv vyměňovaných mezi serverem
+ a klientem v rámci textového aplikačního protokolu postaveného nad transportním
+ protokolem TCP, a pro usnadnění manipulace s těmito zprávami.
  * Kromě atributů představujících jednotlivé části zprávy (typ zprávy a seznam argumentů)
  * třída obsahuje metody pro kontrolu typu zprávy, pro validaci jejích argumentů
  * a pro snadný převod mezi instancí přepravky zprávy a řetězcovou podobou zprávy
@@ -16,7 +16,7 @@ import configuration.Protocol;
  * 
  * @author Petr Kozler
  */
-public class TcpMessage {
+public class Message {
     
     /**
      * typ zprávy
@@ -39,7 +39,7 @@ public class TcpMessage {
      * @param type typ zprávy
      * @param args argumenty zprávy
      */
-    public TcpMessage(String type, String... args) {
+    public Message(String type, String... args) {
         this.type = type;
         this.args = args;
         
@@ -51,7 +51,7 @@ public class TcpMessage {
      * 
      * @param msgStr řetězec zprávy
      */
-    public TcpMessage(String msgStr) {
+    public Message(String msgStr) {
         if (msgStr == null) {
             msgStr = "";
         }
@@ -78,7 +78,7 @@ public class TcpMessage {
     /**
      * Vytvoří novou prázdnou zprávu pro testování odezvy.
      */
-    public TcpMessage() {
+    public Message() {
         this(null);
     }
     

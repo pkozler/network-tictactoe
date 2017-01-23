@@ -155,7 +155,8 @@ bool write_to_socket(char *msg_str, int sock) {
         return false;
     }
     
-    int32_t str_len = (int32_t) strlen(msg_str); 
+    int32_t str_len = (int32_t) strlen(msg_str);
+    //printf("N = %d\n", str_len);
     // převod pořadí bajtů čísla délky
     str_len = htonl(str_len);
     int n = write_bytes(sock, &str_len, sizeof(int32_t));
@@ -274,14 +275,15 @@ bool send_message(message_t *msg, int sock) {
     
     // zpráva má typ
     if (msg->type != NULL) {
-        int32_t str_len = strlen(msg->type) + msg->argc;
+        int32_t str_len = strlen(msg->type);
         
         int32_t i;
         for (i = 0; i < msg->argc; i++) {
-            str_len += strlen(msg->argv[i]);
+            str_len += (1 + strlen(msg->argv[i]));
         }
         
-        msg_str = (char *) malloc(sizeof(char) * (str_len + 1));
+        str_len++;
+        msg_str = (char *) malloc(sizeof(char) * (str_len));
         msg_str[0] = '\0';
         strncat(msg_str, msg->type, str_len);
         

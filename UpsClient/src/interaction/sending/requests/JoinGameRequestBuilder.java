@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -15,7 +15,7 @@ public class JoinGameRequestBuilder extends ARequestBuilder {
     /**
      * ID hry
      */
-    private final int GAME_ID;
+    public final int GAME_ID;
     
     /**
      * Sestaví požadavek klienta na připojení ke hře.
@@ -25,7 +25,7 @@ public class JoinGameRequestBuilder extends ARequestBuilder {
     public JoinGameRequestBuilder(int gameId) {
         GAME_ID = gameId;
         
-        message = new TcpMessage(Protocol.MSG_JOIN_GAME.KEYWORD, Integer.toString(GAME_ID));
+        message = new Message(Protocol.MSG_JOIN_GAME.KEYWORD, Integer.toString(GAME_ID));
     }
     
     /**
@@ -35,7 +35,7 @@ public class JoinGameRequestBuilder extends ARequestBuilder {
      */
     @Override
     public String getStatus() {
-        return String.format("Odeslán požadavek na vstup do herní místnosti s ID %d", GAME_ID);
+        return String.format("Odeslán požadavek na vstup do herní místnosti s ID: %d", GAME_ID);
     }
 
 }

@@ -1,10 +1,10 @@
 package interaction.receiving;
 
 import communication.TcpClient;
-import communication.TcpMessage;
-import visualisation.components.GameListPanel;
-import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
+import communication.Message;
+import communication.tokens.ResponseWithoutRequestException;
+import communication.tokens.WrongResponseTypeException;
+import interaction.sending.ARequestBuilder;
 
 /**
  * Abstraktní třída AResponseParser představuje obecný parser odpovědí
@@ -15,16 +15,6 @@ import visualisation.components.StatusBarPanel;
 public abstract class AResponseParser extends AParser {
     
     /**
-     * panel seznamu hráčů
-     */
-    protected final PlayerListPanel PLAYER_LIST_PANEL;
-    
-    /**
-     * panel seznamu her
-     */
-    protected final GameListPanel GAME_LIST_PANEL;
-    
-    /**
      * chyba při odmítnutí požadavku
      */
     protected String messageErrorKeyword;
@@ -33,17 +23,21 @@ public abstract class AResponseParser extends AParser {
      * Vytvoří parser odpovědi.
      * 
      * @param client objekt klienta
-     * @param playerListPanel anel seznamu hráčů
-     * @param gameListPanel panel seznamu her
-     * @param statusBarPanel panel stavového řádku
      * @param message zpráva
      */
-    public AResponseParser(TcpClient client, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message) {
+    public AResponseParser(TcpClient client, Message message) {
         super(client, message);
-        PLAYER_LIST_PANEL = playerListPanel;
-        GAME_LIST_PANEL = gameListPanel;
-        messageErrorKeyword = null;
+    }
+    
+    public String getResponseError() {
+        return "Chyba - neplatný typ odmítnutí požadavku: " + messageErrorKeyword;
+    }
+    
+    public void assignRequest(ARequestBuilder builder)
+            throws ResponseWithoutRequestException, WrongResponseTypeException {
+        if (builder == null) {
+            throw new ResponseWithoutRequestException();
+        }
     }
     
 }

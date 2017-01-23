@@ -1,19 +1,12 @@
 package visualisation.components.game;
 
+import communication.containers.CurrentGameDetail;
 import communication.containers.GameBoard;
 import communication.containers.JoinedPlayer;
-import interaction.MessageBackgroundSender;
-import interaction.sending.requests.LeaveGameRequestBuilder;
-import interaction.sending.requests.StartGameRequestBuilder;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -42,23 +35,26 @@ public class EventTextPanel extends JPanel {
     /**
      * hráči v herní místnosti
      */
-    public ArrayList<JoinedPlayer> joinedPlayers;
+    private ArrayList<JoinedPlayer> joinedPlayers;
     
     /**
      * herní pole
      */
-    public GameBoard gameBoard;
+    private GameBoard gameBoard;
+    
+    /**
+     * pořadí hráče v místnosti
+     */
+    private byte playerIndex;
     
     /**
      * Vytvoří panel pro zobrazení události v herní místnosti.
-     * 
-     * @param messageBackgroundSender vysílač zpráv
      */
     public EventTextPanel() {
         super(new GridLayout(3, 1));
         setPreferredSize(new Dimension(0, 60));
         
-        ROUND_LABEL = new JLabel("(neaktivní)");
+        ROUND_LABEL = new JLabel("(Neaktivní)");
         MOVE_LABEL = new JLabel("");
         PLAYER_LABEL = new JLabel("");
         
@@ -68,48 +64,110 @@ public class EventTextPanel extends JPanel {
     }
     
     /**
-     * Nastaví herní pole místnosti, v níž se klient momentálně nachází.
+     * Nastaví popis místnosti, v níž se klient momentálně nachází.
      * 
-     * @param joinedPlayers seznam hráčů
-     * @param gameBoard herní pole
+     * @param gameDetail detail herní místnosti
      */
-    public void setCurrentGame(ArrayList<JoinedPlayer> joinedPlayers, GameBoard gameBoard) {
-        this.gameBoard = gameBoard;
-        this.joinedPlayers = joinedPlayers;
-        
-        if (this.gameBoard == null) {
-            ROUND_LABEL.setText("neaktivní");
-            MOVE_LABEL.setText("");
-            PLAYER_LABEL.setText("");
-            
-            return;
-        }
+    public void setGameDetail(CurrentGameDetail gameDetail) {
+        this.gameBoard = gameDetail.GAME_BOARD;
+        this.joinedPlayers = gameDetail.JOINED_PLAYERS;
+        this.playerIndex = gameDetail.getCurrentInfo() == null ? (byte) 0 :
+                gameDetail.getCurrentInfo().getCurrentGameIndex();
         
         setLabels();
+    }
+    
+    private String getLastPlayerDesc(JoinedPlayer player) {
+        if (player == null) {
+            return "";
+        }
+        
+        if (player.getCurrentGameIndex() == playerIndex) {
+            return String.format("Obsadil jste políčko na souřadnicích [%d; %d]",
+                    gameBoard.getLastCellX(), gameBoard.getLastCellY());
+        }
+        
+        return String.format("Hráč %s obsadil políčko na souřadnicích [%d; %d]",
+                        player.getNickname(), gameBoard.getLastCellX(), gameBoard.getLastCellY());
+    }
+    
+    private String getCurrentWinnerDesc(JoinedPlayer player) {
+        if (player == null) {
+            return "";
+        }
+        
+        if (player.getCurrentGameIndex() == playerIndex) {
+            return "Jste vítěz";
+        }
+        
+        return String.format("Vítězem je: %s", player.getNickname());
+    }
+    
+    private String getCurrentPlayerDesc(JoinedPlayer player) {
+        if (player == null) {
+            return "";
+        }
+        
+        if (player.getCurrentGameIndex() == playerIndex) {
+            return "Jste na řadě";
+        }
+        
+        return String.format("Na řadě je: %s", player.getNickname());
     }
     
     /**
      * Zobrazí hlášení o aktuálním stavu herní místnosti.
      */
     private void setLabels() {
-        String roundString = String.format("%d. kolo (%s)", gameBoard.getCurrentRound(),
-                gameBoard.isRoundFinished() ? "ukončeno" : "hraje se");
+        // herní místnost nezvolena
+        if (this.gameBoard == null) {
+            ROUND_LABEL.setText("(Neaktivní)");
+            MOVE_LABEL.setText("");
+            PLAYER_LABEL.setText("");
+            
+            return;
+        }
+        
+        // počítadlo kola - pokud je rovno 0, místnost je nově vytvořena
+        String roundString = gameBoard.getCurrentRound() < 1 ?
+                "Herní místnost otevřena" :
+                String.format("%d. kolo", gameBoard.getCurrentRound());
+        ROUND_LABEL.setText(roundString);
+        
+        // počet hráčů - pokud není větší než 1, hra nemůže být zahájena
+        String playerCounterString = (gameBoard.getPlayerCounter() <= 1 ?
+                    "Čeká se na vstup dalšího hráče do místnosti" :
+                    "Čeká se na zahájení hry některým z hráčů");
+        
+        // čeká se na vstup hráčů nebo zahájení kola
+        if (gameBoard.getCurrentRound() < 1) {
+            MOVE_LABEL.setText(playerCounterString);
+            PLAYER_LABEL.setText("");
+            
+            return;
+        }
         
         JoinedPlayer lastPlaying = getJoinedPlayerFromList(gameBoard.getLastPlaying());
-        String lastPlayerNicknameSubstring = lastPlaying != null ?
-                String.format("Hráč %s táhl na souřadnicích [%d; %d].",
-                        lastPlaying.PLAYER_INFO.NICK, gameBoard.getLastCellX(), gameBoard.getLastCellY()) :
-                "Čeká se na dalšího hráče hráče.";
-        String moveString = gameBoard.getLastPlaying() == 0 ? "Hra zahájena." : lastPlayerNicknameSubstring;
-        
-        String winnerNicknameSubstring = gameBoard.getCurrentWinner() != 0 ?
-                String.format("Vítězem je hráč %s.", gameBoard.getCurrentWinner()) : "Remíza";
-        String roundFinishedSubstring = String.format("Konec hry. Výsledek: ", winnerNicknameSubstring);
-        String playerString = gameBoard.isRoundFinished() ? roundFinishedSubstring :
-                String.format("Na řadě je hráč %s.", gameBoard.getCurrentPlaying());
-        
-        ROUND_LABEL.setText(roundString);
+        // poslední táhnoucí hráč - pokud není, hra buď skončila, nebo ještě nebyla zahájena
+        String moveString = lastPlaying == null ? "Hra zahájena" :
+                getLastPlayerDesc(lastPlaying);
         MOVE_LABEL.setText(moveString);
+        
+        JoinedPlayer currentWinner = getJoinedPlayerFromList(gameBoard.getCurrentWinner());
+        // vítěz - pokud není, hra skončila remízou nebo ještě nebyla zahájena/odehrána
+        String winnerString = "Konec hry - " + (currentWinner == null ? "Remíza" :
+                getCurrentWinnerDesc(currentWinner));
+        
+        // kolo bylo odehráno
+        if (gameBoard.isRoundFinished()) {
+            PLAYER_LABEL.setText(winnerString);
+            
+            return;
+        }
+           
+        JoinedPlayer currentPlaying = getJoinedPlayerFromList(gameBoard.getCurrentPlaying());
+        // aktuální hráč na tahu - pokud není, hra buď skončila, nebo ještě nezačala
+        String playerString = getCurrentPlayerDesc(currentPlaying);
         PLAYER_LABEL.setText(playerString);
     }
     
@@ -120,6 +178,10 @@ public class EventTextPanel extends JPanel {
      * @return hráč
      */
     private JoinedPlayer getJoinedPlayerFromList(byte index) {
+        if (index == 0) {
+            return null;
+        }
+        
         for (JoinedPlayer j : joinedPlayers) {
             if (j.getCurrentGameIndex() == index) {
                 return j;

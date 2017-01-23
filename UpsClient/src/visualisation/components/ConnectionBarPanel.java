@@ -1,10 +1,10 @@
 package visualisation.components;
 
 import communication.TcpClient;
-import configuration.Config;
-import interaction.CmdArg;
+import interaction.ConnectionTimer;
 import interaction.MessageBackgroundReceiver;
 import interaction.MessageBackgroundSender;
+import interaction.PingTimer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -12,8 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,11 +30,6 @@ public class ConnectionBarPanel extends JPanel implements Observer {
      * popisek se stavem připojení
      */
     private final JLabel CONNECTION_LABEL;
-    
-    /**
-     * objekt pro zpracování parametrů příkazového řádku
-     */
-    private final CmdArg CMD_ARG_HANDLER;
     
     /**
      * tlačítko pro připojení
@@ -66,22 +59,12 @@ public class ConnectionBarPanel extends JPanel implements Observer {
     /**
      * časovač pro navazování spojení
      */
-    private Timer connectTimer;
+    private final ConnectionTimer CONNECT_TIMER;
     
     /**
      * časovač pro testování odezvy
      */
-    private Timer pingTimer;
-    
-    /**
-     * vlákno pro příjem zpráv na pozadí
-     */
-    private Thread receiveThread;
-    
-    /**
-     * vlákno pro odesílání zpráv na pozadí
-     */
-    private Thread sendThread;
+    private final PingTimer PING_TIMER;
     
     /**
      * panel stavového řádku
@@ -89,49 +72,25 @@ public class ConnectionBarPanel extends JPanel implements Observer {
     private final StatusBarPanel STATUS_BAR_PANEL;
     
     /**
-     * panel seznamu hráčů
-     */
-    private final PlayerListPanel PLAYER_LIST_PANEL;
-    
-    /**
-     * panel seznamu her
-     */
-    private final GameListPanel GAME_LIST_PANEL;
-    
-    /**
-     * panel stavu hry
-     */
-    private final CurrentGamePanel CURRENT_GAME_PANEL;
-    
-    /**
      * Vytvoří panel pro zobrazení stavu spojení.
      * 
      * @param client
-     * @param cmdArgHandler
-     * @param playerListPanel
      * @param messageBackgroundSender
-     * @param currentGamePanel
      * @param statusBarPanel
-     * @param gameListPanel
      * @param messageBackgroundReceiver
      */
-    public ConnectionBarPanel(TcpClient client, CmdArg cmdArgHandler,
-            MessageBackgroundSender messageBackgroundSender, MessageBackgroundReceiver messageBackgroundReceiver,
-            PlayerListPanel playerListPanel, GameListPanel gameListPanel,
-            CurrentGamePanel currentGamePanel, StatusBarPanel statusBarPanel) {
+    public ConnectionBarPanel(TcpClient client, 
+            MessageBackgroundSender messageBackgroundSender,
+            MessageBackgroundReceiver messageBackgroundReceiver,
+            StatusBarPanel statusBarPanel) {
         super(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Připojení"));
         setPreferredSize(new Dimension(0, 60));
         
-        CMD_ARG_HANDLER = cmdArgHandler;
         CLIENT = client;
         MESSAGE_SENDER = messageBackgroundSender;
         MESSAGE_RECEIVER = messageBackgroundReceiver;
-        
-        this.PLAYER_LIST_PANEL = playerListPanel;
-        this.GAME_LIST_PANEL = gameListPanel;
-        this.CURRENT_GAME_PANEL = currentGamePanel;
-        this.STATUS_BAR_PANEL = statusBarPanel;
+        STATUS_BAR_PANEL = statusBarPanel;
         
         CONNECT_BUTTON = new JButton("Připojit se");
         DISCONNECT_BUTTON = new JButton("Odpojit se");
@@ -148,8 +107,11 @@ public class ConnectionBarPanel extends JPanel implements Observer {
         
         setListeners();
         setButtons(false);
-        setLabel(false);
+        CONNECTION_LABEL.setText("Odpojeno");
         
+        PING_TIMER = new PingTimer(CLIENT, STATUS_BAR_PANEL, MESSAGE_SENDER);
+        CONNECT_TIMER = new ConnectionTimer(CLIENT, STATUS_BAR_PANEL, MESSAGE_SENDER,
+                MESSAGE_RECEIVER, PING_TIMER);
         connectActionPerformed();
     }
     
@@ -180,7 +142,8 @@ public class ConnectionBarPanel extends JPanel implements Observer {
      * Zpracuje stisk tlačítka pro připojení k serveru.
      */
     private void connectActionPerformed() {
-        startConnectionTimer();
+        CONNECT_TIMER.start();
+        STATUS_BAR_PANEL.printSendingStatus("Spuštěno navazování spojení");
         setButtons(true);
     }
 
@@ -189,7 +152,7 @@ public class ConnectionBarPanel extends JPanel implements Observer {
      */
     private void disconnectActionPerformed() {
         if (!CLIENT.isConnected()) {
-            connectTimer.cancel();
+            CONNECT_TIMER.stop();
             STATUS_BAR_PANEL.printSendingStatus("Navazování spojení zrušeno");
             setButtons(false);
             
@@ -205,105 +168,10 @@ public class ConnectionBarPanel extends JPanel implements Observer {
             }
             catch (IOException ex) {
                 STATUS_BAR_PANEL.printSendingStatus("Chyba při odpojování: %s",
-                        ex.getLocalizedMessage());
+                        ex.getClass().getSimpleName());
+                ex.printStackTrace();
             }
         }
-    }
-    
-    /**
-     * Vytvoří úlohu časovače pro navazování spojení se serverem.
-     * 
-     * @return úloha časovače pro navazování spojení
-     */
-    private TimerTask createConnectionTask() {
-        return new TimerTask() {
-            
-            @Override
-            public void run() {
-                try {
-                    CLIENT.connect(CMD_ARG_HANDLER.getHost(), CMD_ARG_HANDLER.getPort());
-                }
-            catch (IOException e) {
-                    // čekání na spojení
-                }
-                
-                if (CLIENT.isConnected()) {
-                    STATUS_BAR_PANEL.printSendingStatus("Spojení navázáno.");
-                    setLabel(true);
-                    startCommunicationThreads();
-                    startPingTimer();
-                    // ukončení úlohy po navázání spojení
-                    connectTimer.cancel();
-                }
-            }
-            
-        };
-    }
-    
-    /**
-     * Vytvoří úlohu časovače pro testování odezvy serveru.
-     * 
-     * @return úloha časovače pro testování odezvy
-     */
-    private TimerTask createPingTask() {
-        return new TimerTask() {
-            
-            @Override
-            public void run() {
-                MESSAGE_SENDER.enqueueMessageBuilder(null);
-                
-                if (!CLIENT.isConnected()) {
-                    STATUS_BAR_PANEL.printSendingStatus("Spojení ukončeno.");
-                    setLabel(false);
-                    setButtons(false);
-                    // ukončení úlohy po zrušení spojení
-                    pingTimer.cancel();
-                }
-            }
-            
-        };
-    }
-    
-    /**
-     * Spustí navazování spojení.
-     */
-    private void startConnectionTimer() {
-        STATUS_BAR_PANEL.printSendingStatus("Spuštěno navazování spojení");
-        connectTimer = new Timer();
-        connectTimer.schedule(createConnectionTask(), 0, Config.PING_PERIOD_MILLIS);
-    }
-    
-    /**
-     * Spustí periodické testování odezvy serveru.
-     */
-    private void startPingTimer() {
-        STATUS_BAR_PANEL.printSendingStatus("Spuštěna kontrola odezvy");
-        pingTimer = new Timer();
-        pingTimer.schedule(createPingTask(),
-                            Config.PING_PERIOD_MILLIS, Config.PING_PERIOD_MILLIS);
-    }
-    
-    /**
-     * Spustí vlákna pro příjem a odesílání zpráv.
-     */
-    private void startCommunicationThreads() {
-        receiveThread = new Thread(MESSAGE_RECEIVER);
-        sendThread = new Thread(MESSAGE_SENDER);
-
-        receiveThread.start();
-        sendThread.start();
-    }
-    
-    /**
-     * Nastaví hlášení v popisku podle stavu připojení.
-     * 
-     * @param connected true, pokud je klient připojen, jinak false
-     */
-    private void setLabel(boolean connected) {
-        CONNECTION_LABEL.setText(connected ? String.format("Připojeno k serveru na adrese %s:%d",
-                    CMD_ARG_HANDLER.getHost(), CMD_ARG_HANDLER.getPort()) : "Odpojeno");
-        PLAYER_LIST_PANEL.setButtons(connected);
-        GAME_LIST_PANEL.setButtons(connected);
     }
     
     /**
@@ -316,9 +184,25 @@ public class ConnectionBarPanel extends JPanel implements Observer {
         DISCONNECT_BUTTON.setEnabled(connected);
     }
 
+    /**
+     * Nastaví hlášení v popisku podle stavu připojení.
+     * 
+     * @param o objekt klienta
+     * @param o1 argument notifikace
+     */
     @Override
     public void update(Observable o, Object o1) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TcpClient client = (TcpClient) o;
+        
+        if (!client.isConnected()) {
+            setButtons(false);
+            CONNECTION_LABEL.setText("Odpojeno");
+            
+            return;
+        }
+        
+        CONNECTION_LABEL.setText(String.format("Připojeno k serveru na adrese %s:%d",
+                    client.getHost(), client.getPort()));
     }
     
 }

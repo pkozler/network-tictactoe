@@ -1,14 +1,15 @@
 package interaction.receiving.responses;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
+import communication.tokens.ResponseWithoutRequestException;
+import communication.tokens.WrongResponseTypeException;
 import configuration.Protocol;
 import interaction.receiving.AResponseParser;
-import visualisation.components.GameListPanel;
-import visualisation.components.PlayerListPanel;
-import visualisation.components.StatusBarPanel;
+import interaction.sending.ARequestBuilder;
+import interaction.sending.requests.LoginRequestBuilder;
 
 /**
  * Třída LoginResponseParser představuje parser odpovědi serveru
@@ -18,25 +19,24 @@ import visualisation.components.StatusBarPanel;
  */
 public class LoginResponseParser extends AResponseParser {
 
+    protected LoginRequestBuilder builder;
+    
+    protected int playerId;
+    
     /**
      * Vytvoří parser pro zpracování odpovědi serveru na požadavek na přihlášení.
      * 
      * @param client objekt klienta
-     * @param playerListPanel panel seznamu hráčů
-     * @param gameListPanel panel seznamu her
-     * @param statusBarPanel panel stavového řádku
      * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public LoginResponseParser(TcpClient client, PlayerListPanel playerListPanel,
-            GameListPanel gameListPanel, StatusBarPanel statusBarPanel, TcpMessage message)
+    public LoginResponseParser(TcpClient client, Message message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
-        super(client, playerListPanel, gameListPanel, statusBarPanel, message);
+        super(client, message);
         
         if (MESSAGE.getNextBoolArg()) {
-            int id = MESSAGE.getNextIntArg(0);
-            client.setPlayerId(id);
+            playerId = MESSAGE.getNextIntArg(0);
             
             return;
         }
@@ -51,12 +51,18 @@ public class LoginResponseParser extends AResponseParser {
      */
     @Override
     public String updateClient() {
-        if (messageErrorKeyword == null) {
-            GAME_LIST_PANEL.setButtons(true);
-            
-            return String.format("Hráč byl přihlášen k serveru");
+        if (messageErrorKeyword != null) {
+            return getResponseError();
         }
         
+        CLIENT.setCurrentPlayerId(playerId);
+        
+        return String.format("Hráč byl přihlášen k serveru pod id %d, nickname hráče: \"%s\"",
+                playerId, builder.NICKNAME);
+    }
+
+    @Override
+    public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_LOGGED.KEYWORD)) {
             return "Hráč je již přihlášen";
         }
@@ -69,7 +75,19 @@ public class LoginResponseParser extends AResponseParser {
             return "Hráč se zadanou přezdívkou již existuje";
         }
         
-        return null;
+        return super.getResponseError();
+    }
+
+    @Override
+    public void assignRequest(ARequestBuilder builder)
+            throws ResponseWithoutRequestException, WrongResponseTypeException {
+        super.assignRequest(builder);
+        
+        if (!(builder instanceof LoginRequestBuilder)) {
+            throw new WrongResponseTypeException();
+        }
+        
+        this.builder = (LoginRequestBuilder) builder;
     }
 
 }

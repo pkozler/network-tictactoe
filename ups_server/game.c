@@ -74,16 +74,17 @@ game_t *create_game(player_t *player, char *name,
         game->board[i] = calloc(board_size, sizeof(int8_t));
     }
     
-    game->current_round = 0;
-    game->round_finished = true;
-    game->current_playing = 0;
-    game->last_playing = 0;
+    game->occupied_cell_counter = 0;
+    game->current_player_on_turn = 0;
+    game->last_player_on_turn = 0;
     game->last_cell_x = 0;
     game->last_cell_y = 0;
     game->current_winner = 0;
+    game->current_round = 0;
+    game->round_finished = true;
     
-    game->changed = true;
     add_player_to_game(game, player);
+    game->changed = true;
     
     if (pthread_create(&(game->thread), NULL, run_game, game) < 0) {
         print_err("Chyba při spouštění vlákna pro rozesílání stavu hry");

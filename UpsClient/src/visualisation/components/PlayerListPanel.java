@@ -1,5 +1,6 @@
 package visualisation.components;
 
+import communication.TcpClient;
 import communication.containers.PlayerInfo;
 import configuration.Protocol;
 import interaction.MessageBackgroundSender;
@@ -7,18 +8,23 @@ import interaction.sending.requests.LoginRequestBuilder;
 import interaction.sending.requests.LogoutRequestBuilder;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 import visualisation.listmodels.PlayerListModel;
 
 /**
@@ -26,7 +32,7 @@ import visualisation.listmodels.PlayerListModel;
  * 
  * @author Petr Kozler
  */
-public class PlayerListPanel extends JPanel {
+public class PlayerListPanel extends JPanel implements Observer {
 
     /**
      * seznam hráčů
@@ -69,10 +75,11 @@ public class PlayerListPanel extends JPanel {
         setBorder(BorderFactory.createTitledBorder("Přihlášení hráči"));
         
         MESSAGE_SENDER = messageBackgroundSender;
-        //PLAYER_LIST_MODEL = new PlayerListModel();
         PLAYER_LIST_VIEW = new JList<>();
-        PLAYER_LIST_VIEW.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        PLAYER_LIST_VIEW.setBorder(BorderFactory.createLoweredBevelBorder());
         PLAYER_LIST_VIEW.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        PLAYER_LIST_VIEW.setCellRenderer(getRenderer());
+        
         JPanel listPanel = new JPanel(new BorderLayout());
         listPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         listPanel.add(PLAYER_LIST_VIEW, BorderLayout.CENTER);
@@ -93,38 +100,22 @@ public class PlayerListPanel extends JPanel {
         add(listPanel, BorderLayout.CENTER);
         
         setListeners();
-        setButtons(false);
+        setButtons(false, false);
     }
     
-    /**
-     * Vrátí seznam hráčů.
-     * 
-     * @return seznam hráčů
-     */
-    public JList<PlayerInfo> getPlayerList() {
-        return PLAYER_LIST_VIEW;
-    }
-
-    /**
-     * Nastaví seznam hráčů.
-     * 
-     * @param playerList seznam hráčů
-     */
-    public void setPlayerList(ArrayList<PlayerInfo> playerList) {
-        PlayerListModel playerListModel = new PlayerListModel();
-        playerListModel.setListWithSorting(playerList);
-        PLAYER_LIST_VIEW.setModel(playerListModel);
-    }
-
-    /**
-     * Vypíše aktuální stav přihlášení hráče.
-     * 
-     * @param playerInfo struktura stavu hráče
-     */
-    public void setLabel(PlayerInfo playerInfo) {
-        PLAYER_LABEL.setText(playerInfo != null ? String.format(
-                "<html>Přihlášen jako:<br />%s (ID %d)</html>",
-                playerInfo.NICK, playerInfo.ID) : "Nepřihlášen");
+    private ListCellRenderer<? super PlayerInfo> getRenderer() {
+        return new DefaultListCellRenderer() {
+            
+            @Override
+            public Component getListCellRendererComponent(JList<?> list,
+                    Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);
+                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                return listCellRendererComponent;
+            }
+            
+        };
     }
     
     /**
@@ -154,11 +145,9 @@ public class PlayerListPanel extends JPanel {
      * Zpracuje stisk tlačítka pro přihlášení klienta.
      */
     private void loginActionPerformed() {
-        if (!MESSAGE_SENDER.CLIENT.isConnected()) {
-            return;
-        }
-        
-        String nickname = JOptionPane.showInputDialog(null, "Zadejte nickname:", "Hrac");
+        int number = PLAYER_LIST_VIEW.getModel() == null ? 1 :
+                PLAYER_LIST_VIEW.getModel().getSize() + 1;
+        String nickname = JOptionPane.showInputDialog(null, "Zadejte nickname:", "Hrac" + number);
         
         if (nickname == null) {
             return;
@@ -178,10 +167,6 @@ public class PlayerListPanel extends JPanel {
      * Zpracuje stisk tlačítka pro odhlášení klienta.
      */
     private void logoutActionPerformed() {
-        if (!MESSAGE_SENDER.CLIENT.isConnected()) {
-            return;
-        }
-        
         int result = JOptionPane.showConfirmDialog(null,
                 "Opravdu se chcete odhlásit ze serveru?", "Odhlášení", JOptionPane.YES_NO_OPTION);
         
@@ -193,11 +178,37 @@ public class PlayerListPanel extends JPanel {
     /**
      * Nastaví aktivaci tlačítek.
      * 
-     * @param connected příznak aktivace
+     * @param connected příznak připojení
+     * @param loggedIn příznak přihlášení
      */
-    public void setButtons(boolean connected) {
-        LOGIN_BUTTON.setEnabled(connected);
-        LOGOUT_BUTTON.setEnabled(connected);
+    public void setButtons(boolean connected, boolean loggedIn) {
+        LOGIN_BUTTON.setEnabled(connected && !loggedIn);
+        LOGOUT_BUTTON.setEnabled(connected && loggedIn);
+    }
+
+    @Override
+    public void update(Observable o, Object o1) {
+        TcpClient client = (TcpClient) o;
+        ArrayList<PlayerInfo> playerList = client.getPlayerList();
+        
+        if (playerList == null) {
+            playerList = new ArrayList<>();
+        }
+        
+        PlayerListModel playerListModel = new PlayerListModel();
+        playerListModel.setListWithSorting(playerList);
+        PLAYER_LIST_VIEW.setModel(playerListModel);
+        
+        if (client.isConnected() && client.hasPlayerInfo()) {
+            PLAYER_LABEL.setText(String.format(
+                "<html>Přihlášen jako:<br />%s (ID %d)</html>",
+                client.getPlayerInfo().NICK, client.getPlayerInfo().ID));
+        }
+        else {
+            PLAYER_LABEL.setText("Nepřihlášen");
+        }
+        
+        setButtons(client.isConnected(), client.hasPlayerInfo());
     }
 
 }

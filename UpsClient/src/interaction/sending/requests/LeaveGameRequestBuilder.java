@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -16,7 +16,7 @@ public class LeaveGameRequestBuilder extends ARequestBuilder {
      * Sestaví požadavek klienta na opuštění hry.
      */
     public LeaveGameRequestBuilder() {
-        message = new TcpMessage(Protocol.MSG_LEAVE_GAME.KEYWORD);
+        message = new Message(Protocol.MSG_LEAVE_GAME.KEYWORD);
     }
     
     /**

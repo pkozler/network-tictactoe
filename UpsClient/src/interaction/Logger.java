@@ -11,13 +11,9 @@ public class Logger {
     
     private static Logger instance;
     
-    private SimpleDateFormat simpleDateFormat;
-    
-    private Calendar calendar;
-    
     private StringBuilder createLogBuilder() {
-        return new StringBuilder("[").append(simpleDateFormat.
-                format(calendar.getTime())).append("] ");
+        return new StringBuilder("[").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").
+                format(Calendar.getInstance().getTime())).append("] ");
     }
     
     public void printOut(String format, Object... args) {
@@ -52,15 +48,13 @@ public class Logger {
         System.err.println(sb.toString());
     }
     
-    private Logger(SimpleDateFormat simpleDateFormat, Calendar calendar) {
-        this.simpleDateFormat = simpleDateFormat;
-        this.calendar = calendar;
+    private Logger() {
+        // žádný kód
     }
     
     public static Logger getInstance() {
         if (instance == null) {
-            instance = new Logger(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
-                    Calendar.getInstance());
+            instance = new Logger();
         }
         
         return instance;

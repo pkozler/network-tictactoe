@@ -2,9 +2,10 @@ package visualisation;
 
 import configuration.Config;
 import communication.TcpClient;
-import interaction.CmdArg;
+import interaction.ListUpdateHandler;
 import interaction.MessageBackgroundReceiver;
 import interaction.MessageBackgroundSender;
+import interaction.RequestResponseHandler;
 import java.awt.BorderLayout;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
@@ -58,13 +59,16 @@ public class MainWindow extends JFrame {
      */
     private final CurrentGamePanel CURRENT_GAME_PANEL;
     
+    private final RequestResponseHandler REQUEST_RESPONSE_HANDLER;
+    
+    private final ListUpdateHandler LIST_UPDATE_HANDLER;
+    
     /**
      * Vytvoří hlavní okno.
      * 
      * @param client objekt klienta
-     * @param cmdArgHandler objekt pro zpracování argumentů příkazové řádky
      */
-    public MainWindow(TcpClient client, CmdArg cmdArgHandler) {
+    public MainWindow(TcpClient client) {
         setTitle("Piškvorky - klient");
         setSize(Config.DEFAULT_WINDOW_WIDTH, Config.DEFAULT_WINDOW_HEIGHT);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -76,28 +80,35 @@ public class MainWindow extends JFrame {
         
         CLIENT = client;
         STATUS_PANEL = new StatusBarPanel();
-        MessageBackgroundSender messageBackgroundSender = new MessageBackgroundSender(CLIENT, STATUS_PANEL);
+        REQUEST_RESPONSE_HANDLER = new RequestResponseHandler(CLIENT);
+        MessageBackgroundSender messageBackgroundSender = new MessageBackgroundSender(
+                CLIENT, STATUS_PANEL, REQUEST_RESPONSE_HANDLER);
         CURRENT_GAME_PANEL = new CurrentGamePanel(messageBackgroundSender);
         GAME_LIST_PANEL = new GameListPanel(messageBackgroundSender);
         PLAYER_LIST_PANEL = new PlayerListPanel(messageBackgroundSender);
+        LIST_UPDATE_HANDLER = new ListUpdateHandler(CLIENT);
         MessageBackgroundReceiver messageBackgroundReceiver = new MessageBackgroundReceiver(CLIENT,
-                STATUS_PANEL, PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL);
+                STATUS_PANEL, REQUEST_RESPONSE_HANDLER, LIST_UPDATE_HANDLER);
+        
+        CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, messageBackgroundSender,
+                messageBackgroundReceiver, STATUS_PANEL);
+        
+        CLIENT.addObserver(CONNECTION_PANEL);
+        CLIENT.addObserver(PLAYER_LIST_PANEL);
+        CLIENT.addObserver(GAME_LIST_PANEL);
+        CLIENT.addObserver(CURRENT_GAME_PANEL);
         
         contentPane.add(CURRENT_GAME_PANEL, BorderLayout.CENTER);
         contentPane.add(STATUS_PANEL, BorderLayout.SOUTH);
         contentPane.add(PLAYER_LIST_PANEL, BorderLayout.EAST);
         contentPane.add(GAME_LIST_PANEL, BorderLayout.WEST);
-        
-        CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, cmdArgHandler,
-                messageBackgroundSender, messageBackgroundReceiver,
-                PLAYER_LIST_PANEL, GAME_LIST_PANEL, CURRENT_GAME_PANEL, STATUS_PANEL);
-        CLIENT.addObserver(CONNECTION_PANEL);
-        
         contentPane.add(CONNECTION_PANEL, BorderLayout.NORTH);
+        
         setContentPane(contentPane);
         
         addWindowListener(new java.awt.event.WindowAdapter() {
             
+            @Override
             public void windowClosing(WindowEvent winEvt) {
                 if (!CLIENT.isConnected()) {
                     System.exit(0);

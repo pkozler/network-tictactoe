@@ -1,14 +1,13 @@
 package interaction.receiving.updates;
 
 import communication.TcpClient;
-import communication.TcpMessage;
+import communication.Message;
 import communication.containers.GameInfo;
 import communication.tokens.InvalidMessageArgsException;
 import communication.tokens.MissingMessageArgsException;
 import configuration.Config;
 import interaction.receiving.AUpdateParser;
 import java.util.ArrayList;
-import visualisation.components.GameListPanel;
 
 /**
  * Třída GameListUpdateParser představuje parser notifikace
@@ -18,11 +17,6 @@ import visualisation.components.GameListPanel;
  */
 public class GameListUpdateParser extends AUpdateParser {
 
-    /**
-     * panel seznamu her
-     */
-    private final GameListPanel GAME_LIST_PANEL;
-    
     /**
      * počet prvků
      */
@@ -37,17 +31,14 @@ public class GameListUpdateParser extends AUpdateParser {
      * Vytvoří parser seznamu her.
      * 
      * @param client objekt klienta
-     * @param gameListPanel panel seznamu her
      * @param message zpráva
      * @throws InvalidMessageArgsException
      * @throws MissingMessageArgsException 
      */
-    public GameListUpdateParser(TcpClient client,
-            GameListPanel gameListPanel, TcpMessage message)
+    public GameListUpdateParser(TcpClient client, Message message)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         super(client, message);
         
-        GAME_LIST_PANEL = gameListPanel;
         ITEM_COUNT = message.getNextIntArg(0);
         GAME_LIST = new ArrayList<>();
     }
@@ -70,7 +61,7 @@ public class GameListUpdateParser extends AUpdateParser {
      * @throws MissingMessageArgsException 
      */
     @Override
-    public void parseNextItemMessage(TcpMessage itemMessage)
+    public void parseNextItemMessage(Message itemMessage)
             throws InvalidMessageArgsException, MissingMessageArgsException {
         int id = itemMessage.getNextIntArg(1);
         String name = itemMessage.getNextArg();
@@ -90,38 +81,11 @@ public class GameListUpdateParser extends AUpdateParser {
     public String updateClient() {
         if (!hasAllItems()) {
             return null;
-                /*String.format("Probíhá aktualizace seznamu herních místností (zbývá %d položek)",
-                    ITEM_COUNT - GAME_LIST.size());*/
         }
         
-        setGameInfoToClient();
+        CLIENT.setGameList(GAME_LIST);
         
         return "Aktualizace seznamu herních místností byla dokončena";
     }
-    
-    /**
-     * Aktualizuje stav GUI.
-     */
-    @Override
-    public void updateGui() {
-        GAME_LIST_PANEL.setGameList(GAME_LIST);
-        GAME_LIST_PANEL.setLabel(CLIENT.getGameInfo());
-    }
-    
-    /**
-     * Uloží údaje o hře do objektu klienta, pokud je hráč ve hře,
-     * nebo údaje odstraní, pokud není.
-     */
-    private void setGameInfoToClient() {
-        for (GameInfo g : GAME_LIST) {
-            if (g.ID == CLIENT.getGameId()) {
-                CLIENT.joinGame(g);
-                
-                return;
-            }
-        }
-        
-        CLIENT.leaveGame();
-    } 
     
 }

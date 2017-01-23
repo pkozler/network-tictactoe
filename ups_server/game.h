@@ -40,8 +40,8 @@ typedef struct GAME {
     struct PLAYER **players; // pole hráčů
     int32_t current_round; // aktuální kolo hry
     bool round_finished; // příznak dokončení kola
-    int8_t current_playing; // pořadí hráče, který je na řadě (0, pokud hra ještě nezačala)
-    int8_t last_playing; // pořadí hráče, který táhl jako poslední (0, pokud ještě nikdo netáhl)
+    int8_t current_player_on_turn; // pořadí hráče, který je na řadě (0, pokud hra ještě nezačala)
+    int8_t last_player_on_turn; // pořadí hráče, který táhl jako poslední (0, pokud ještě nikdo netáhl)
     int8_t last_cell_x; // souřadnice X políčka, na které byl proveden poslední tah
     int8_t last_cell_y; // souřadnice Y políčka, na které byl proveden poslední tah
     int8_t current_winner; // pořadí hráče, který je vítězem (0, pokud ještě nikdo nevyhrál)

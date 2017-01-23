@@ -39,11 +39,11 @@ bool is_name_valid(char *name) {
     
     // testování platnosti znaků
     int32_t i;
-    for (i = 0; name[i] != '\0'; i++) {
-        if (   !(name[i] >= 'a' || name[i] <= 'z')
-            && !(name[i] >= 'A' || name[i] <= 'Z')
-            && !(name[i] >= '0' || name[i] <= '9')
-            && !(name[i] == '-' || name[i] == '_')) {
+    for (i = 0;  name[i] != '\0'; i++) {
+        if (   !(name[i] >= 'a' && name[i] <= 'z')
+            && !(name[i] >= 'A' && name[i] <= 'Z')
+            && !(name[i] >= '0' && name[i] <= '9')
+            &&   name[i] != '_') {
             return false;
         }
     }
@@ -59,6 +59,16 @@ bool is_name_valid(char *name) {
  */
 bool is_player_logged(player_t *player) {
     return player->id > 0;
+}
+
+/**
+ * Otestuje, zda je hráč v herní místnosti.
+ * 
+ * @param player hráč
+ * @return true, pokud je hráč v herní místnosti, jinak false
+ */
+bool is_player_in_game_room(player_t *player) {
+    return player->current_game != NULL;
 }
 
 /**
@@ -92,6 +102,16 @@ bool is_game_cell_count_valid(int8_t cell_count) {
 }
 
 /**
+ * Otestuje, zda se hráč účastní aktuálního kola hry.
+ * 
+ * @param player hráč
+ * @return true, pokud se hráč účastní aktuálního kola hry, jinak false
+ */
+bool is_playing_in_round(player_t *player) {
+    return player->playing_in_round;
+}
+
+/**
  * Otestuje, zda je daný hráč právě na tahu.
  * 
  * @param game hra
@@ -99,8 +119,18 @@ bool is_game_cell_count_valid(int8_t cell_count) {
  * @return true, pokud je hráč na tahu, jinak false
  */
 bool is_current_player(game_t *game, player_t *player) {
-    
-    return player->current_game_index == game->current_playing;
+    return player->current_game_index == game->current_player_on_turn;
+}
+
+/**
+ * Otestuje, zda jsou dané souřadnice herního políčka platné.
+ * 
+ * @param x souřadnice X
+ * @param y souřadnice Y
+ * @return true, pokud jsou souřadnice platné, jinak false
+ */
+bool is_valid_cell_position(int8_t x, int8_t y) {
+    return x >= 0 && y >= 0;
 }
 
 /**
@@ -111,9 +141,8 @@ bool is_current_player(game_t *game, player_t *player) {
  * @param y souřadnice Y
  * @return true, pokud je políčko v herním poli, jinak false
  */
-bool is_cell_in_board(game_t *game, int8_t x, int8_t y) {
-    return 0 <= x && x < game->board_size
-            && 0 <= y && y < game->board_size;
+bool is_in_board_size(game_t *game, int8_t x, int8_t y) {
+    return x < game->board_size && y < game->board_size;
 }
 
 /**

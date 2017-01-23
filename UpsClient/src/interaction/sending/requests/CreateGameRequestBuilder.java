@@ -1,6 +1,6 @@
 package interaction.sending.requests;
 
-import communication.TcpMessage;
+import communication.Message;
 import configuration.Protocol;
 import interaction.sending.ARequestBuilder;
 
@@ -15,22 +15,22 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
     /**
      * název hry
      */
-    private final String NAME;
+    public final String NAME;
     
     /**
      * počet hráčů
      */
-    private final byte PLAYER_COUNT;
+    public final byte PLAYER_COUNT;
     
     /**
      * rozměr hracího pole
      */
-    private final byte BOARD_SIZE;
+    public final byte BOARD_SIZE;
     
     /**
      * počet políček k obsazení
      */
-    private final byte CELL_COUNT;
+    public final byte CELL_COUNT;
     
     /**
      * Sestaví požadavek klienta na vytvoření hry.
@@ -47,7 +47,7 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
         BOARD_SIZE = boardSize;
         CELL_COUNT = cellCount;
         
-        message = new TcpMessage(Protocol.MSG_CREATE_GAME.KEYWORD, NAME,
+        message = new Message(Protocol.MSG_CREATE_GAME.KEYWORD, NAME,
                 Byte.toString(PLAYER_COUNT), Byte.toString(BOARD_SIZE), Byte.toString(CELL_COUNT));
     }
     
@@ -59,7 +59,7 @@ public class CreateGameRequestBuilder extends ARequestBuilder {
     @Override
     public String getStatus() {
         return String.format(
-            "Odeslán požadavek na vytvoření herní místnosti o maximálním počtu hráčů %d, s hracím polem o rozměru %d, hrou na %d políček a pojmenovanou: %s",
+            "Odeslán požadavek na vytvoření herní místnosti o maximálním počtu hráčů %d, s hracím polem o rozměru %d, hrou na %d políček a pojmenovanou: \"%s\"",
                 PLAYER_COUNT, BOARD_SIZE, CELL_COUNT, NAME);
     }
 

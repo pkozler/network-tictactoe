@@ -181,11 +181,11 @@ int setup_connection(char *host, int32_t port) {
         return -1;
     }
     
+    clear_stats();
+    start_server();
     g_client_list = create_linked_list();
     create_player_list();
     create_game_list();
-    clear_stats();
-    start_server();
     
     print_out("Server spuštěn - číslo socketu: %d", srv_sock);
     start_prompt();

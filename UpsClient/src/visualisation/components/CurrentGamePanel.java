@@ -1,5 +1,6 @@
 package visualisation.components;
 
+import communication.TcpClient;
 import interaction.MessageBackgroundSender;
 import interaction.sending.requests.LeaveGameRequestBuilder;
 import interaction.sending.requests.StartGameRequestBuilder;
@@ -12,7 +13,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import visualisation.CurrentGameDetail;
+import communication.containers.CurrentGameDetail;
+import communication.containers.JoinedPlayer;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import visualisation.components.game.BoardPanel;
 import visualisation.components.game.JoinedPlayerListPanel;
 import visualisation.components.game.EventTextPanel;
@@ -23,7 +28,7 @@ import visualisation.components.game.EventTextPanel;
  * 
  * @author Petr Kozler
  */
-public class CurrentGamePanel extends JPanel {
+public class CurrentGamePanel extends JPanel implements Observer {
 
     /**
      * panel herního pole
@@ -86,19 +91,13 @@ public class CurrentGamePanel extends JPanel {
         add(BOARD_PANEL, BorderLayout.CENTER);
         
         setListeners();
-        setButtons(false, false);
+        setButtons(false, false, false, false);
     }
     
     /**
      * Zpracuje stisk tlačítka pro zahájení nového kola hry.
      */
     private void startGameActionPerformed() {
-        if (!MESSAGE_SENDER.CLIENT.isConnected() ||
-                !MESSAGE_SENDER.CLIENT.isLogged() ||
-                !MESSAGE_SENDER.CLIENT.isInGame()) {
-            return;
-        }
-        
         MESSAGE_SENDER.enqueueMessageBuilder(new StartGameRequestBuilder());
     }
     
@@ -106,12 +105,6 @@ public class CurrentGamePanel extends JPanel {
      * Zpracuje stisk tlačítka pro opuštění herní místnosti.
      */
     private void leaveGameActionPerformed() {
-        if (!MESSAGE_SENDER.CLIENT.isConnected() ||
-                !MESSAGE_SENDER.CLIENT.isLogged() ||
-                !MESSAGE_SENDER.CLIENT.isInGame()) {
-            return;
-        }
-        
         int result = JOptionPane.showConfirmDialog(null,
                 "Opravdu chcete opustit herní místnost?", "Opuštění hry", JOptionPane.YES_NO_OPTION);
         
@@ -146,43 +139,32 @@ public class CurrentGamePanel extends JPanel {
     /**
      * Nastaví aktivaci tlačítek.
      * 
-     * @param inGame příznak aktivace (přítomnost hráče v herní místnosti)
-     * @param roundFinished příznak aktivace (ukončení aktuálního kola hry)
+     * @param connected příznak připojení
+     * @param loggedIn příznak přihlášení
+     * @param inGame příznak přítomnosti ve hře
+     * @param roundFinished příznak dohrání aktuálního kola hry
      */
-    public void setButtons(boolean inGame, boolean roundFinished) {
-        if (!inGame) {
-            START_GAME_BUTTON.setEnabled(false);
-            LEAVE_GAME_BUTTON.setEnabled(false);
-            
-            return;
-        }
-        
-        LEAVE_GAME_BUTTON.setEnabled(true);
-        
-        if (!roundFinished) {
-            START_GAME_BUTTON.setEnabled(false);
-            
-            return;
-        }
-        
-        START_GAME_BUTTON.setEnabled(true);
+    public void setButtons(boolean connected, boolean loggedIn, boolean inGame,
+            boolean roundFinished) {
+        LEAVE_GAME_BUTTON.setEnabled(connected && loggedIn && inGame);
+        START_GAME_BUTTON.setEnabled(connected && loggedIn && inGame && roundFinished);
     }
 
-    /**
-     * Nastaví stav herní místnosti.
-     * 
-     * @param currentGameDetail stav herní místnosti
-     */
-    public void setGameDetail(CurrentGameDetail currentGameDetail) {
-        if (currentGameDetail.GAME_BOARD == null) {
-            setButtons(false, false);
+    @Override
+    public void update(Observable o, Object o1) {
+        TcpClient client = (TcpClient) o;
+        CurrentGameDetail currentGameDetail = client.getGameDetail();
+        
+        if (currentGameDetail == null) {
+            currentGameDetail = new CurrentGameDetail(null, null);
         }
         
-        BOARD_PANEL.setGameBoard(currentGameDetail.GAME_BOARD);
-        JOINED_PLAYER_LIST_PANEL.setJoinedPlayerList(currentGameDetail.JOINED_PLAYERS);
-        LAST_EVENT_TEXT_PANEL.setCurrentGame(currentGameDetail.JOINED_PLAYERS, currentGameDetail.GAME_BOARD);
+        BOARD_PANEL.setGameDetail(currentGameDetail);
+        JOINED_PLAYER_LIST_PANEL.setGameDetail(currentGameDetail);
+        LAST_EVENT_TEXT_PANEL.setGameDetail(currentGameDetail);
         
-        setButtons(true, currentGameDetail.GAME_BOARD.isRoundFinished());
+        setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo(),
+                currentGameDetail.GAME_BOARD != null && currentGameDetail.GAME_BOARD.isRoundFinished());
     }
     
 }

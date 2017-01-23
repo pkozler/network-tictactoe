@@ -1,6 +1,6 @@
 package interaction.sending;
 
-import communication.TcpMessage;
+import communication.Message;
 
 /**
  * Abstraktní třída ARequestBuilder představuje požadavek klienta
@@ -13,14 +13,14 @@ public abstract class ARequestBuilder {
     /**
      * zpráva
      */
-    protected TcpMessage message;
+    protected Message message;
     
     /**
      * Vrátí požadavek klienta.
      * 
      * @return požadavek klienta
      */
-    public TcpMessage getMessage() {
+    public Message getMessage() {
         return message;
     }
     

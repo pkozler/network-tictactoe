@@ -1,13 +1,28 @@
 package visualisation.components.game;
 
+import communication.containers.CurrentGameDetail;
+import communication.containers.GameBoard;
 import communication.containers.JoinedPlayer;
+import communication.containers.PlayerInfo;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import visualisation.components.game.icons.CircleIcon;
+import visualisation.components.game.icons.CrossIcon;
+import visualisation.components.game.icons.IconPanel;
+import visualisation.components.game.icons.TildeIcon;
+import visualisation.components.game.icons.YpsilonIcon;
 import visualisation.listmodels.JoinedPlayerListModel;
 
 /**
@@ -18,10 +33,34 @@ import visualisation.listmodels.JoinedPlayerListModel;
  */
 public class JoinedPlayerListPanel extends JPanel {
 
+    private final int FONT_SIZE = 16;
+    
+    private final Icon[] PLAYER_ICONS = new Icon[] {
+        new CrossIcon(FONT_SIZE),
+        new CircleIcon(FONT_SIZE),
+        new YpsilonIcon(FONT_SIZE),
+        new TildeIcon(FONT_SIZE)
+    };
+    
     /**
      * seznam zpráv v herní místnosti
      */
     private final JList<JoinedPlayer> JOINED_PLAYER_LIST_VIEW;
+    
+    /**
+     * hráči v herní místnosti
+     */
+    public ArrayList<JoinedPlayer> joinedPlayers;
+    
+    /**
+     * herní pole
+     */
+    public GameBoard gameBoard;
+    
+    /**
+     * pořadí aktuálního hráče na tahu
+     */
+    private byte currentPlayingIndex;
     
     /**
      * Vytvoří panel pro zobrazení seznamu hráčů v herní místnosti.
@@ -29,9 +68,21 @@ public class JoinedPlayerListPanel extends JPanel {
     public JoinedPlayerListPanel() {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setPreferredSize(new Dimension(240, 0));
+        setPreferredSize(new Dimension(300, 0));
         
         JOINED_PLAYER_LIST_VIEW = new JList<>();
+        
+        // TEST
+        /*ArrayList<JoinedPlayer> list = new ArrayList<>();
+        list.add(new JoinedPlayer("Franta", (byte)1, (byte)0));
+        list.add(new JoinedPlayer("Pepa", (byte)2, (byte)0));
+        list.add(new JoinedPlayer("Venca", (byte)3, (byte)0));
+        list.add(new JoinedPlayer("Jarda", (byte)4, (byte)0));
+        JoinedPlayerListModel joinedPlayerListModel = new JoinedPlayerListModel();
+        joinedPlayerListModel.setListWithSorting(list);
+        JOINED_PLAYER_LIST_VIEW.setModel(joinedPlayerListModel);*/
+        
+        JOINED_PLAYER_LIST_VIEW.setCellRenderer(getRenderer());
         JOINED_PLAYER_LIST_VIEW.setBackground(getBackground());
         JPanel listPanel = new JPanel(new BorderLayout());
         listPanel.setBorder(BorderFactory.createTitledBorder("Hráči ve hře:"));
@@ -39,14 +90,46 @@ public class JoinedPlayerListPanel extends JPanel {
         add(listPanel, BorderLayout.CENTER);
     }
     
+    private ListCellRenderer<? super JoinedPlayer> getRenderer() {
+        return new DefaultListCellRenderer() {
+            
+            @Override
+            public Component getListCellRendererComponent(JList<?> list,
+                    Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                byte playerItemIndex = ((JoinedPlayer) value).getCurrentGameIndex();
+                Icon playerIcon = PLAYER_ICONS[playerItemIndex - (byte) 1];
+                
+                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                listCellRendererComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE));
+                listCellRendererComponent.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                
+                JPanel panel = new IconPanel(playerIcon, FONT_SIZE);
+                panel.add(listCellRendererComponent);
+                
+                if (playerItemIndex == currentPlayingIndex) {
+                    panel.setBorder(BorderFactory.createRaisedSoftBevelBorder());
+                }
+                
+                return panel;
+            }
+            
+        };
+    }
+    
     /**
-     * Nastaví seznam hráčů v herní místnosti.
+     * Nastaví herní pole místnosti, v níž se klient momentálně nachází.
      * 
-     * @param joinedPlayerList seznam hráčů v herní místnosti
+     * @param gameDetail detail herní místnosti
      */
-    public void setJoinedPlayerList(ArrayList<JoinedPlayer> joinedPlayerList) {
+    public void setGameDetail(CurrentGameDetail gameDetail) {
+        this.gameBoard = gameDetail.GAME_BOARD;
+        this.joinedPlayers = gameDetail.JOINED_PLAYERS;
+        this.currentPlayingIndex = gameBoard == null ? (byte) 0 :
+                gameBoard.getCurrentPlaying();
+        
         JoinedPlayerListModel joinedPlayerListModel = new JoinedPlayerListModel();
-        joinedPlayerListModel.setListWithSorting(joinedPlayerList);
+        joinedPlayerListModel.setListWithSorting(joinedPlayers);
         JOINED_PLAYER_LIST_VIEW.setModel(joinedPlayerListModel);
     }
     
