@@ -16,11 +16,11 @@
  * @param msgc počet položek
  * @return seznam zpráv
  */
-message_list_t *create_message_list(message_t *head, int32_t msgc) {
+message_list_t *create_message_list(char *head, int32_t msgc) {
     message_list_t *msg_list = (message_list_t *) malloc(sizeof(message_list_t));
     msg_list->head = head;
     msg_list->msgc = msgc;
-    msg_list->msgv = (message_t **) malloc(sizeof(message_t *) * msgc);
+    msg_list->msgv = (char **) malloc(sizeof(char *) * msgc);
     
     return msg_list;
 }
@@ -56,10 +56,10 @@ void send_message_list(message_list_t *messages, client_socket_t *socket) {
         return;
     }
     
-    send_message(messages->head, socket);
+    send_message_string(messages->head, socket);
     
     int32_t i;
     for (i = 0; i < messages->msgc; i++) {
-        send_message(messages->msgv[i], socket);
+        send_message_string(messages->msgv[i], socket);
     }
 }

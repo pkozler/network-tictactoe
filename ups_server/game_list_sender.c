@@ -8,6 +8,7 @@
 #include "global.h"
 #include "protocol.h"
 #include "broadcaster.h"
+#include "communicator.h"
 #include "message_list.h"
 #include "linked_list_iterator.h"
 #include "game_list.h"
@@ -48,15 +49,20 @@ message_t *game_to_message(game_t *game) {
  * @return seznam her
  */
 message_list_t *game_list_to_message_list() {
+    message_t *header = game_list_to_message();
     message_list_t *message_list = create_message_list(
-            game_list_to_message(), count_elements(g_game_list->list));
+            build_message_string(header), count_elements(g_game_list->list));
+    delete_message(header);
+    
     linked_list_iterator_t *iterator = create_iterator(g_game_list->list);
     game_t *current_game;
     
     int32_t i = 0;
     while (has_next_element(iterator)) {
         current_game = get_next_element(iterator);
-        message_list->msgv[i++] = game_to_message(current_game);
+        message_t *item = game_to_message(current_game);
+        message_list->msgv[i++] = build_message_string(item);
+        delete_message(item);
     }
     
     return message_list;

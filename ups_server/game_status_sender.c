@@ -7,6 +7,7 @@
 #include "game_status_sender.h"
 #include "protocol.h"
 #include "broadcaster.h"
+#include "communicator.h"
 #include "message.h"
 #include "message_list.h"
 #include "config.h"
@@ -100,14 +101,18 @@ message_t *joined_player_to_message(player_t *player) {
  * @return seznam zpráv o stavu hry a hráčích
  */
 message_list_t *game_status_to_message_list(game_t *game) {
+    message_t *header = game_board_to_message(game);
     message_list_t *message_list = create_message_list(
-            game_board_to_message(game), game->player_counter);
+            build_message_string(header), game->player_counter);
+    delete_message(header);
     
     int32_t i = 0;
     int32_t j;
     for (j = 0; j < game->player_count; j++) {
         if (game->players[j] != NULL) {
-            message_list->msgv[i] = joined_player_to_message(game->players[j]);
+            message_t *item = joined_player_to_message(game->players[j]);
+            message_list->msgv[i] = build_message_string(item);
+            delete_message(item);
             i++;
         }
     }

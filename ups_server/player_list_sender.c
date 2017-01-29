@@ -9,6 +9,7 @@
 #include "protocol.h"
 #include "player.h"
 #include "broadcaster.h"
+#include "communicator.h"
 #include "message_list.h"
 #include "linked_list_iterator.h"
 #include "player_list.h"
@@ -47,15 +48,20 @@ message_t *player_to_message(player_t *player) {
  * @return seznam hráčů
  */
 message_list_t *player_list_to_message_list() {
+    message_t *header = player_list_to_message();
     message_list_t *message_list = create_message_list(
-            player_list_to_message(), count_elements(g_player_list->list));
+            build_message_string(header), count_elements(g_player_list->list));
+    delete_message(header);
+    
     linked_list_iterator_t *iterator = create_iterator(g_player_list->list);
     player_t *current_player;
     
     int32_t i = 0;
     while (has_next_element(iterator)) {
         current_player = get_next_element(iterator);
-        message_list->msgv[i++] = player_to_message(current_player);
+        message_t *item = player_to_message(current_player);
+        message_list->msgv[i++] = build_message_string(item);
+        delete_message(item);
     }
     
     return message_list;

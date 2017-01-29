@@ -8,6 +8,7 @@
 #include "game_list.h"
 #include "game_logic.h"
 #include "request_checker.h"
+#include <unistd.h>
 
 /**
  * Zpracuje opuštění herní místnosti všemi hráči.

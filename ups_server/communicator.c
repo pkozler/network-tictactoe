@@ -259,17 +259,7 @@ message_t *receive_message(client_socket_t *socket) {
     return message;
 }
 
-/**
- * Převede zadanou zprávu z formy struktury do textové formy určené k přenosu
- * po síti a odešle ji v této podobě klientovi se zadaným číslem socketu.
- * 
- * @param msg odesílaná zpráva ve formě struktury
- * @param socket socket klienta - příjemce
- * @return true v případě úspěchu, false v případě chyby
- */
-bool send_message(message_t *msg, client_socket_t *socket) {
-    char *msg_str;
-    
+char *build_message_string(message_t *msg) {
     // zpráva má typ
     if (msg->type != NULL) {
         int32_t str_len = strlen(msg->type);
@@ -280,7 +270,7 @@ bool send_message(message_t *msg, client_socket_t *socket) {
         }
         str_len++;
         
-        msg_str = (char *) malloc(sizeof(char) * (str_len));
+        char *msg_str = (char *) malloc(sizeof(char) * (str_len));
         msg_str[0] = '\0';
         strncat(msg_str, msg->type, str_len);
         
@@ -288,24 +278,26 @@ bool send_message(message_t *msg, client_socket_t *socket) {
             strncat(msg_str, SEPARATOR, str_len);
             strncat(msg_str, msg->argv[i], str_len);
         }
-    }
-    // zpráva nemá typ ani argumenty (odpověď na test odezvy)
-    else if (msg->type == NULL && msg->argc == 0) {
-        msg_str = (char *) malloc(sizeof(char));
-        msg_str[0] = '\0';
-    }
-    // zpráva nemá typ, ale má argumenty - neplatná zpráva
-    else {
-        msg_str = NULL;
+        
+        return msg_str;
     }
     
+    // zpráva nemá typ ani argumenty (odpověď na test odezvy)
+    if (msg->type == NULL && msg->argc == 0) {
+        char *msg_str = (char *) malloc(sizeof(char));
+        msg_str[0] = '\0';
+        
+        return msg_str;
+    }
+    
+    // zpráva nemá typ, ale má argumenty - neplatná zpráva
+    return NULL;
+}
+
+bool send_message_string(char *msg_str, client_socket_t *socket) {
     lock_socket(socket);
     bool success = write_to_socket(msg_str, socket);
     unlock_socket(socket);
-    
-    if (msg_str != NULL) {
-        free(msg_str);
-    }
     
     // došlo k chybě při přenosu řetězce zprávy
     if (!success) {
@@ -318,4 +310,23 @@ bool send_message(message_t *msg, client_socket_t *socket) {
     inc_stats_messages_transferred();
     
     return true;
+}
+
+/**
+ * Převede zadanou zprávu z formy struktury do textové formy určené k přenosu
+ * po síti a odešle ji v této podobě klientovi se zadaným číslem socketu.
+ * 
+ * @param msg odesílaná zpráva ve formě struktury
+ * @param socket socket klienta - příjemce
+ * @return true v případě úspěchu, false v případě chyby
+ */
+bool send_message(message_t *msg, client_socket_t *socket) {
+    char *msg_str = build_message_string(msg);
+    bool sent = send_message_string(msg_str, socket);
+    
+    if (msg_str != NULL) {
+        free(msg_str);
+    }
+    
+    return sent;
 }
