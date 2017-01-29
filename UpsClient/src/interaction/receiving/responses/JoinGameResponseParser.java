@@ -51,7 +51,7 @@ public class JoinGameResponseParser extends AResponseParser {
             return getResponseError();
         }
         
-        CLIENT.setCurrentGameId(builder.GAME_ID);
+        CLIENT.joinGame(builder.GAME_ID);
         
         return String.format("Hráč vstoupil do herní místnosti s ID: %d", builder.GAME_ID);
     }

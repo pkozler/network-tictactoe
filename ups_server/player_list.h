@@ -14,6 +14,7 @@
 void create_player_list();
 void delete_player_list();
 void add_player_to_list(player_t *player);
+void return_player_to_list(player_t *existing_player, player_t *player);
 player_t *get_player_by_id(int32_t id);
 player_t *get_player_by_name(char *name);
 player_t *remove_player_by_id(int32_t id);

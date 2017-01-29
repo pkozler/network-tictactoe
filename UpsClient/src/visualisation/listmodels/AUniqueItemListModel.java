@@ -9,6 +9,7 @@ import javax.swing.AbstractListModel;
  * pro zobrazení v GUI.
  * 
  * @author Petr Kozler
+ * @param <E> položka přijatého seznamu
  */
 public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     
@@ -16,12 +17,32 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
      * vnitřní seznam
      */
     protected ArrayList<E> list;
+    
+    /**
+     * aktuálně zvolená/vlastní položka
+     */
+    protected E current;
 
     /**
-     * Vytvoří model seznamu.
+     * Vytvoří model seznamu a nastaví vnitřní seznam (který seřadí)
+     * spolu s odkazem na aktuální položku určenou podle zadaného klíče.
+     * 
+     * @param list předaný seznam položek
+     * @param currentKey klíč aktuálně zvolené/vlastní položky
      */
-    public AUniqueItemListModel() {
-        list = new ArrayList<>();
+    public AUniqueItemListModel(ArrayList<E> list, int currentKey) {
+        sortList(list);
+        this.list = list != null ? list : new ArrayList<E>();
+        current = getElementByKey(currentKey);
+    }
+
+    /**
+     * Vrátí aktuálně zvolenou/vlastní položku.
+     * 
+     * @return aktuálně zvolená/vlastní položka
+     */
+    public final E getCurrent() {
+        return current;
     }
     
     /**
@@ -30,7 +51,7 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
      * @return počet prvků seznamu
      */
     @Override
-    public int getSize() {
+    public final int getSize() {
         return list.size();
     }
 
@@ -41,7 +62,7 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
      * @return prvek seznamu
      */
     @Override
-    public E getElementAt(int index) {
+    public final E getElementAt(int index) {
         return (E) list.get(index);
     }
     
@@ -51,7 +72,11 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
      * @param key klíč prvku
      * @return prvek seznamu
      */
-    public E getElementByKey(int key) {
+    public final E getElementByKey(int key) {
+        if (key < 1) {
+            return null;
+        }
+        
         for (E element : list) {
             if (hasKey(element, key)) {
                 return element;
@@ -62,13 +87,16 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
     }
     
     /**
-     * Nastaví vnitřní seznam.
+     * Spustí řazení předaného seznamu, pokud není prázdný.
      * 
-     * @param list vnitřní seznam
+     * @param list předaný seznam
      */
-    public final void setListWithSorting(ArrayList<E> list) {
-        sortList(list);
-        this.list = list;
+    private void sortList(ArrayList<E> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        
+        doSorting(list);
     }
     
     /**
@@ -85,6 +113,6 @@ public abstract class AUniqueItemListModel<E> extends AbstractListModel<E> {
      * 
      * @param list vnitřní seznam
      */
-    protected abstract void sortList(ArrayList<E> list);
+    protected abstract void doSorting(ArrayList<E> list);
     
 }

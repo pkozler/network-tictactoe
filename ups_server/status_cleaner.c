@@ -29,29 +29,36 @@ void handle_empty_game(game_t *game) {
  * @param player klient
  */
 void handle_disconnected_player(player_t *player) {
-    if (is_player_in_game_room(player)) {
-        lock_game(player->current_game);
+    // uzavření socketu
+    close(player->socket->sock);
+    
+    if (!is_player_logged(player)) {
+        // kompletní odstranění odhlášeného a odpojeného hráče
+        remove_element(g_client_list, player);
+        delete_player(player);
         
-        game_t *game = player->current_game;
-        remove_player_from_game(player);
-        
-        set_game_changed(game, true);
-        unlock_game(game);
-        
-        lock_game_list();
-        set_game_list_changed(true);
-        unlock_game_list();
+        return;
     }
-
+    
+    // zachování v seznamech hráčů, pokud je hráč v okamžiku odpojení přihlášen
     lock_player_list();
+    set_player_list_changed(true);
+    unlock_player_list();
     
-    if (is_player_logged(player)) {
-        remove_player_by_id(player->id);
-        set_player_list_changed(true);
+    if (!is_player_in_game_room(player)) {
+        return;
     }
     
-    unlock_player_list();
+    // vystoupení z herní místnosti (údaje o poslední hře ve struktuře hráče zůstanou)
+    lock_game(player->current_game);
 
-    remove_element(g_client_list, player);
-    delete_player(player);
+    game_t *game = player->current_game;
+    remove_player_from_game(player);
+
+    set_game_changed(game, true);
+    unlock_game(game);
+
+    lock_game_list();
+    set_game_list_changed(true);
+    unlock_game_list();
 }

@@ -82,7 +82,6 @@ player_t *create_player(int sock) {
 void delete_player(player_t *player) {
     pthread_cancel(player->thread);
     pthread_mutex_destroy(&(player->socket->lock));
-    close(player->socket->sock);
     free(player->socket);
     free(player);
 }

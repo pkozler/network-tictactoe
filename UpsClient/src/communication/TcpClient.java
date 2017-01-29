@@ -58,14 +58,15 @@ public class TcpClient extends Observable {
      */
     private int playerId;
     
-    private PlayerInfo playerInfo;
-    
     /**
      * ID aktuální herní místnosti
      */
     private int gameId;
     
-    private GameInfo gameInfo;
+    /**
+     * ID minulé herní místnosti
+     */
+    private int lastGameId;
     
     private ArrayList<PlayerInfo> playerList;
     
@@ -82,12 +83,24 @@ public class TcpClient extends Observable {
     public TcpClient(InetAddress host, int port) {
         this.host = host;
         this.port = port;
+        
+        clear(false, false, false, false);
     }
     
+    /**
+     * Vrátí adresu.
+     * 
+     * @return adresa
+     */
     public InetAddress getHost() {
         return host;
     }
 
+    /**
+     * Vrátí port.
+     * 
+     * @return port
+     */
     public int getPort() {
         return port;
     }
@@ -104,8 +117,7 @@ public class TcpClient extends Observable {
         dis = new DataInputStream(socket.getInputStream());
         dos = new DataOutputStream(socket.getOutputStream());
         
-        setChanged();
-        notifyObservers();
+        refresh();
     }
     
     /**
@@ -121,8 +133,9 @@ public class TcpClient extends Observable {
         }
         
         socket = null;
-        setCurrentPlayerId(0);
-        setPlayerList(null);
+        
+        clear(false, false, false, true);
+        refresh();
     }
     
     /**
@@ -134,98 +147,76 @@ public class TcpClient extends Observable {
         return socket != null && !socket.isClosed();
     }
     
-    public boolean hasPlayerInfo() {
-        return playerInfo != null;
-    }
-
-    public boolean hasGameInfo() {
-        return gameInfo != null;
-    }
-
-    public PlayerInfo getPlayerInfo() {
-        return playerInfo;
-    }
-
-    public void setCurrentPlayerId(int playerId) {
-        this.playerId = playerId;
+    public void logIn(int playerId) {
+        this.playerId = playerId < 0 ? 0 : playerId;
+        
+        refresh();
     }
     
-    public GameInfo getGameInfo() {
-        return gameInfo;
+    public void logOut() {
+        clear(true, false, false, false);
+        refresh();
+    }
+
+    public int getCurrentPlayerId() {
+        return playerId;
+    }
+
+    public void joinGame(int gameId) {
+        this.gameId = gameId < 0 ? 0 : gameId;
+        lastGameId = this.gameId;
+        
+        refresh();
     }
     
-    public void setCurrentGameId(int gameId) {
-        this.gameId = gameId;
+    public void leaveGame() {
+        clear(true, true, false, false);
+        refresh();
+    }
+
+    public int getCurrentGameId() {
+        return gameId;
+    }
+
+    public void setPlayerList(ArrayList<PlayerInfo> playerList) {
+        this.playerList = playerList != null ? playerList
+                : new ArrayList<PlayerInfo>();
+        
+        refresh();
     }
 
     public ArrayList<PlayerInfo> getPlayerList() {
         return playerList;
     }
 
-    public void setPlayerList(ArrayList<PlayerInfo> playerList) {
-        this.playerList = playerList;
-        
-        if (playerId < 1) {
-            playerInfo = null;
-            setCurrentGameId(0);
-            setGameList(null);
-            
-            return;
-        }
-        
-        for (PlayerInfo p : playerList) {
-            if (p.ID == playerId) {
-                playerInfo = p;
+    public void setGameList(ArrayList<GameInfo> gameList) {
+        this.gameList = gameList != null ? gameList
+                : new ArrayList<GameInfo>();
 
-                break;
-            }
-        }
-        
-        setChanged();
-        notifyObservers();
+        refresh();
     }
 
     public ArrayList<GameInfo> getGameList() {
         return gameList;
     }
 
-    public void setGameList(ArrayList<GameInfo> gameList) {
-        this.gameList = gameList;
-
-        if (gameId < 1) {
-            gameInfo = null;
-            setGameDetail(null);
+    public void setGameDetail(CurrentGameDetail gameDetail) {
+        if (gameDetail != null) {
+            this.gameDetail = gameDetail;
             
-            return;
+            gameId = gameId > 0 ? gameId : lastGameId;
+        }
+        else {
+            this.gameDetail = new CurrentGameDetail();
         }
         
-        for (GameInfo g : gameList) {
-            if (g.ID == gameId) {
-                gameInfo = g;
-                
-                break;
-            }
-        }
-        
-        setChanged();
-        notifyObservers();
+        refresh();
     }
-
+    
     public CurrentGameDetail getGameDetail() {
         return gameDetail;
     }
 
-    public void setGameDetail(CurrentGameDetail gameDetail) {
-        if (gameDetail != null) {
-            gameDetail.setCurrentInfo(playerId);
-        }
-        
-        this.gameDetail = gameDetail;
-        
-        setChanged();
-        notifyObservers();
-    }
-    
     /**
      * Odešle zprávu.
      * 
@@ -300,6 +291,38 @@ public class TcpClient extends Observable {
         dis.read(bytes);
         
         return new String(bytes, StandardCharsets.US_ASCII);
+    }
+    
+    private void clear(boolean keepLists, boolean keepPlayer,
+            boolean keepGame, boolean keepLastGameId) {
+        if (!keepLastGameId) {
+            lastGameId = 0;
+        }
+        
+        if (keepGame) {
+            return;
+        }
+        
+        gameId = 0;
+        gameDetail = new CurrentGameDetail();
+
+        if (keepPlayer) {
+            return;
+        }
+        
+        playerId = 0;
+        
+        if (keepLists) {
+            return;
+        }
+        
+        gameList = new ArrayList<>();
+        playerList = new ArrayList<>();
+    }
+    
+    private void refresh() {
+        setChanged();
+        notifyObservers();
     }
     
 }

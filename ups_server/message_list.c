@@ -52,8 +52,12 @@ void delete_message_list(message_list_t *msg_list) {
  * @param socket socket klienta
  */
 void send_message_list(message_list_t *messages, client_socket_t *socket) {
+    if (!(socket->connected)) {
+        return;
+    }
+    
     send_message(messages->head, socket);
-
+    
     int32_t i;
     for (i = 0; i < messages->msgc; i++) {
         send_message(messages->msgv[i], socket);

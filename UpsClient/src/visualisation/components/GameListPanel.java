@@ -82,7 +82,6 @@ public class GameListPanel extends JPanel implements Observer {
         GAME_LIST_VIEW.setCellRenderer(getRenderer());
         
         JPanel listPanel = new JPanel(new BorderLayout());
-        listPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         listPanel.add(GAME_LIST_VIEW, BorderLayout.CENTER);
         
         GAME_LABEL = new JLabel("Místnost nevybrána");
@@ -94,6 +93,7 @@ public class GameListPanel extends JPanel implements Observer {
         buttonPanel.add(JOIN_GAME_BUTTON);
         
         JPanel labelPanel = new JPanel(new FlowLayout());
+        labelPanel.setBorder(BorderFactory.createEtchedBorder());
         labelPanel.add(GAME_LABEL);
         
         add(labelPanel, BorderLayout.NORTH);
@@ -101,7 +101,7 @@ public class GameListPanel extends JPanel implements Observer {
         add(listPanel, BorderLayout.CENTER);
         
         setListeners();
-        setButtons(false, false, false);
+        setButtons(false, false);
     }
     
     private ListCellRenderer<? super GameInfo> getRenderer() {
@@ -111,8 +111,15 @@ public class GameListPanel extends JPanel implements Observer {
             public Component getListCellRendererComponent(JList<?> list,
                     Object value, int index, boolean isSelected,
                     boolean cellHasFocus) {
-                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);
-                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                GameInfo gameInfo = ((GameInfo) value);
+                
+                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(
+                        list, value, index, isSelected,cellHasFocus);
+                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(
+                        0, 0, 1, 0, Color.GRAY));
+                listCellRendererComponent.setForeground(
+                        gameInfo.getPlayerCounter() < gameInfo.PLAYER_COUNT ? Color.BLACK : Color.LIGHT_GRAY);
+                
                 return listCellRendererComponent;
             }
             
@@ -211,26 +218,22 @@ public class GameListPanel extends JPanel implements Observer {
     /**
      * Nastaví aktivaci tlačítek.
      * 
-     * @param connected příznak připojení
      * @param loggedIn příznak přihlášení
      * @param inGame příznak přítomnosti ve hře
      */
-    public void setButtons(boolean connected, boolean loggedIn, boolean inGame) {
-        CREATE_GAME_BUTTON.setEnabled(connected && loggedIn && !inGame);
-        JOIN_GAME_BUTTON.setEnabled(connected && loggedIn && !inGame);
+    public void setButtons(boolean loggedIn, boolean inGame) {
+        CREATE_GAME_BUTTON.setEnabled(loggedIn && !inGame);
+        JOIN_GAME_BUTTON.setEnabled(loggedIn && !inGame);
     }
 
     @Override
     public void update(Observable o, Object o1) {
-        final TcpClient client = (TcpClient) o;
+        TcpClient client = (TcpClient) o;
         ArrayList<GameInfo> gameList = client.getGameList();
-        
-        if (gameList == null) {
-            gameList = new ArrayList<>();
-        }
-        
-        final GameListModel gameListModel = new GameListModel();
-        gameListModel.setListWithSorting(gameList);
+        int gameId = client.getCurrentGameId();
+        final GameListModel gameListModel = new GameListModel(gameList, gameId);
+        final GameInfo gameInfo = gameListModel.getCurrent();
+        final boolean logged = client.getCurrentPlayerId() > 0;
         
         SwingUtilities.invokeLater(new Runnable() {
             
@@ -238,16 +241,16 @@ public class GameListPanel extends JPanel implements Observer {
             public void run() {
                 GAME_LIST_VIEW.setModel(gameListModel);
 
-                if (client.isConnected() && client.hasPlayerInfo() && client.hasGameInfo()) {
+                if (gameInfo != null) {
                     GAME_LABEL.setText(String.format(
                         "<html>Zvolená místnost:<br />%s (ID %d)</html>",
-                        client.getGameInfo().NAME, client.getGameInfo().ID));
+                        gameInfo.NAME, gameInfo.ID));
                 }
                 else {
                     GAME_LABEL.setText("Místnost nevybrána");
                 }
 
-                setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo());
+                setButtons(logged, gameInfo != null);
             }
             
         });

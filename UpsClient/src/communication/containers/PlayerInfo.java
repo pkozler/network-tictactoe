@@ -9,7 +9,7 @@ package communication.containers;
 public class PlayerInfo implements Comparable<PlayerInfo> {
     
     /**
-     * ID hráče
+     * klíč - ID hráče
      */
     public final int ID;
     
@@ -24,16 +24,23 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
     private int totalScore;
     
     /**
+     * příznak připojení
+     */
+    private boolean connected;
+    
+    /**
      * Vytvoří seznam hráčů.
      * 
      * @param id ID hráče
      * @param nick přezdívka
      * @param totalScore celkové skóre
+     * @param connected příznak připojení
      */
-    public PlayerInfo(int id, String nick, int totalScore) {
+    public PlayerInfo(int id, String nick, int totalScore, boolean connected) {
         ID = id;
         NICK = nick;
         this.totalScore = totalScore;
+        this.connected = connected;
     }
     
     /**
@@ -43,6 +50,15 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
      */
     public int getTotalScore() {
         return totalScore;
+    }
+
+    /**
+     * Vrátí příznak připojení.
+     * 
+     * @return příznak připojení
+     */
+    public boolean isConnected() {
+        return connected;
     }
     
     /**
@@ -88,7 +104,8 @@ public class PlayerInfo implements Comparable<PlayerInfo> {
      */
     @Override
     public String toString() {
-        return String.format("<html>%d: %s<br />skóre: %d</html>", ID, NICK, totalScore);
+        return String.format("<html>%d: %s<br />celkové skóre: %d<br />stav připojení: %s</html>",
+                ID, NICK, totalScore, connected ? "online" : "offline");
     }
 
     /**

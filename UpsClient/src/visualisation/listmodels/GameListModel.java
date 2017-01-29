@@ -12,6 +12,16 @@ import java.util.Collections;
 public class GameListModel extends AUniqueItemListModel<GameInfo> {
 
     /**
+     * Vytvoří model seznamu her.
+     * 
+     * @param list předaný seznam položek
+     * @param currentKey klíč aktuálně zvolené/vlastní položky
+     */
+    public GameListModel(ArrayList<GameInfo> list, int currentKey) {
+        super(list, currentKey);
+    }
+
+    /**
      * Otestuje, zda daný prvek seznamu her obsahuje dané ID.
      * 
      * @param element prvek
@@ -29,7 +39,7 @@ public class GameListModel extends AUniqueItemListModel<GameInfo> {
      * @param list vnitřní seznam
      */
     @Override
-    protected void sortList(ArrayList<GameInfo> list) {
+    protected void doSorting(ArrayList<GameInfo> list) {
         Collections.sort(list);
     }
     

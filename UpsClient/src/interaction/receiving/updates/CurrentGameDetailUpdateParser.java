@@ -86,7 +86,7 @@ public class CurrentGameDetailUpdateParser extends AUpdateParser {
                 for (int j = 0; j < board.length; j++) {
                     board[i][j] = (byte) Character.getNumericValue(boardArr[i * board.length + j]);
                     
-                    if (board[i][j] < 0 || board[i][j] >= Config.MAX_PLAYERS_SIZE) {
+                    if (board[i][j] < 0 || board[i][j] > Config.MAX_PLAYERS_SIZE) {
                         throw new InvalidMessageArgsException();
                     }
                 }

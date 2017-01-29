@@ -1,6 +1,5 @@
 package visualisation.components.game;
 
-import communication.containers.CurrentGameDetail;
 import communication.containers.GameBoard;
 import interaction.MessageBackgroundSender;
 import interaction.sending.requests.PlayGameRequestBuilder;
@@ -114,12 +113,13 @@ public class BoardPanel extends JPanel {
     /**
      * Nastaví herní pole místnosti, v níž se klient momentálně nachází.
      * 
-     * @param gameDetail detail herní místnosti
+     * @param gameBoard herní pole
+     * @param playerIndex pořadí hráče ve hře
      */
-    public void setGameDetail(CurrentGameDetail gameDetail) {
-        this.gameBoard = gameDetail.GAME_BOARD;
-        this.playerIndex = gameDetail.getCurrentInfo() == null ? (byte) 0 :
-                gameDetail.getCurrentInfo().getCurrentGameIndex();
+    public void setGameDetail(GameBoard gameBoard, byte playerIndex) {
+        this.gameBoard = gameBoard;
+        this.playerIndex = playerIndex;
+        
         repaint();
     }
     

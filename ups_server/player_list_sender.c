@@ -36,6 +36,7 @@ message_t *player_to_message(player_t *player) {
     put_int_arg(message, player->id);
     put_string_arg(message, player->nick);
     put_int_arg(message, player->total_score);
+    put_bool_arg(message, player->socket->connected);
     
     return message;
 }

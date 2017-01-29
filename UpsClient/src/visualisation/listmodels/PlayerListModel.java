@@ -12,6 +12,16 @@ import java.util.Collections;
 public class PlayerListModel extends AUniqueItemListModel<PlayerInfo> {
 
     /**
+     * Vytvoří model seznamu hráčů.
+     * 
+     * @param list předaný seznam položek
+     * @param currentKey klíč aktuálně zvolené/vlastní položky
+     */
+    public PlayerListModel(ArrayList<PlayerInfo> list, int currentKey) {
+        super(list, currentKey);
+    }
+
+    /**
      * Otestuje, zda daný prvek seznamu hráčů obsahuje dané ID.
      * 
      * @param element prvek
@@ -29,7 +39,7 @@ public class PlayerListModel extends AUniqueItemListModel<PlayerInfo> {
      * @param list vnitřní seznam
      */
     @Override
-    protected void sortList(ArrayList<PlayerInfo> list) {
+    protected void doSorting(ArrayList<PlayerInfo> list) {
         Collections.sort(list);
     }
     

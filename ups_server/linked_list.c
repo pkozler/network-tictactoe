@@ -209,6 +209,28 @@ void add_element(linked_list_t *list, void *e) {
 }
 
 /**
+ * Nahradí prvek.
+ * 
+ * @param list spojový seznam
+ * @param original původní hodnota prvku
+ * @param e nová hodnota prvku
+ */
+void replace_element(linked_list_t *list, void *original, void *e) {
+    if (list == NULL) {
+        return;
+    }
+    
+    linked_list_node_t *node;
+
+    for (node = list->first; node != NULL; node = node->next) {
+        if (node->value == original) {
+            node->value = e;
+            break;
+        }
+    }
+}
+
+/**
  * Odstraní prvek.
  * 
  * @param list spojový seznam
@@ -228,40 +250,4 @@ void remove_element(linked_list_t *list, void *e) {
             break;
         }
     }
-}
-
-/**
- * Vloží prvek na začátek.
- * 
- * @param list spojový seznam
- * @param e hodnota prvku
- */
-void enqueue_element(linked_list_t *list, void *e) {
-    if (list == NULL) {
-        return;
-    }
-    
-    linked_list_node_t *node = (linked_list_node_t *) malloc(sizeof(linked_list_node_t));
-    node->value = e;
-    add_first_node(list, node);
-    list->count++;
-}
-
-/**
- * Vyjme prvek na konci.
- * 
- * @param list spojový seznam
- * @return hodnota prvku
- */
-void *dequeue_element(linked_list_t *list) {
-    if (list == NULL || list->count < 1) {
-        return NULL;
-    }
-    
-    linked_list_node_t *node = list->last;
-    void *e = node->value;
-    remove_node(list, node);
-    list->count--;
-    
-    return e;
 }

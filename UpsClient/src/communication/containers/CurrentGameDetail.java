@@ -11,19 +11,21 @@ import java.util.ArrayList;
 public class CurrentGameDetail {
     
     /**
-     * hráči v herní místnosti
-     */
-    public final ArrayList<JoinedPlayer> JOINED_PLAYERS;
-    
-    /**
      * herní pole
      */
     public final GameBoard GAME_BOARD;
     
     /**
-     * vlastní údaje
+     * hráči v herní místnosti
      */
-    private JoinedPlayer currentInfo;
+    public final ArrayList<JoinedPlayer> JOINED_PLAYERS;
+    
+    /**
+     * Vytvoří prázdnou přepravku.
+     */
+    public CurrentGameDetail() {
+        this(null, null);
+    }
     
     /**
      * Vytvoří přepravku se stavem herní místnosti.
@@ -33,34 +35,8 @@ public class CurrentGameDetail {
      */
     public CurrentGameDetail(GameBoard gameBoard, ArrayList<JoinedPlayer> joinedPlayers) {
         GAME_BOARD = gameBoard;
-        JOINED_PLAYERS = joinedPlayers == null ? new ArrayList<JoinedPlayer>() : joinedPlayers;
-        currentInfo = null;
+        JOINED_PLAYERS = joinedPlayers != null ? joinedPlayers
+                : new ArrayList<JoinedPlayer>();
     }
 
-    /**
-     * Vrátí vlastní údaje.
-     * 
-     * @return vlastní údaje
-     */
-    public JoinedPlayer getCurrentInfo() {
-        return currentInfo;
-    }
-
-    /**
-     * Nastaví vlastní údaje.
-     * 
-     * @param playerId ID hráče
-     */
-    public void setCurrentInfo(int playerId) {
-        for (JoinedPlayer p : JOINED_PLAYERS) {
-            if (p.getId() == playerId) {
-                currentInfo = p;
-                
-                return;
-            }
-        }
-        
-        currentInfo = null;
-    }
-    
 }

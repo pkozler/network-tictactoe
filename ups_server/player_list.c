@@ -85,6 +85,29 @@ void add_player_to_list(player_t *player) {
 }
 
 /**
+ * Vrátí hráče do seznamu přihlášených klientů po obnově spojení a opětovném přihlášení.
+ * 
+ * @param existing_player původní nalezené údaje odpojeného hráče
+ * @param player opětovně připojený hráč
+ */
+void return_player_to_list(player_t *existing_player, player_t *player) {
+    if (player == NULL || existing_player == NULL) {
+        return;
+    }
+    
+    // obnova předchozích údajů
+    player->nick = existing_player->nick;
+    player->id = existing_player->id;
+    player->total_score = existing_player->total_score;
+    player->current_game_score = existing_player->current_game_score;
+    player->current_game_index = existing_player->current_game_index;
+    player->current_game = existing_player->current_game;
+    
+    // nahrazení staré struktury v seznamu a její odstranění
+    replace_element(g_player_list->list, existing_player, player);
+}
+
+/**
  * Získá hráče ze seznamu podle ID.
  * 
  * @param id ID hráče

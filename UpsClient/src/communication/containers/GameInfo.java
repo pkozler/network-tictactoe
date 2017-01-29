@@ -9,7 +9,7 @@ package communication.containers;
 public class GameInfo implements Comparable<GameInfo> {
     
     /**
-     * ID hry
+     * klíč - ID hry
      */
     public final int ID;
     
@@ -110,8 +110,10 @@ public class GameInfo implements Comparable<GameInfo> {
      */
     @Override
     public String toString() {
-            return String.format("<html>%d: %s<br/>pole %d*%d - hraje se na %d<br/>hráčů v místnosti: %d/%d</html>", 
-                            ID, NAME, BOARD_SIZE, BOARD_SIZE, CELL_COUNT, playerCounter, PLAYER_COUNT);
+            return String.format("<html>%d: %s<br />velikost pole: %dx%d<br />hra na %d políček"
+                    + "<br />hráčů v místnosti: %d/%d<br />stav: %s<br /></html>", 
+                            ID, NAME, BOARD_SIZE, BOARD_SIZE, CELL_COUNT, playerCounter, PLAYER_COUNT,
+                            playerCounter < PLAYER_COUNT ? "volno" : "obsazeno");
     }
 
     /**

@@ -11,8 +11,8 @@
 #include <stdbool.h>
 
 /**
- * Označí přítomné hráče jako hrající v aktuálním kole
- * a nastaví prvního hráče na tahu.
+ * Nastaví prvního přítomného hráče jako táhnoucího
+ * při zahájení nového kola.
  */
 void set_players_as_playing(game_t *game) {
     game->current_player_on_turn = 0;
@@ -25,6 +25,8 @@ void set_players_as_playing(game_t *game) {
         
         if (game->current_player_on_turn == 0) {
             game->current_player_on_turn = i + 1;
+            
+            break;
         }
     }
 }
@@ -110,17 +112,62 @@ void set_player_on_turn(game_t *game) {
 void add_player_to_game(game_t *game, player_t *player) {
     int8_t i = 0;
     for (i = 0; i < game->player_count; i++) {
+        // nalezen volný slot pro hráče
         if (game->players[i] == NULL) {
+            // nastavení herních údajů do struktury hráče
             player->current_game_index = i + 1;
             player->current_game_score = 0;
             player->current_game = game;
             
+            // uložení hráče do seznamu hrajících
             game->players[i] = player;
             game->player_counter++;
             
             return;
         }
     }
+}
+
+/**
+ * Vrátí hráče do místnosti po obnově spojení a opětovném přihlášení.
+ * 
+ * @param player hráč
+ */
+void return_player_to_game(player_t *player) {
+    game_t *game = player->current_game;
+    
+    if (game == NULL) {
+        return;
+    }
+    
+    int8_t i = player->current_game_index - 1;
+    
+    // předchozí index hráče dosud neobsazen - uložení na stejnou pozici
+    if (game->players[i] == NULL) {
+        game->players[i] = player;
+        game->player_counter++;
+        
+        return;
+    }
+    
+    // dosavadní index obsazen - hledání jiné volné pozice
+    for (i = 0; i < game->player_count; i++) {
+        // nalezen volný slot pro hráče
+        if (game->players[i] == NULL) {
+            // nastavení nového indexu
+            player->current_game_index = i + 1;
+            
+            game->players[i] = player;
+            game->player_counter++;
+
+            return;
+        }
+    }
+    
+    // nelze vrátit do hry - odstranění údajů ve struktuře hráče
+    player->current_game = NULL;
+    player->current_game_index = 0;
+    player->current_game_score = 0;
 }
 
 /**
@@ -158,29 +205,22 @@ void remove_player_from_game(player_t *player) {
     int8_t i;
     for (i = 0; i < game->player_count; i++) {
         if (game->players[i] == player) {
-            int8_t player_index = player->current_game_index;
-            
-            game->players[i] = NULL;
             game->player_counter--;
             
             // v místnosti nezbyl žádný hráč - místnost zanikne
             if (game->player_counter < 1) {
                 game->played = false;
-                
-                return;
             }
-            
             // v místnosti zbyl jediný hráč - aktuální kolo skončí remízou
-            if (game->player_counter == 1) {
+            else if (game->player_counter == 1) {
                 set_round_as_finished(game, 0);
-                
-                return;
             }
-            
             // odebraný hráč byl právě na tahu - táhnout bude následující hráč
-            if (game->current_player_on_turn == player_index) {
+            else if (game->current_player_on_turn == game->players[i]->current_game_index) {
                 set_player_on_turn(game);
             }
+            
+            game->players[i] = NULL;
             
             return;
         }

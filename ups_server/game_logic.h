@@ -11,6 +11,7 @@
 
 void start_next_round(game_t *game);
 void add_player_to_game(game_t *game, player_t *player);
+void return_player_to_game(player_t *player);
 void remove_player_from_game(player_t *player);
 void play(game_t *game, int8_t player_pos, int8_t x, int8_t y);
 

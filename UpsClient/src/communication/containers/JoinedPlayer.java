@@ -9,7 +9,7 @@ package communication.containers;
 public class JoinedPlayer implements Comparable<JoinedPlayer> {
     
     /**
-     * ID hráče
+     * klíč - ID hráče
      */
     private int id;
     
@@ -109,7 +109,7 @@ public class JoinedPlayer implements Comparable<JoinedPlayer> {
             return false;
         }
         final JoinedPlayer other = (JoinedPlayer) obj;
-        if (this.currentGameIndex != other.currentGameIndex) {
+        if (this.id != other.id) {
             return false;
         }
         return true;

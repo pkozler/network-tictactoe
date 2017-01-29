@@ -72,7 +72,7 @@ public class CreateGameResponseParser extends AResponseParser {
             return getResponseError();
         }
         
-        CLIENT.setCurrentGameId(newGameId);
+        CLIENT.joinGame(newGameId);
         
         return String.format("Hráč vytvořil herní místnost s ID %d, název místnosti: \"%s\"",
                 newGameId, builder.NAME);

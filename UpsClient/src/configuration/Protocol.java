@@ -83,7 +83,7 @@ public final class Protocol {
     public static final ServerMessageType MSG_PLAYER_LIST = new ServerMessageType(
             "player-list", true); // typ zprávy: změna v seznamu hráčů
     public static final ServerMessageType MSG_PLAYER_LIST_ITEM = new ServerMessageType(
-            "player-item", 3); // typ zprávy: položka seznamu hráčů
+            "player-item", 4); // typ zprávy: položka seznamu hráčů
     public static final ServerMessageType MSG_GAME_LIST = new ServerMessageType(
             "game-list", true); // typ zprávy: změna v seznamu her
     public static final ServerMessageType MSG_GAME_LIST_ITEM = new ServerMessageType(

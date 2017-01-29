@@ -22,15 +22,17 @@
  * @return řetězec políček herního pole
  */
 char *build_board_string(game_t *game) {
-    int32_t board_str_len = game->board_size * game->board_size * BOARD_CELL_SEED_SIZE + 1;
+    int32_t board_str_len = ((int32_t) game->board_size) * ((int32_t) game->board_size) * BOARD_CELL_SEED_SIZE + 1;
+
     char *board_str = (char *) malloc(sizeof(char) * board_str_len);
+    board_str[0] = '\0';
     char buf[BOARD_CELL_SEED_SIZE + 1];
     
     int32_t i, j;
     for (i = 0; i < game->board_size; i++) {
         for (j = 0; j < game->board_size; j++) {
             int8_t cell = game->board[i][j];
-            snprintf(buf, BOARD_CELL_SEED_SIZE + 1, "%d", cell);
+            snprintf(buf, BOARD_CELL_SEED_SIZE + 1, "%hhd", cell);
             strncat(board_str, buf, BOARD_CELL_SEED_SIZE + 1);
         }
     }

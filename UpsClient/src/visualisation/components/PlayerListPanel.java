@@ -41,11 +41,6 @@ public class PlayerListPanel extends JPanel implements Observer {
     private final JList<PlayerInfo> PLAYER_LIST_VIEW;
     
     /**
-     * model seznamu hráčů
-     */
-    //private final PlayerListModel PLAYER_LIST_MODEL;
-    
-    /**
      * popisek stavu přihlášení hráče
      */
     private final JLabel PLAYER_LABEL;
@@ -82,7 +77,6 @@ public class PlayerListPanel extends JPanel implements Observer {
         PLAYER_LIST_VIEW.setCellRenderer(getRenderer());
         
         JPanel listPanel = new JPanel(new BorderLayout());
-        listPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         listPanel.add(PLAYER_LIST_VIEW, BorderLayout.CENTER);
         
         PLAYER_LABEL = new JLabel("Hráč nepřihlášen");
@@ -94,6 +88,7 @@ public class PlayerListPanel extends JPanel implements Observer {
         buttonPanel.add(LOGOUT_BUTTON);
         
         JPanel labelPanel = new JPanel(new FlowLayout());
+        labelPanel.setBorder(BorderFactory.createEtchedBorder());
         labelPanel.add(PLAYER_LABEL);
         
         add(labelPanel, BorderLayout.NORTH);
@@ -111,8 +106,15 @@ public class PlayerListPanel extends JPanel implements Observer {
             public Component getListCellRendererComponent(JList<?> list,
                     Object value, int index, boolean isSelected,
                     boolean cellHasFocus) {
-                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);
-                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                PlayerInfo playerInfo = ((PlayerInfo) value);
+                
+                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(
+                        list, value, index, isSelected,cellHasFocus);
+                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(
+                        0, 0, 1, 0, Color.GRAY));
+                listCellRendererComponent.setForeground(
+                        playerInfo.isConnected() ? Color.BLACK : Color.LIGHT_GRAY);
+                
                 return listCellRendererComponent;
             }
             
@@ -189,15 +191,12 @@ public class PlayerListPanel extends JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
-        final TcpClient client = (TcpClient) o;
+        TcpClient client = (TcpClient) o;
         ArrayList<PlayerInfo> playerList = client.getPlayerList();
-        
-        if (playerList == null) {
-            playerList = new ArrayList<>();
-        }
-        
-        final PlayerListModel playerListModel = new PlayerListModel();
-        playerListModel.setListWithSorting(playerList);
+        int playerId = client.getCurrentPlayerId();
+        final PlayerListModel playerListModel = new PlayerListModel(playerList, playerId);
+        final PlayerInfo playerInfo = playerListModel.getCurrent();
+        final boolean connected = client.isConnected();
         
         SwingUtilities.invokeLater(new Runnable() {
             
@@ -205,19 +204,19 @@ public class PlayerListPanel extends JPanel implements Observer {
             public void run() {
                 PLAYER_LIST_VIEW.setModel(playerListModel);
 
-                if (client.isConnected() && client.hasPlayerInfo()) {
+                if (playerInfo != null) {
                     PLAYER_LABEL.setText(String.format(
                         "<html>Přihlášen jako:<br />%s (ID %d)</html>",
-                        client.getPlayerInfo().NICK, client.getPlayerInfo().ID));
+                        playerInfo.NICK, playerInfo.ID));
                 }
                 else {
                     PLAYER_LABEL.setText("Nepřihlášen");
                 }
 
-                setButtons(client.isConnected(), client.hasPlayerInfo());
+                setButtons(connected, playerInfo != null);
             }
             
         });
     }
-
+    
 }

@@ -14,12 +14,15 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import communication.containers.CurrentGameDetail;
+import communication.containers.GameBoard;
+import communication.containers.JoinedPlayer;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.SwingUtilities;
 import visualisation.components.game.BoardPanel;
 import visualisation.components.game.JoinedPlayerListPanel;
 import visualisation.components.game.EventTextPanel;
+import visualisation.listmodels.JoinedPlayerListModel;
 
 /**
  * Třída CurrentGamePanel představuje panel pro zobrazení stavu aktuální
@@ -90,7 +93,7 @@ public class CurrentGamePanel extends JPanel implements Observer {
         add(BOARD_PANEL, BorderLayout.CENTER);
         
         setListeners();
-        setButtons(false, false, false, false);
+        setButtons(false, false);
     }
     
     /**
@@ -138,34 +141,36 @@ public class CurrentGamePanel extends JPanel implements Observer {
     /**
      * Nastaví aktivaci tlačítek.
      * 
-     * @param connected příznak připojení
-     * @param loggedIn příznak přihlášení
      * @param inGame příznak přítomnosti ve hře
      * @param roundFinished příznak dohrání aktuálního kola hry
      */
-    public void setButtons(boolean connected, boolean loggedIn, boolean inGame,
-            boolean roundFinished) {
-        LEAVE_GAME_BUTTON.setEnabled(connected && loggedIn && inGame);
-        START_GAME_BUTTON.setEnabled(connected && loggedIn && inGame && roundFinished);
+    public void setButtons(boolean inGame, boolean roundFinished) {
+        LEAVE_GAME_BUTTON.setEnabled(inGame);
+        START_GAME_BUTTON.setEnabled(roundFinished);
     }
 
     @Override
     public void update(Observable o, Object o1) {
-        final TcpClient client = (TcpClient) o;
+        TcpClient client = (TcpClient) o;
         CurrentGameDetail currentGameDetail = client.getGameDetail();
-        final CurrentGameDetail gameDetail = currentGameDetail == null ?
-                new CurrentGameDetail(null, null) : currentGameDetail;
+        int playerId = client.getCurrentPlayerId();
+        final JoinedPlayerListModel joinedPlayerListModel =
+                new JoinedPlayerListModel(currentGameDetail.JOINED_PLAYERS, playerId);
+        JoinedPlayer player = joinedPlayerListModel.getCurrent();
+        final byte playerIndex = player != null ?
+                player.getCurrentGameIndex() : (byte) 0;
+        final GameBoard gameBoard = currentGameDetail.GAME_BOARD;
         
         SwingUtilities.invokeLater(new Runnable() {
             
             @Override
             public void run() {
-                BOARD_PANEL.setGameDetail(gameDetail);
-                JOINED_PLAYER_LIST_PANEL.setGameDetail(gameDetail);
-                LAST_EVENT_TEXT_PANEL.setGameDetail(gameDetail);
+                BOARD_PANEL.setGameDetail(gameBoard, playerIndex);
+                JOINED_PLAYER_LIST_PANEL.setGameDetail(gameBoard, joinedPlayerListModel);
+                LAST_EVENT_TEXT_PANEL.setGameDetail(gameBoard, joinedPlayerListModel, playerIndex);
 
-                setButtons(client.isConnected(), client.hasPlayerInfo(), client.hasGameInfo(),
-                        gameDetail.GAME_BOARD != null && gameDetail.GAME_BOARD.isRoundFinished());
+                setButtons(gameBoard != null, gameBoard != null
+                        && gameBoard.isRoundFinished());
             }
             
         });

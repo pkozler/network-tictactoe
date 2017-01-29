@@ -278,8 +278,8 @@ bool send_message(message_t *msg, client_socket_t *socket) {
         for (i = 0; i < msg->argc; i++) {
             str_len += (1 + strlen(msg->argv[i]));
         }
-        
         str_len++;
+        
         msg_str = (char *) malloc(sizeof(char) * (str_len));
         msg_str[0] = '\0';
         strncat(msg_str, msg->type, str_len);

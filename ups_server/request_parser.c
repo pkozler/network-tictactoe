@@ -68,19 +68,54 @@ message_t *handle_login_request(message_t *message, player_t *player) {
         return create_err_message(message, MSG_ERR_INVALID_NAME, player);
     }
     
-    // existující nick
     lock_player_list();
-    
-    if (get_player_by_name(nick) != NULL) {
+    player_t *existing_player = get_player_by_name(nick);
+
+    // hráč se zadaným nickem existuje a je momentálně připojen
+    if (existing_player != NULL && existing_player->socket->connected) {
         unlock_player_list();
-        
+
         return create_err_message(message, MSG_ERR_EXISTING_NAME, player);
     }
     
     player->nick = nick;
-    add_player_to_list(player);
-    set_player_list_changed(true);
-    unlock_player_list();
+    
+    // hráč je nový
+    if (existing_player == NULL) {
+        // přidání do seznamu přihlášených s přidělením ID
+        add_player_to_list(player);
+        set_player_list_changed(true);
+        unlock_player_list();
+    }
+    // hráč byl přihlášen a právě obnovil přerušené spojení
+    else {
+        // navrácení do seznamu s obnovou předchozích údajů
+        return_player_to_list(existing_player, player);
+        set_player_list_changed(true);
+        unlock_player_list();
+        
+        game_t *last_game = player->current_game;
+        
+        // pokus o návrat do předchozí herní místnosti
+        if (last_game != NULL) {
+            lock_game(last_game);
+            return_player_to_game(player);
+            
+            // návrat neúspěšný (místnost obsadili jiní hráči)
+            if (player->current_game == NULL) {
+                unlock_game(last_game);
+            }
+            // návrat úspěšný
+            else {
+                set_game_changed(last_game, true);
+                unlock_game(last_game);
+                
+                lock_game_list();
+                set_game_list_changed(true);
+                unlock_game_list();
+            }
+        }
+    }
     
     message_t *new_message = create_message(message->type, MSG_LOGIN_CLIENT_ID_ARGC);
     put_string_arg(new_message, MSG_TRUE);
@@ -111,6 +146,7 @@ message_t *handle_logout_request(message_t *message, player_t *player) {
     
     unlock_player_list();
     
+    // vystoupení z aktuální herní místnosti
     if (is_player_in_game_room(player)) {
         lock_game(player->current_game);
         
@@ -119,8 +155,13 @@ message_t *handle_logout_request(message_t *message, player_t *player) {
         
         set_game_changed(game, true);
         unlock_game(game);
+        
+        lock_game_list();
+        set_game_list_changed(true);
+        unlock_game_list();
     }
     
+    // odstranění ze seznamu přihlášených
     lock_player_list();
     remove_player_by_id(player->id);
     set_player_list_changed(true);
@@ -281,8 +322,10 @@ message_t *handle_leave_game_request(message_t *message, player_t *player) {
     }
     
     lock_game(player->current_game);
+    
     game_t *game = player->current_game;
     remove_player_from_game(player);
+    
     set_game_changed(game, true);
     unlock_game(game);
     

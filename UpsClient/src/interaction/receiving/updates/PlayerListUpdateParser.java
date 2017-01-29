@@ -65,7 +65,8 @@ public class PlayerListUpdateParser extends AUpdateParser {
         int id = itemMessage.getNextIntArg(1);
         String nick = itemMessage.getNextArg();
         int totalScore = itemMessage.getNextIntArg(0);
-        PLAYER_LIST.add(new PlayerInfo(id, nick, totalScore));
+        boolean connected = itemMessage.getNextBoolArg();
+        PLAYER_LIST.add(new PlayerInfo(id, nick, totalScore, connected));
     }
 
     /**

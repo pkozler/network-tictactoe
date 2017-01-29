@@ -64,7 +64,7 @@
 #define MSG_PLAYER_LIST "player-list" // typ zprávy: změna v seznamu hráčů
 #define MSG_PLAYER_LIST_ARGC 1 // počet argumentů: změna v seznamu hráčů
 #define MSG_PLAYER_LIST_ITEM "player-item" // typ zprávy: položka seznamu hráčů
-#define MSG_PLAYER_LIST_ITEM_ARGC 3 // počet argumentů: položka seznamu hráčů
+#define MSG_PLAYER_LIST_ITEM_ARGC 4 // počet argumentů: položka seznamu hráčů
 #define MSG_GAME_LIST "game-list" // typ zprávy: změna v seznamu her
 #define MSG_GAME_LIST_ARGC 1 // počet argumentů: změna v seznamu her
 #define MSG_GAME_LIST_ITEM "game-item" // typ zprávy: položka seznamu her

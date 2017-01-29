@@ -51,7 +51,7 @@ public class LeaveGameResponseParser extends AResponseParser {
             return getResponseError();
         }
         
-        CLIENT.setCurrentGameId(0);
+        CLIENT.leaveGame();
         
         return String.format("Hráč opustil herní místnost");
     }

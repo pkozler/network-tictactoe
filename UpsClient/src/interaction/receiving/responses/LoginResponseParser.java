@@ -55,7 +55,7 @@ public class LoginResponseParser extends AResponseParser {
             return getResponseError();
         }
         
-        CLIENT.setCurrentPlayerId(playerId);
+        CLIENT.logIn(playerId);
         
         return String.format("Hráč byl přihlášen k serveru pod id %d, nickname hráče: \"%s\"",
                 playerId, builder.NICKNAME);

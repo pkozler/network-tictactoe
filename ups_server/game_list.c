@@ -140,7 +140,6 @@ game_t *remove_game_by_id(int32_t id) {
 
         if (current_game->id == id) {
             remove_last_element(iterator);
-            current_game->id = 0;
             
             return current_game;
         }

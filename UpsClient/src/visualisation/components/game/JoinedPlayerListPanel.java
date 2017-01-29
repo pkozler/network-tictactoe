@@ -1,16 +1,11 @@
 package visualisation.components.game;
 
-import communication.containers.CurrentGameDetail;
 import communication.containers.GameBoard;
 import communication.containers.JoinedPlayer;
-import communication.containers.PlayerInfo;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -46,11 +41,6 @@ public class JoinedPlayerListPanel extends JPanel {
      * seznam zpráv v herní místnosti
      */
     private final JList<JoinedPlayer> JOINED_PLAYER_LIST_VIEW;
-    
-    /**
-     * hráči v herní místnosti
-     */
-    public ArrayList<JoinedPlayer> joinedPlayers;
     
     /**
      * herní pole
@@ -100,9 +90,12 @@ public class JoinedPlayerListPanel extends JPanel {
                 byte playerItemIndex = ((JoinedPlayer) value).getCurrentGameIndex();
                 Icon playerIcon = PLAYER_ICONS[playerItemIndex - (byte) 1];
                 
-                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                listCellRendererComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE));
-                listCellRendererComponent.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+                listCellRendererComponent.setFont(
+                        new Font(Font.MONOSPACED, Font.BOLD, FONT_SIZE));
+                listCellRendererComponent.setBorder(BorderFactory.createEmptyBorder(
+                        5, 5, 5, 5));
                 
                 JPanel panel = new IconPanel(playerIcon, FONT_SIZE);
                 panel.add(listCellRendererComponent);
@@ -120,16 +113,15 @@ public class JoinedPlayerListPanel extends JPanel {
     /**
      * Nastaví herní pole místnosti, v níž se klient momentálně nachází.
      * 
-     * @param gameDetail detail herní místnosti
+     * @param gameBoard herní pole
+     * @param joinedPlayerListModel model seznamu přítomných hráčů
      */
-    public void setGameDetail(CurrentGameDetail gameDetail) {
-        this.gameBoard = gameDetail.GAME_BOARD;
-        this.joinedPlayers = gameDetail.JOINED_PLAYERS;
-        this.currentPlayingIndex = gameBoard == null ? (byte) 0 :
-                gameBoard.getCurrentPlaying();
+    public void setGameDetail(GameBoard gameBoard,
+            JoinedPlayerListModel joinedPlayerListModel) {
+        this.gameBoard = gameBoard;
+        this.currentPlayingIndex = gameBoard != null ?
+                gameBoard.getCurrentPlaying() : (byte) 0;
         
-        JoinedPlayerListModel joinedPlayerListModel = new JoinedPlayerListModel();
-        joinedPlayerListModel.setListWithSorting(joinedPlayers);
         JOINED_PLAYER_LIST_VIEW.setModel(joinedPlayerListModel);
     }
     

@@ -51,7 +51,7 @@ public class LogoutResponseParser extends AResponseParser {
             return getResponseError();
         }
         
-        CLIENT.setCurrentPlayerId(0);
+        CLIENT.logOut();
         
         return "Hráč byl odhlášen ze serveru";
     }

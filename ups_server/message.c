@@ -159,8 +159,9 @@ message_t *create_message(char *msg_type, int32_t msg_argc) {
  * @param msg alokovaná struktura zprávy
  */
 void delete_message(message_t *msg) {
-    int32_t i;
+    free(msg->type);
     
+    int32_t i;
     for (i = 0; i < msg->argc; i++) {
         free(msg->argv[i]);
     }
