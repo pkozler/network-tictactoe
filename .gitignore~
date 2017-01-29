@@ -1,8 +1,6 @@
 Kozler_A13B0359P/**
-ups_server_OLD/**
-UpsClient_OLD/**
-poznámky/**
 UPS_ZK/**
+poznámky/**
 /UpcClientDemo/nbproject/private/
 /UpcClientDemo/build/
 /ups_server_demo/build/
@@ -11,4 +9,3 @@ UPS_ZK/**
 /UpsClient/build/
 /ups_server/dist/
 /UpsClient/dist/
-/TextPaneExample/nbproject/private/
