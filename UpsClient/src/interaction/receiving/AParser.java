@@ -33,7 +33,7 @@ public abstract class AParser {
     }
     
     /**
-     * Vrátí výsledek zpracování a aktualizuje stav GUI.
+     * Vrátí výsledek zpracování a aktualizuje stav klienta.
      * 
      * @return výsledek zpracování
      */

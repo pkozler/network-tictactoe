@@ -1,6 +1,5 @@
 /* 
- * Modul message_list definuje funkce pro vytvoření a odstranění seznamu zpráv
- * a vkládání položek.
+ * Modul message_list definuje funkce pro vytvoření a odstranění seznamu zpráv.
  * 
  * Author: Petr Kozler
  */

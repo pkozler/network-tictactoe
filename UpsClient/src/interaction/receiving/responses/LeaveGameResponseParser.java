@@ -19,6 +19,9 @@ import interaction.sending.requests.LeaveGameRequestBuilder;
  */
 public class LeaveGameResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected LeaveGameRequestBuilder builder;
     
     /**
@@ -56,6 +59,11 @@ public class LeaveGameResponseParser extends AResponseParser {
         return String.format("Hráč opustil herní místnost");
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu v seznamu her.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
@@ -65,6 +73,13 @@ public class LeaveGameResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu v seznamu her.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

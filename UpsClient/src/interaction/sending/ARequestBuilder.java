@@ -11,7 +11,7 @@ import communication.Message;
 public abstract class ARequestBuilder {
     
     /**
-     * zpráva
+     * požadavek klienta
      */
     protected Message message;
     

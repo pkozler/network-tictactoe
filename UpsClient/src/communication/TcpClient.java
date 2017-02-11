@@ -26,6 +26,9 @@ import java.util.Observable;
  */
 public class TcpClient extends Observable {
 
+    /**
+     * logger
+     */
     private final Logger LOGGER = Logger.getInstance();
     
     /**
@@ -68,10 +71,19 @@ public class TcpClient extends Observable {
      */
     private int lastGameId;
     
+    /**
+     * seznam přihlášených hráčů
+     */
     private ArrayList<PlayerInfo> playerList;
     
+    /**
+     * seznam herních místností
+     */
     private ArrayList<GameInfo> gameList;
     
+    /**
+     * přepravka stavu aktuálně zvolené herní místnosti
+     */
     private CurrentGameDetail gameDetail;
 
     /**
@@ -147,21 +159,39 @@ public class TcpClient extends Observable {
         return socket != null && !socket.isClosed();
     }
     
+    /**
+     * Uloží ID hráče po přihlášení.
+     * 
+     * @param playerId ID hráče
+     */
     public void logIn(int playerId) {
         this.playerId = playerId < 0 ? 0 : playerId;
         
         refresh();
     }
     
+    /**
+     * Odstraní ID hráče po odhlášení.
+     */
     public void logOut() {
         clear(true, false, false, false);
         refresh();
     }
 
+    /**
+     * Vrátí aktuální ID hráče.
+     * 
+     * @return ID hráče
+     */
     public int getCurrentPlayerId() {
         return playerId;
     }
 
+    /**
+     * Uloží ID hry po založení nebo zvolení herní místnosti.
+     * 
+     * @param gameId ID hry
+     */
     public void joinGame(int gameId) {
         this.gameId = gameId < 0 ? 0 : gameId;
         lastGameId = this.gameId;
@@ -169,15 +199,28 @@ public class TcpClient extends Observable {
         refresh();
     }
     
+    /**
+     * Odstraní ID hry po opuštění herní místnosti.
+     */
     public void leaveGame() {
         clear(true, true, false, false);
         refresh();
     }
 
+    /**
+     * Vrátí aktuální ID hry.
+     * 
+     * @return ID hry
+     */
     public int getCurrentGameId() {
         return gameId;
     }
 
+    /**
+     * Nastaví seznam přihlášených hráčů.
+     * 
+     * @param playerList seznam přihlášených hráčů
+     */
     public void setPlayerList(ArrayList<PlayerInfo> playerList) {
         this.playerList = playerList != null ? playerList
                 : new ArrayList<PlayerInfo>();
@@ -185,10 +228,20 @@ public class TcpClient extends Observable {
         refresh();
     }
 
+    /**
+     * Vrátí seznam přihlášených hráčů.
+     * 
+     * @return seznam přihlášených hráčů
+     */
     public ArrayList<PlayerInfo> getPlayerList() {
         return playerList;
     }
 
+    /**
+     * Nastaví seznam herních místností.
+     * 
+     * @param gameList seznam herních místností
+     */
     public void setGameList(ArrayList<GameInfo> gameList) {
         this.gameList = gameList != null ? gameList
                 : new ArrayList<GameInfo>();
@@ -196,10 +249,20 @@ public class TcpClient extends Observable {
         refresh();
     }
 
+    /**
+     * Vrátí seznam herních místností.
+     * 
+     * @return seznam herních místností
+     */
     public ArrayList<GameInfo> getGameList() {
         return gameList;
     }
 
+    /**
+     * Nastaví přepravku stavu aktuálně zvolené herní místnosti.
+     * 
+     * @param gameDetail přepravka stavu aktuálně zvolené herní místnosti
+     */
     public void setGameDetail(CurrentGameDetail gameDetail) {
         if (gameDetail != null) {
             this.gameDetail = gameDetail;
@@ -213,6 +276,11 @@ public class TcpClient extends Observable {
         refresh();
     }
     
+    /**
+     * Vrátí přepravku stavu aktuálně zvolené herní místnosti.
+     * 
+     * @return přepravka stavu aktuálně zvolené herní místnosti
+     */
     public CurrentGameDetail getGameDetail() {
         return gameDetail;
     }
@@ -293,6 +361,16 @@ public class TcpClient extends Observable {
         return new String(bytes, StandardCharsets.US_ASCII);
     }
     
+    /**
+     * Vynuluje příslušné uložené údaje o stavu klienta v případě
+     * ukončení spojení (vynulování všeho), odhlášení (zachování pouze seznamů)
+     * nebo opuštění herní místnosti (zachování seznamů a ID hráče).
+     * 
+     * @param keepLists příznak zachování seznamu hráčů a seznamu her
+     * @param keepPlayer příznak zachování přiděleného ID přihlášeného hráče
+     * @param keepGame příznak zachování ID aktuální herní místnosti
+     * @param keepLastGameId příznak zachování ID minulé herní místnosti
+     */
     private void clear(boolean keepLists, boolean keepPlayer,
             boolean keepGame, boolean keepLastGameId) {
         if (!keepLastGameId) {
@@ -320,6 +398,10 @@ public class TcpClient extends Observable {
         playerList = new ArrayList<>();
     }
     
+    /**
+     * Upozorní zaregistrované pozorovatele za účelem obnovení stavu
+     * komponent GUI.
+     */
     private void refresh() {
         setChanged();
         notifyObservers();

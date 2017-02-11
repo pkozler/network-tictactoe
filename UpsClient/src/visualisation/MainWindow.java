@@ -59,10 +59,6 @@ public class MainWindow extends JFrame {
      */
     private final CurrentGamePanel CURRENT_GAME_PANEL;
     
-    private final RequestResponseHandler REQUEST_RESPONSE_HANDLER;
-    
-    private final ListUpdateHandler LIST_UPDATE_HANDLER;
-    
     /**
      * Vytvoří hlavní okno.
      * 
@@ -79,25 +75,28 @@ public class MainWindow extends JFrame {
         contentPane.setLayout(new BorderLayout(0, 0));
         
         CLIENT = client;
+        
+        // vytvoření komponent GUI a objektů pro odesílání a příjem zpráv
         STATUS_PANEL = new StatusBarPanel();
-        REQUEST_RESPONSE_HANDLER = new RequestResponseHandler(CLIENT);
+        RequestResponseHandler requestResponseHandler = new RequestResponseHandler(CLIENT);
         MessageBackgroundSender messageBackgroundSender = new MessageBackgroundSender(
-                CLIENT, STATUS_PANEL, REQUEST_RESPONSE_HANDLER);
+                CLIENT, STATUS_PANEL, requestResponseHandler);
         CURRENT_GAME_PANEL = new CurrentGamePanel(messageBackgroundSender);
         GAME_LIST_PANEL = new GameListPanel(messageBackgroundSender);
         PLAYER_LIST_PANEL = new PlayerListPanel(messageBackgroundSender);
-        LIST_UPDATE_HANDLER = new ListUpdateHandler(CLIENT);
+        ListUpdateHandler listUpdateHandler = new ListUpdateHandler(CLIENT);
         MessageBackgroundReceiver messageBackgroundReceiver = new MessageBackgroundReceiver(CLIENT,
-                STATUS_PANEL, REQUEST_RESPONSE_HANDLER, LIST_UPDATE_HANDLER);
-        
+                STATUS_PANEL, requestResponseHandler, listUpdateHandler);
         CONNECTION_PANEL = new ConnectionBarPanel(CLIENT, messageBackgroundSender,
                 messageBackgroundReceiver, STATUS_PANEL);
         
+        // zaregistrování komponent GUI jako pozorovatelů objektu klienta
         CLIENT.addObserver(CONNECTION_PANEL);
         CLIENT.addObserver(PLAYER_LIST_PANEL);
         CLIENT.addObserver(GAME_LIST_PANEL);
         CLIENT.addObserver(CURRENT_GAME_PANEL);
         
+        // vložení komponent GUI do hlavního okna
         contentPane.add(CURRENT_GAME_PANEL, BorderLayout.CENTER);
         contentPane.add(STATUS_PANEL, BorderLayout.SOUTH);
         contentPane.add(PLAYER_LIST_PANEL, BorderLayout.EAST);

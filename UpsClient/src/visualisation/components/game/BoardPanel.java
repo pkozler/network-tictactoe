@@ -93,21 +93,6 @@ public class BoardPanel extends JPanel {
     public BoardPanel(MessageBackgroundSender messageBackgroundSender) {
         MESSAGE_SENDER = messageBackgroundSender;
         setListeners();
-        
-        // TESTOVÁNÍ GRAFIKY
-        /*Random r = new Random(0);
-        
-        byte boardSize = 10;
-        byte[][] board = new byte[boardSize][boardSize];
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                board[i][j] = (byte) r.nextInt(5);
-            }
-        }
-        
-        gameBoard = new GameBoard((byte) 0, (byte) boardSize, 0, true, (byte) 0, (byte) 0,
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) (boardSize - 1), (byte) (boardSize - 1), 
-                board);*/
     }
     
     /**

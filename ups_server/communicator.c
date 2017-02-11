@@ -1,5 +1,5 @@
 /* 
- * Modul communicator definuje funkce pro komunikace serveru s klienty.
+ * Modul communicator definuje funkce pro komunikaci serveru s klienty.
  * 
  * Author: Petr Kozler
  */
@@ -197,7 +197,7 @@ bool write_to_socket(char *msg_str, client_socket_t *socket) {
 }
 
 /**
- * Přijme zprávu od klienta se zadaným číslem socketu a převede ji z textové formy
+ * Přijme zprávu od klienta s předaným socketem a převede ji z textové formy
  * do formy struktury určené pro další zpracování v programu, kterou předá
  * volající funkci v návratové hodnotě. V případě zjištění neplatné zprávy vrací
  * hodnotu NULL.
@@ -259,6 +259,12 @@ message_t *receive_message(client_socket_t *socket) {
     return message;
 }
 
+/**
+ * Provede převod zprávy určené k odeslání klientovi do řetězcové reprezentace.
+ * 
+ * @param msg struktura zprávy
+ * @return řetězec zprávy nebo null v případě neplatné zprávy
+ */
 char *build_message_string(message_t *msg) {
     // zpráva má typ
     if (msg->type != NULL) {
@@ -294,6 +300,13 @@ char *build_message_string(message_t *msg) {
     return NULL;
 }
 
+/**
+ * Provede odeslání řetězcové reprezentace zprávy klientovi s předaným socketem.
+ * 
+ * @param msg_str řetězec zprávy
+ * @param socket socket klienta
+ * @return true, pokud byl přenos úspěšný, jinak false
+ */
 bool send_message_string(char *msg_str, client_socket_t *socket) {
     lock_socket(socket);
     bool success = write_to_socket(msg_str, socket);
@@ -314,7 +327,7 @@ bool send_message_string(char *msg_str, client_socket_t *socket) {
 
 /**
  * Převede zadanou zprávu z formy struktury do textové formy určené k přenosu
- * po síti a odešle ji v této podobě klientovi se zadaným číslem socketu.
+ * po síti a odešle ji v této podobě klientovi s předaným socketem.
  * 
  * @param msg odesílaná zpráva ve formě struktury
  * @param socket socket klienta - příjemce

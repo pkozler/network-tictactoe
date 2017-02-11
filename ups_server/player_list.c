@@ -85,7 +85,8 @@ void add_player_to_list(player_t *player) {
 }
 
 /**
- * Vrátí hráče do seznamu přihlášených klientů po obnově spojení a opětovném přihlášení.
+ * Vrátí hráče do seznamu přihlášených klientů po obnově spojení
+ * a opětovném přihlášení.
  * 
  * @param existing_player původní nalezené údaje odpojeného hráče
  * @param player opětovně připojený hráč

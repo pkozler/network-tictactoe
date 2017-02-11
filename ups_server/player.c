@@ -1,6 +1,6 @@
 /* 
  * Modul player definuje funkce pro vytvoření a odstranění hráče
- * a pro pozorování stavu hráče.
+ * a pro příjem požadavků hráče.
  * 
  * Author: Petr Kozler
  */
@@ -25,7 +25,7 @@
 #include <unistd.h>
 
 /**
- * Vytvoří strukturu hráče.
+ * Přijímá a zpracovává požadavky hráče.
  * 
  * @param arg struktura hráče
  * @return null

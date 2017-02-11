@@ -1,4 +1,7 @@
 /* 
+ * Modul client_socket definuje funkce pro uzamykání a odemykání
+ * přístupu k socketu klienta.
+ * 
  * Author: Petr Kozler
  */
 

@@ -99,6 +99,11 @@ public class PlayerListPanel extends JPanel implements Observer {
         setButtons(false, false);
     }
     
+    /**
+     * Vrátí renderer pro zobrazení položky seznamu.
+     * 
+     * @return renderer
+     */
     private ListCellRenderer<? super PlayerInfo> getRenderer() {
         return new DefaultListCellRenderer() {
             
@@ -189,6 +194,13 @@ public class PlayerListPanel extends JPanel implements Observer {
         LOGOUT_BUTTON.setEnabled(connected && loggedIn);
     }
 
+    /**
+     * Aktualizuje grafické komponenty pro zobrazení seznamu hráčů
+     * při změně stavu pozorovaného objektu klienta.
+     * 
+     * @param o pozorovaný objekt
+     * @param o1 předaný argument
+     */
     @Override
     public void update(Observable o, Object o1) {
         TcpClient client = (TcpClient) o;

@@ -104,6 +104,11 @@ public class GameListPanel extends JPanel implements Observer {
         setButtons(false, false);
     }
     
+    /**
+     * Vrátí renderer pro zobrazení položky seznamu.
+     * 
+     * @return renderer
+     */
     private ListCellRenderer<? super GameInfo> getRenderer() {
         return new DefaultListCellRenderer() {
             
@@ -226,6 +231,13 @@ public class GameListPanel extends JPanel implements Observer {
         JOIN_GAME_BUTTON.setEnabled(loggedIn && !inGame);
     }
 
+    /**
+     * Aktualizuje grafické komponenty pro zobrazení seznamu her
+     * při změně stavu pozorovaného objektu klienta.
+     * 
+     * @param o pozorovaný objekt
+     * @param o1 předaný argument
+     */
     @Override
     public void update(Observable o, Object o1) {
         TcpClient client = (TcpClient) o;

@@ -1,4 +1,7 @@
 /* 
+ * Hlavičkový soubor status_cleaner deklaruje funkce pro obnovu stavu serveru
+ * při odpojení klienta nebo úplném opuštění herní místnosti.
+ * 
  * Author: Petr Kozler
  */
 

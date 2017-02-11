@@ -36,8 +36,14 @@ public class MessageBackgroundReceiver implements Runnable {
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
+    /**
+     * objekt pro zpracování odpovědí na požadavky
+     */
     private final RequestResponseHandler REQUEST_RESPONSE_HANDLER;
     
+    /**
+     * objekt pro zpracování notifikací o změnách
+     */
     private final ListUpdateHandler LIST_UPDATE_HANDLER;
     
     /**
@@ -119,7 +125,7 @@ public class MessageBackgroundReceiver implements Runnable {
         final AParser parser;
         
         try {
-            // zpracování zprávy odpovídajícím parserem
+            // zpracování zprávy příslušným parserem
             parser = parseOnBackground(message);
         }
         catch (MissingListHeaderException | UnknownMessageTypeException |

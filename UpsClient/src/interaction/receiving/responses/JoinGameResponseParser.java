@@ -19,6 +19,9 @@ import interaction.sending.requests.JoinGameRequestBuilder;
  */
 public class JoinGameResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected JoinGameRequestBuilder builder;
     
     /**
@@ -56,6 +59,11 @@ public class JoinGameResponseParser extends AResponseParser {
         return String.format("Hráč vstoupil do herní místnosti s ID: %d", builder.GAME_ID);
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu v seznamu her.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_ID.KEYWORD)) {
@@ -77,6 +85,13 @@ public class JoinGameResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu v seznamu her.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

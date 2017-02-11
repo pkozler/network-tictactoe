@@ -149,6 +149,13 @@ public class CurrentGamePanel extends JPanel implements Observer {
         START_GAME_BUTTON.setEnabled(roundFinished);
     }
 
+    /**
+     * Aktualizuje grafické komponenty pro zobrazení herního pole
+     * při změně stavu pozorovaného objektu klienta.
+     * 
+     * @param o pozorovaný objekt
+     * @param o1 předaný argument
+     */
     @Override
     public void update(Observable o, Object o1) {
         TcpClient client = (TcpClient) o;

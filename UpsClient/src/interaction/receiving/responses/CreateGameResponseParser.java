@@ -19,8 +19,14 @@ import interaction.sending.requests.CreateGameRequestBuilder;
  */
 public class CreateGameResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected CreateGameRequestBuilder builder;
     
+    /**
+     * ID přiřazené k vytvořené hře
+     */
     protected int newGameId;
     
     /**
@@ -78,6 +84,11 @@ public class CreateGameResponseParser extends AResponseParser {
                 newGameId, builder.NAME);
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu v seznamu her.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_INVALID_NAME.KEYWORD)) {
@@ -103,6 +114,13 @@ public class CreateGameResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu v seznamu her.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

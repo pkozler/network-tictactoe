@@ -78,6 +78,12 @@ public class EventTextPanel extends JPanel {
         setLabels();
     }
     
+    /**
+     * Vrátí text popisku posledního hráče na tahu.
+     * 
+     * @param player hráč
+     * @return popis
+     */
     private String getLastPlayerDesc(JoinedPlayer player) {
         if (player == null) {
             return "";
@@ -92,18 +98,12 @@ public class EventTextPanel extends JPanel {
                         player.getNickname(), gameBoard.getLastCellX(), gameBoard.getLastCellY());
     }
     
-    private String getCurrentWinnerDesc(JoinedPlayer player) {
-        if (player == null) {
-            return "";
-        }
-        
-        if (player.getCurrentGameIndex() == playerIndex) {
-            return "Jste vítěz";
-        }
-        
-        return String.format("Vítězem je: %s", player.getNickname());
-    }
-    
+    /**
+     * Vrátí text popisku aktuálního hráče na tahu.
+     * 
+     * @param player hráč
+     * @return popis
+     */
     private String getCurrentPlayerDesc(JoinedPlayer player) {
         if (player == null) {
             return "";
@@ -114,6 +114,24 @@ public class EventTextPanel extends JPanel {
         }
         
         return String.format("Na řadě je: %s", player.getNickname());
+    }
+    
+    /**
+     * Vrátí text popisku vítězného hráče.
+     * 
+     * @param player hráč
+     * @return popis
+     */
+    private String getCurrentWinnerDesc(JoinedPlayer player) {
+        if (player == null) {
+            return "";
+        }
+        
+        if (player.getCurrentGameIndex() == playerIndex) {
+            return "Jste vítěz";
+        }
+        
+        return String.format("Vítězem je: %s", player.getNickname());
     }
     
     /**

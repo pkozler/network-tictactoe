@@ -19,8 +19,14 @@ import interaction.sending.requests.LoginRequestBuilder;
  */
 public class LoginResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected LoginRequestBuilder builder;
     
+    /**
+     * ID hráče obdržené po přihlášení
+     */
     protected int playerId;
     
     /**
@@ -61,6 +67,11 @@ public class LoginResponseParser extends AResponseParser {
                 playerId, builder.NICKNAME);
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu v seznamu hráčů.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_ALREADY_LOGGED.KEYWORD)) {
@@ -78,6 +89,13 @@ public class LoginResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu v seznamu hráčů.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

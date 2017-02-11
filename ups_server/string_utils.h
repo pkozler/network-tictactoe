@@ -1,5 +1,5 @@
 /* 
- * Hlavičkový soubor string_utils deklaruje pomocné funkce pro práce
+ * Hlavičkový soubor string_utils deklaruje pomocné funkce pro práci
  * s textovými řetězci.
  * 
  * Author: Petr Kozler

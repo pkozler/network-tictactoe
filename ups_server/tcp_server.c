@@ -99,6 +99,7 @@ int create_serversocket(struct sockaddr_in srv_addr) {
     timeout.tv_sec = SOCKET_TIMEOUT_SEC;
     timeout.tv_usec = 0;
 
+    // nastavení timeoutu čekání na spojení
     if (setsockopt(srv_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                 sizeof(timeout)) < 0) {
         return -1;
@@ -142,6 +143,7 @@ int accept_socket(int srv_sock) {
     socklen_t addr_len;
     addr_len = sizeof(addr);
 
+    // příjem TCP socketu
     sock = accept(srv_sock, (struct sockaddr *) &addr, &addr_len);
 
     if (sock < 0) {
@@ -152,6 +154,7 @@ int accept_socket(int srv_sock) {
     timeout.tv_sec = SOCKET_TIMEOUT_SEC;
     timeout.tv_usec = 0;
 
+    // nastavení timeoutu pro příjem zpráv
     if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                 sizeof(timeout)) < 0) {
         return -1;

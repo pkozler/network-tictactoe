@@ -19,6 +19,9 @@ import interaction.sending.requests.PlayGameRequestBuilder;
  */
 public class PlayGameResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected PlayGameRequestBuilder builder;
     
     /**
@@ -55,6 +58,11 @@ public class PlayGameResponseParser extends AResponseParser {
                 builder.X, builder.Y);
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu stavu hry.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
@@ -80,6 +88,13 @@ public class PlayGameResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu stavu hry.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

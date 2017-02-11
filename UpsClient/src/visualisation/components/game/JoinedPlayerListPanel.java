@@ -28,8 +28,14 @@ import visualisation.listmodels.JoinedPlayerListModel;
  */
 public class JoinedPlayerListPanel extends JPanel {
 
+    /**
+     * velikost písma pro popis hráče v položce seznamu
+     */
     private final int FONT_SIZE = 16;
     
+    /**
+     * ikony se symboly přiřazenými hráčům přítomným v místnosti podle pořadí
+     */
     private final Icon[] PLAYER_ICONS = new Icon[] {
         new CrossIcon(FONT_SIZE),
         new CircleIcon(FONT_SIZE),
@@ -61,17 +67,6 @@ public class JoinedPlayerListPanel extends JPanel {
         setPreferredSize(new Dimension(300, 0));
         
         JOINED_PLAYER_LIST_VIEW = new JList<>();
-        
-        // TEST
-        /*ArrayList<JoinedPlayer> list = new ArrayList<>();
-        list.add(new JoinedPlayer("Franta", (byte)1, (byte)0));
-        list.add(new JoinedPlayer("Pepa", (byte)2, (byte)0));
-        list.add(new JoinedPlayer("Venca", (byte)3, (byte)0));
-        list.add(new JoinedPlayer("Jarda", (byte)4, (byte)0));
-        JoinedPlayerListModel joinedPlayerListModel = new JoinedPlayerListModel();
-        joinedPlayerListModel.setListWithSorting(list);
-        JOINED_PLAYER_LIST_VIEW.setModel(joinedPlayerListModel);*/
-        
         JOINED_PLAYER_LIST_VIEW.setCellRenderer(getRenderer());
         JOINED_PLAYER_LIST_VIEW.setBackground(getBackground());
         JPanel listPanel = new JPanel(new BorderLayout());
@@ -80,6 +75,11 @@ public class JoinedPlayerListPanel extends JPanel {
         add(listPanel, BorderLayout.CENTER);
     }
     
+    /**
+     * Vrátí renderer pro zobrazení položky seznamu.
+     * 
+     * @return renderer
+     */
     private ListCellRenderer<? super JoinedPlayer> getRenderer() {
         return new DefaultListCellRenderer() {
             

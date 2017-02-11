@@ -19,6 +19,9 @@ import interaction.sending.requests.StartGameRequestBuilder;
  */
 public class StartGameResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected StartGameRequestBuilder builder;
     
     /**
@@ -54,6 +57,11 @@ public class StartGameResponseParser extends AResponseParser {
         return String.format("Hráč zahájil nové kolo hry");
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu stavu hry.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_IN_ROOM.KEYWORD)) {
@@ -71,6 +79,13 @@ public class StartGameResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu stavu hry.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

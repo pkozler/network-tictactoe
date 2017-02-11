@@ -1,4 +1,7 @@
 /* 
+ * Modul status_cleaner definuje funkce pro obnovu stavu serveru
+ * při odpojení klienta nebo úplném opuštění herní místnosti.
+ * 
  * Author: Petr Kozler
  */
 

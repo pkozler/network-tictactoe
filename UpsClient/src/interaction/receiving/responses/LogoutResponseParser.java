@@ -19,6 +19,9 @@ import interaction.sending.requests.LogoutRequestBuilder;
  */
 public class LogoutResponseParser extends AResponseParser {
 
+    /**
+     * požadavek
+     */
     protected LogoutRequestBuilder builder;
     
     /**
@@ -56,6 +59,11 @@ public class LogoutResponseParser extends AResponseParser {
         return "Hráč byl odhlášen ze serveru";
     }
 
+    /**
+     * Vrátí popis chyby při neplatném požadavku na změnu v seznamu hráčů.
+     * 
+     * @return popis chyby
+     */
     @Override
     public String getResponseError() {
         if (messageErrorKeyword.equals(Protocol.MSG_ERR_NOT_LOGGED.KEYWORD)) {
@@ -65,6 +73,13 @@ public class LogoutResponseParser extends AResponseParser {
         return super.getResponseError();
     }
 
+    /**
+     * Přiřadí odpovídající požadavek na změnu v seznamu hráčů.
+     * 
+     * @param builder požadavek
+     * @throws ResponseWithoutRequestException
+     * @throws WrongResponseTypeException 
+     */
     @Override
     public void assignRequest(ARequestBuilder builder)
             throws ResponseWithoutRequestException, WrongResponseTypeException {

@@ -19,7 +19,6 @@ typedef struct {
 } args_t;
 
 args_t parse_args(int argc, char** argv);
-
 void usage();
 
 #endif /* CMD_ARG_H */

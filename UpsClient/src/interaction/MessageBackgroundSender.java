@@ -22,7 +22,7 @@ public class MessageBackgroundSender implements Runnable {
     private final TcpClient CLIENT;
     
     /**
-     * fronta požadavků
+     * fronta požadavků k odeslání
      */
     private final Queue<ARequestBuilder> REQUEST_QUEUE = new LinkedList<>();
     
@@ -31,6 +31,9 @@ public class MessageBackgroundSender implements Runnable {
      */
     private final StatusBarPanel STATUS_BAR_PANEL;
     
+    /**
+     * objekt pro zpracování odpovědí na požadavky
+     */
     private final RequestResponseHandler REQUEST_RESPONSE_HANDLER;
     
     /**
@@ -70,33 +73,39 @@ public class MessageBackgroundSender implements Runnable {
     }
     
     /**
-     * Sestaví požadavek a odešle jej na server.
+     * Sestaví zprávu představující požadavek klienta a odešle ji na server.
      */
     private void handleMessageToSend() {
         if (REQUEST_QUEUE.isEmpty()) {
             return;
         }
         
+        // vyjmutí požadavku k odeslání ze začátku fronty
         final ARequestBuilder builder = REQUEST_QUEUE.poll();
 
         Message message;
         final String status;
         
         if (builder == null || builder.getMessage() == null) {
+            // vytvoření prázdné zprávy pro testování odezvy
             message = new Message();
             status = null;
         }
         else {
+            // sestavení zprávy představující požadavek
             message = builder.getMessage();
             status = builder.getStatus();
         }
         
+        // zjištění stavu připojení před pokusem o odeslání
         if (!CLIENT.isConnected()) {
             return;
         }
         
         try {
+            // odeslání sestavené zprávy na server
             CLIENT.sendMessage(message);
+            // vložení zprávy do fronty požadavků čekajících na zpracování
             REQUEST_RESPONSE_HANDLER.addPendingRequest(builder);
             
             SwingUtilities.invokeLater(new Runnable() {

@@ -7,28 +7,57 @@ import java.awt.Graphics2D;
 import javax.swing.Icon;
 
 /**
- *
+ * Třída CrossIcon představuje čtvercovou ikonu se symbolem ypsilonu
+ * pro označení obsazeného políčka a dále obsahuje statické metody
+ * pro vykreslování tohoto symbolu do políček v herním poli.
+ * 
  * @author Petr Kozler
  */
 public class YpsilonIcon implements Icon {
     
+    /**
+     * rozměr shodný pro šířku i výšku
+     */
     private final int SIZE;
     
+    /**
+     * Vytvoří ikonu se symbolem ypsilonu.
+     * 
+     * @param size rozměr
+     */
     public YpsilonIcon(int size) {
         SIZE = size;
     }
     
+    /**
+     * Vykreslí ikonu v komponentě GUI.
+     * 
+     * @param cmpnt komponenta GUI
+     * @param grphcs grafický kontext
+     * @param i souřadnice X ikony
+     * @param i1 souřadnice Y ikony
+     */
     @Override
     public void paintIcon(Component cmpnt, Graphics grphcs, int i, int i1) {
         Graphics2D g2d = (Graphics2D) grphcs;
         draw(g2d, SIZE);
     }
 
+    /**
+     * Vrátí šířku ikony.
+     * 
+     * @return šířka ikony
+     */
     @Override
     public int getIconWidth() {
         return SIZE;
     }
 
+    /**
+     * Vrátí výšku ikony.
+     * 
+     * @return výška ikony
+     */
     @Override
     public int getIconHeight() {
         return SIZE;
