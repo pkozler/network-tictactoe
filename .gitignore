@@ -1,10 +1,6 @@
-Kozler_A13B0359P/**
-/UpcClientDemo/nbproject/private/
-/UpcClientDemo/build/
-/ups_server_demo/build/
-/ups_server_demo/dist/
-/UpcClientDemo/dist/
+/UpsClient/nbproject/private/
 /UpsClient/build/
-/ups_server/dist/
 /UpsClient/dist/
-todolist.txt
+/ups_server/nbproject/private/
+/ups_server/build/
+/ups_server/dist/
